@@ -1,27 +1,230 @@
-# ChildGrowthMonitor
-Quick, accurate data on malnutrition
+[Child Growth Monitor](https://ChildGrowthMonitor.org)
+=======
 
-## Problem
+Contributing to Zero Hunger through quick, accurate data on malnutrition.
 
-Existing measurement of malnutrition remains extremely unreliable because of human error.
-* In emergency situations, such as the current crisis in South Sudan, Aid organizations often have difficulties to understand the magnitude of malnutrition, which is essential for a timely response.  
-* Nutrition Front-line workers, such as the Anganwadi worker in India, frequently fail to detect acute malnutrition due to wrong measurement or non-measurement of children. This leads to prolonged malnutrition and death of children. 
-* Also, rural mothers themselves are often not aware about the malnutrition of their children and take measures too late.
-* Even national data on malnutrition is frequently disputed due to mistrust in survey methodologies and data accuracy. 
-SMART surveys, which are best practice for localized surveys, require highly-experienced staff, and with a sample size of 400 children costs about 30.000€ and take about one month.
+Problem
+-------
+Hunger or malnutrition is not simply the lack of food, it is usually a more complex health issue.
+Parents often don't know that their children are malnurished and take measures too late. 
+Current standardized measurements done by aid organisations and governmental health workers are time consuming and expensive.
+Children are moving, accurate measurement, especially of height, is often not possible.
 
-## Solution
+Bottomline: accurate data on the nutritional status of children is unrelieble or non existent
 
-We provide a game-changer in the measurement and data processing of malnourished children. It is a fool proof solution based on a mobile app using augmented reality.
-* The mobile app scans children in 3D to determine height and weight and therefore establishes the wasting rate. This is the main indicator for detecting moderate acute malnutrition (MAM) and severe acute malnutrition (SAM). SAM children are considered at risk of death. 
-* The mobile app is simple, fast, and provides accuracy and accountability in data collection (as the scans are saved), while further data options could be added per the survey design. 
-The app can save the lives of thousands of children every year. 
-It helps aid agencies to adequately respond to emergencies, and it helps front-line workers in emergencies but also in chronic relief situations to detect malnourished children and help them better.   
-Further, this solution could be integrated in survey methodologies, MIS of health service provider, or even mobile apps for the mass market.    
-* We make it Open Source to let everyone participate
+Solution
+--------
+We are providing a game changing solution to detect malnutrition of children and we make it Open Source to let everyone participate.
 
-The Solution consists of three parts
-* Mobile App
-* Cloud Backend
-* Machine Learning System
+
+### Mobile App
+
+The mobile app provides authenticated users an interface to scan children in 3D with consent of the parents and upload all necessary data to the secure backend.
+
+Currently the App works through person detection and pose estimation and overlaying the this information of the position of 14 points on the body of the child with the 3D point cloud from the Tango API.
+
+The next iteration for the Pilot will guide the user to scan the child from the front and back as well as the hands. 
+
+#### Hardware requirements
+
+- Currently Google Project Tango Devices only
+- In Future probably all devices with ARkit/ARcore capabilities (iPhone 6s and newer, 100 million Android devices)
+
+#### Authentication
+
+Users can authenticate themselves via username and password or Google OAuth. This enables access to download the latest neural network and upload data to Firebase Storage and Database.
+
+
+#### Screens
+
+Also see this [UX Prototype](https://childgrowthmonitor.org/protoio-CGM-html/frame.html)
+
+1. Login/Register
+
+2. Register
+
+3. Camera
+  - Scan QR Code (PK - Private/Primary Key)
+
+4. Child Data
+  - Enter data of parents and child
+
+5. Camera
+  - Scan Child
+
+6. Data
+ - Enter additional Data
+ - Enter traditional Measurements
+
+7. Scan Result
+
+8. Child History / Overview
+
+**User eXperience (UX)**
+
+- Agumented Reality Userinterface guides through the scanning Process
+- Scanning with instant visual feedback
+- for the prototype the results of the scanning process will be shown only after input of the traditional measurements and only if more or less accurate?
+
+
+### Backend
+
+Backend is implemented in Google Firebase using Authentication, Database, Storage and Hosting for the Website. 
+
+#### Authentication
+
+Authentication is done via Email-address and password or Google OAuth. 
+
+#### Usermanagement
+
+Users have to be activated by admin to download the current neural networks and upload data.
+Registration can be done via mobile app or the website via Firebase Functions.
+
+#### Rights/Roles
+
+Access to data is granted after scanning the key from a letter of consent of the parents.
+
+#### Organisations
+
+not implemented for Pilot
+
+#### Database
+
+Firebase Database is used for structured data. 
+
+#### Storage
+
+Storage is used for large objects such as rgb video and maybe point clouds.
+
+
+### Machine Learning v1.0
+
+There are many possibilties for developing useful neural networks.
+
+#### Predict height of a person
+
+An accurate prediction of the height of a human is priority number one. Goal is to do an 99,9% accurate prediction, so that we can measure a child of 100cm height with an error of +/- 1mm.
+
+To reconstruct a 3d model of a child or of the skeleton is a non-trivial task using multiple point clouds of a moving child. Using a single point cloud probably won't be accurate enough.
+
+A promising approach could be to input the point clouds, probably also the device pose for camera position and rgb video into a neural networks, to do preprocessing or get the result.
+
+Helpful research has been done in
+- 3d point cloud segmentation through labeling the points
+- building a spatio-temporal graph for human pose detection
+- ... 
+
+#### Predict weight of a person
+
+Predicting the weight of a person is the secondary goal to do "traditional" standardized measurements only using a smartphone without further hardware needs.
+
+#### Classifying SAM, wasting, stunting, overweight
+
+A promising approach could be to build a classifier to identify health issues.
+Downside to this is that without traditional measurements it is not possible to verify the decisions done by the classifier. 
+
+### Current Machine Learning solution
+
+#### Human Pose Detection
+
+Video Sequence ->
+1. Body Part Detection
+2. Spatio-Temporal Graph
+3. Inference
+-> Pose Tracks
+
+
+#### Person Detection
+
+Bottom Up:
+
+1. fully convolutional Resnet-101 [He et al. 2016]
+-> Part Propability Scoremaps (heatmaps)
+aka. where are Shoulders, Knees, Wrists, Feet, ...
+
+2. Discretize Scoremaps with non-maximum suppression (NMS)
+
+TODO: Advantages of Top-Down approach?
+
+#### Pose Estimation
+
+12 joints per Person + forehead and chin are detected 
+
+Spatio-Temporal Graph G = (D, E)
+- Part Detections D
+- Spatial edges Es within one Frame
+- Temporal edges Et across frames
+	- Provides Distance Features aka euclidean distance between body parts
+
+--> Bottom Up Sparse Part Connectivity
+--> Euclidean Distance beetween Body Parts?
+
+#### People Tracking
+
+- ResNet-101
+
+
+### Machine Learning Dev Process
+
+#### Gather data
+
+Gathering the data is done via the mobile app.
+
+#### Data Preparation
+
+*   mix Data
+*   Visualize to find correlations and imbalances between underweight and not...
+*   Split in Training and Evaluation Data
+
+#### Choosing a Model
+
+#### Training
+
+y = m * x + b
+
+output = slope * input + y-intercept
+
+Training m and b
+
+m als Matrix = weights
+b als Matrix = biases
+
+#### Evaluation
+
+80% Training Data
+20% Evaluation Data
+
+#### Parameter Tuning
+
+hyperparameter
+tune initial parameters, training cycles etc.
+when is the result good enough?
+
+#### Prediction
+
+Prediction should work offline in the mobile device as well as in the cloud based machine learning system.
+
+Data
+----------
+
+Child Data
+- ID
+- boolean Consent of Parents
+- docref CoP
+- name
+- date of birth
+- month of birth
+
+Scan Data
+- reference to child
+- Date
+- GPS coordinates
+- Image ref "passport" picture
+- Age in month
+
+Scan artefacts consist of
+- reference to scan
+- RGB Video
+- 3D point clouds with timestamp and 4 floats XYZ in meters and Confidence from 0-1
+- device pose with timestamp
 

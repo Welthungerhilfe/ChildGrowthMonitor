@@ -1,10 +1,31 @@
 [Child Growth Monitor](https://ChildGrowthMonitor.org)
 =======
 
-Contributing to Zero Hunger through quick, accurate data on malnutrition.
+Zero Hunger through quick, accurate data on malnutrition.
 
-Problem
--------
+<!-- TOC depthFrom:1 depthTo:3 withLinks:1 updateOnSave:1 orderedList:0 -->
+
+- [Problem](#problem)
+- [Solution](#solution)
+	- [Mobile App](#mobile-app)
+	- [Backend](#backend)
+	- [Machine Learning v1.0](#machine-learning-v10)
+	- [Current Machine Learning solution](#current-machine-learning-solution)
+	- [Machine Learning Dev Process](#machine-learning-dev-process)
+- [Data](#data)
+	- [Child Data](#child-data)
+	- [Scan Data](#scan-data)
+	- [Scan artefacts](#scan-artefacts)
+- [Scanning Process](#scanning-process)
+	- [Top-Down approach front](#top-down-approach-front)
+	- [Scan from back](#scan-from-back)
+	- [Circular aproach](#circular-aproach)
+	- [Scan of hands](#scan-of-hands)
+
+<!-- /TOC -->
+
+## Problem
+
 Hunger or malnutrition is not simply the lack of food, it is usually a more complex health issue.
 Parents often don't know that their children are malnurished and take measures too late. 
 Current standardized measurements done by aid organisations and governmental health workers are time consuming and expensive.
@@ -12,8 +33,8 @@ Children are moving, accurate measurement, especially of height, is often not po
 
 Bottomline: accurate data on the nutritional status of children is unrelieble or non existent
 
-Solution
---------
+## Solution
+
 We are providing a game changing solution to detect malnutrition of children and we make it Open Source to let everyone participate.
 
 
@@ -73,16 +94,11 @@ Backend is implemented in Google Firebase using Authentication, Database, Storag
 
 #### Authentication
 
-Authentication is done via Email-address and password or Google OAuth. 
+Users have to be activated by admin to download the current neural networks and upload data
 
 #### Usermanagement
 
-Users have to be activated by admin to download the current neural networks and upload data.
-Registration can be done via mobile app or the website via Firebase Functions.
-
 #### Rights/Roles
-
-Access to data is granted after scanning the key from a letter of consent of the parents.
 
 #### Organisations
 
@@ -90,11 +106,8 @@ not implemented for Pilot
 
 #### Database
 
-Firebase Database is used for structured data. 
-
 #### Storage
 
-Storage is used for large objects such as rgb video and maybe point clouds.
 
 
 ### Machine Learning v1.0
@@ -148,7 +161,7 @@ TODO: Advantages of Top-Down approach?
 
 #### Pose Estimation
 
-12 joints per Person + forehead and chin are detected 
+17 Joints per Person?
 
 Spatio-Temporal Graph G = (D, E)
 - Part Detections D
@@ -204,10 +217,9 @@ when is the result good enough?
 
 Prediction should work offline in the mobile device as well as in the cloud based machine learning system.
 
-Data
-----------
+## Data
 
-Child Data
+### Child Data
 - ID
 - boolean Consent of Parents
 - docref CoP
@@ -215,16 +227,35 @@ Child Data
 - date of birth
 - month of birth
 
-Scan Data
+### Scan Data
 - reference to child
 - Date
 - GPS coordinates
 - Image ref "passport" picture
 - Age in month
 
-Scan artefacts consist of
+### Scan artefacts
 - reference to scan
 - RGB Video
 - 3D point clouds with timestamp and 4 floats XYZ in meters and Confidence from 0-1
 - device pose with timestamp
 
+## Scanning Process
+
+The scanning process can be broken down to different parts. We will evaluate results to find the best way to gather necessary data. Children are wearing underwear.
+
+### Top-Down approach front
+
+Scan starts at face, goes down to feet and back up again.
+
+### Scan from back
+
+Scan starts at the back of the head, goes down over back to feet and back up again.
+
+### Circular aproach
+
+For getting more information about the volume of the body and thus maybe a more accurate prediction of the weight of the child, a circular scanning process could be helpful.
+
+### Scan of hands
+
+Hands can be a good indicator for malnutrition and are not as sensitive from a privacy perspective.  

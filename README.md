@@ -1,7 +1,7 @@
 [Child Growth Monitor](https://ChildGrowthMonitor.org)
 =======
 
-Zero Hunger through quick, accurate data on malnutrition.
+Contributing to Zero Hunger through quick, accurate data on malnutrition.
 
 <!-- TOC depthFrom:1 depthTo:3 withLinks:1 updateOnSave:1 orderedList:0 -->
 

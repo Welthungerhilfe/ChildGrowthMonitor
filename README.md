@@ -48,8 +48,8 @@ The next iteration for the Pilot will guide the user to scan the child from the 
 
 #### Hardware requirements
 
-- Currently Google Project Tango Devices only
-- In Future probably all devices with ARkit/ARcore capabilities (iPhone 6s and newer, 100 million Android devices)
+- Currently Google Project Tango devices only
+- In the future probably all devices with ARkit/ARcore capabilities (iPhone 6s and newer, 100 million Android devices)
 
 #### Authentication
 
@@ -85,7 +85,7 @@ Also see this [UX Prototype](https://childgrowthmonitor.org/protoio-CGM-html/fra
 
 - Agumented Reality Userinterface guides through the scanning Process
 - Scanning with instant visual feedback
-- for the prototype the results of the scanning process will be shown only after input of the traditional measurements and only if more or less accurate?
+- for the prototype the results of the scanning process will be shown only after input of the traditional measurements and only if more or less accurate
 
 
 ### Backend
@@ -138,7 +138,7 @@ Helpful research has been done in
 
 #### Predict weight of a person
 
-Predicting the weight of a person is the secondary goal to do "traditional" standardized measurements only using a smartphone without further hardware needs.
+Predicting the weight of a person is the secondary goal to do "traditional" standardized measurements only using a smartphone without further hardware.
 
 #### Classifying SAM, wasting, stunting, overweight
 
@@ -170,7 +170,7 @@ TODO: Advantages of Top-Down approach?
 
 #### Pose Estimation
 
-17 Joints per Person?
+The current resnet with 101 layers detects 12 joints + forehead and chin of a Person
 
 Spatio-Temporal Graph G = (D, E)
 - Part Detections D

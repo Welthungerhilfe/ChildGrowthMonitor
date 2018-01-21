@@ -94,11 +94,16 @@ Backend is implemented in Google Firebase using Authentication, Database, Storag
 
 #### Authentication
 
-Users have to be activated by admin to download the current neural networks and upload data
+Authentication is done via Email-address and password or Google OAuth. 
 
 #### Usermanagement
 
+Users have to be activated by admin to download the current neural networks and upload data.
+Registration can be done via mobile app or the website via Firebase Functions.
+
 #### Rights/Roles
+
+Access to data is granted after scanning the key from a letter of consent of the parents.
 
 #### Organisations
 
@@ -106,7 +111,11 @@ not implemented for Pilot
 
 #### Database
 
+Firebase Database is used for structured data. 
+
 #### Storage
+
+Storage is used for large objects such as rgb video and maybe point clouds.
 
 
 

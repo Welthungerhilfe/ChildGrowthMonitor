@@ -40,11 +40,11 @@ We are providing a game changing solution to detect malnutrition of children and
 
 ### Mobile App
 
-The mobile app provides authenticated users an interface to scan children in 3D with consent of the parents and upload all necessary data to the secure backend.
+The mobile app provides authenticated users an interface to scan children in 3D with consent of the parents and upload all collected data to the secure backend.
 
 Currently the App works through person detection and pose estimation and overlaying the this information of the position of 14 points on the body of the child with the 3D point cloud from the Tango API.
 
-The next iteration for the Pilot will guide the user to scan the child from the front and back as well as the hands. 
+The next iteration for the Pilot will guide the user to scan the child in a way that a quick, accurate measurement can be taken. This will involve data of the camera pose, point clouds and RGB video. 
 
 #### Hardware requirements
 
@@ -125,11 +125,11 @@ There are many possibilties for developing useful neural networks.
 
 #### Predict height of a person
 
-An accurate prediction of the height of a human is priority number one. Goal is to do an 99,9% accurate prediction, so that we can measure a child of 100cm height with an error of +/- 1mm.
+An accurate prediction of the height of a human is priority number one. Goal is to do an 99,5% accurate prediction, so that we can measure a child of 100cm height with an error of +/- 5mm.
 
 To reconstruct a 3d model of a child or of the skeleton is a non-trivial task using multiple point clouds of a moving child. Using a single point cloud probably won't be accurate enough.
 
-A promising approach could be to input the point clouds, probably also the device pose for camera position and rgb video into a neural networks, to do preprocessing or get the result.
+A promising approach could be to input the point clouds, the device pose for camera position and rgb video into a neural networks, to do preprocessing or get the result.
 
 Helpful research has been done in
 - 3d point cloud segmentation through labeling the points
@@ -264,6 +264,8 @@ Scan starts at the back of the head, goes down over back to feet and back up aga
 ### Circular aproach
 
 For getting more information about the volume of the body and thus maybe a more accurate prediction of the weight of the child, a circular scanning process could be helpful.
+
+This can be a seperate second scanning process, collecting additional data to the scan for heigth.
 
 ### Scan of hands
 

@@ -265,7 +265,7 @@ Scan starts at the back of the head, goes down over back to feet and back up aga
 
 For getting more information about the volume of the body and thus maybe a more accurate prediction of the weight of the child, a circular scanning process could be helpful.
 
-This can be a seperate second scanning process, collecting additional data to the scan for heigth.
+This can be a seperate second scanning process, collecting additional data to the scan for height.
 
 ### Scan of hands
 

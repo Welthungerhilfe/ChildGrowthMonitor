@@ -235,6 +235,7 @@ Prediction should work offline in the mobile device as well as in the cloud base
 - name
 - date of birth
 - month of birth
+- sex (male/female/other)
 
 ### Scan Data
 - reference to child
@@ -253,20 +254,18 @@ Prediction should work offline in the mobile device as well as in the cloud base
 
 The scanning process can be broken down to different parts. We will evaluate results to find the best way to gather necessary data. Children are wearing underwear.
 
+Before starting the user chooses if the child is standing up or lying down.
+
+Recorded data is visualized instantly on the screen as 3D dots in Augmented Reality. Time axis is visualized by color.
+
 ### Top-Down approach front
 
-Scan starts at face, goes down to feet and back up again.
+The scan starts with placing the head of the child in the upper center of the screen. The app gives feedback about the correct distance between the head of the child and the device, which is approx. 1 meter. When the head of the child is placed inside of a model on the screen, the user can start the scan with a touch. The user moves the camera towards the feet of the child and back up to the head. Another touch ends the scanning process. The user can now repeat the same scanning process or proceed to the next step.
 
 ### Scan from back
 
-Scan starts at the back of the head, goes down over back to feet and back up again.
+The next scan starts at the back of the head, goes down over the back to the feet and back up again. The user-interface is mostly the same as for the front scan.
 
 ### Circular aproach
 
-For getting more information about the volume of the body and thus maybe a more accurate prediction of the weight of the child, a circular scanning process could be helpful.
-
-This can be a seperate second scanning process, collecting additional data to the scan for height.
-
-### Scan of hands
-
-Hands can be a good indicator for malnutrition and are not as sensitive from a privacy perspective.  
+This scan gathers more information about the volume of the body and could lead to a more accurate prediction of the weight of the child. For children that can stand upright, the user asks the child to spread the arms slightly of the body and turn around on the spot 360 degrees. For children that are lying down the user leads the smartphone left and right around the child to get a more detailed 3D image.

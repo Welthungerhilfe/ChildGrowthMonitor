@@ -20,7 +20,6 @@ Contributing to Zero Hunger through quick, accurate data on malnutrition.
 	- [Top-Down approach front](#top-down-approach-front)
 	- [Scan from back](#scan-from-back)
 	- [Circular aproach](#circular-aproach)
-	- [Scan of hands](#scan-of-hands)
 
 <!-- /TOC -->
 

@@ -251,9 +251,10 @@ Prediction should work offline in the mobile device as well as in the cloud base
 
 ## Scanning Process
 
-The scanning process can be broken down to different parts. We will evaluate results to find the best way to gather necessary data. Children are wearing underwear.
+The scanning process can be broken down into different parts. We will evaluate scanning results to find the best way to gather necessary data. Children are wearing underwear.
 
-Before starting the user chooses if the child is standing up or lying down.
+First the user scans the Consent of Parents letter and enters or updates the Parent/Child data.
+Then the user chooses if the child is standing up or lying down during scanning.
 
 Recorded data is visualized instantly on the screen as 3D dots in Augmented Reality. Time axis is visualized by color.
 

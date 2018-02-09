@@ -18,64 +18,42 @@ package com.cgm.scanner;/*
  */
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Matrix;
-import android.graphics.Paint;
 import android.hardware.display.DisplayManager;
-import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.util.AttributeSet;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.atap.tangoservice.Tango;
-import com.google.atap.tangoservice.Tango.OnTangoUpdateListener;
 import com.google.atap.tangoservice.TangoCameraIntrinsics;
 import com.google.atap.tangoservice.TangoConfig;
 import com.google.atap.tangoservice.TangoCoordinateFramePair;
 import com.google.atap.tangoservice.TangoErrorException;
-import com.google.atap.tangoservice.TangoEvent;
 import com.google.atap.tangoservice.TangoInvalidException;
 import com.google.atap.tangoservice.TangoOutOfDateException;
 import com.google.atap.tangoservice.TangoPointCloudData;
 import com.google.atap.tangoservice.TangoPoseData;
-import com.google.atap.tangoservice.TangoXyzIjData;
 import com.google.atap.tangoservice.experimental.TangoImageBuffer;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -84,32 +62,16 @@ import com.google.firebase.perf.metrics.AddTrace;
 import com.google.firebase.perf.metrics.Trace;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageException;
 import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 import com.projecttango.tangosupport.TangoSupport;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
 import java.security.MessageDigest;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -152,7 +114,7 @@ public class MainActivity extends ActionBarActivity {
 
     public Bitmap mInputBitmap;
     private boolean inferenceReady = false;
-    private boolean ready = false;
+    private boolean scanningInProgress = false;
 
     private SQLiteDatabase mDb;
     private ChildGrowthDbHelper dbHelper;
@@ -214,14 +176,14 @@ public class MainActivity extends ActionBarActivity {
         if (!inferenceReady) {
             return true;
         }
-        if (!ready) {
+        if (!scanningInProgress) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     mDisplayTextView.setText("scanning...");
                 }
             });
-            ready = true;
+            scanningInProgress = true;
         }
         return true;
     }
@@ -662,7 +624,7 @@ public class MainActivity extends ActionBarActivity {
                 final long startTime = SystemClock.uptimeMillis();
                 final long timestamp = System.currentTimeMillis();
 
-                if (!ready) {
+                if (!scanningInProgress) {
                     //Log.v(TAG, "User has not started");
                     onPointCloudTrace.incrementCounter("user_not_ready");
                     onPointCloudTrace.stop();
@@ -696,7 +658,7 @@ public class MainActivity extends ActionBarActivity {
                 } catch (Exception e) {
                     Log.e(TAG, "Error! Caught Exception invoking measurement");
                     Log.e(TAG, e.getMessage(), e);
-                    ready = false;
+                    scanningInProgress = false;
                     onPointCloudTrace.incrementCounter("start_service_exception");
                 }
 
@@ -706,7 +668,7 @@ public class MainActivity extends ActionBarActivity {
                         mDisplayTextView.setText("ready... touch for next scan");
                     }
                 });
-                ready = false;
+                scanningInProgress = false;
                 onPointCloudTrace.stop();
             }
 

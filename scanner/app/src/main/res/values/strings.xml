@@ -23,4 +23,12 @@
     <string name="disconnect">Disconnect</string>
     <string name="label_google_sign_in">Sign in with Google</string>
     <string name="title_activity_scan_result">ScanResultActivity</string>
+    <string name="emailpassword_title_text">Email Login</string>
+    <string name="hint_email">email address</string>
+    <string name="hint_password">password</string>
+    <string name="sign_in">sign in</string>
+    <string name="create_account">create account</string>
+    <string name="verify_email">verify email address</string>
+    <string name="emailpassword_status_fmt">emailpassword_status_fmt</string>
+    <string name="desc_emailpassword">Sign in with Email</string>
 </resources>

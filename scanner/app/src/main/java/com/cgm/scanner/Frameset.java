@@ -8,7 +8,7 @@ import com.google.atap.tangoservice.experimental.TangoImageBuffer;
  * Created by mmatiaschek on 30.10.2017.
  */
 
-// TODO: not used, remove
+// TODO: not used, remove?
 
 public class Frameset {
     private long timestamp;

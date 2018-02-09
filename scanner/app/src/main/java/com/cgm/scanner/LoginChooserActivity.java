@@ -19,6 +19,8 @@ package com.cgm.scanner;
  * limitations under the License.
  */
 
+// TODO: Not used, remove?
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -47,9 +49,10 @@ public class LoginChooserActivity extends AppCompatActivity implements AdapterVi
 
     private static final Class[] CLASSES = new Class[]{
             GoogleSignInActivity.class,
+            EmailPasswordActivity.class
 /*            FacebookLoginActivity.class,
             TwitterLoginActivity.class,
-            EmailPasswordActivity.class,
+
             PhoneAuthActivity.class,
             AnonymousAuthActivity.class,
             FirebaseUIActivity.class,
@@ -58,9 +61,10 @@ public class LoginChooserActivity extends AppCompatActivity implements AdapterVi
 
     private static final int[] DESCRIPTION_IDS = new int[] {
             R.string.desc_google_sign_in,
+            R.string.desc_emailpassword
 /*            R.string.desc_facebook_login,
             R.string.desc_twitter_login,
-            R.string.desc_emailpassword,
+
             R.string.desc_phone_auth,
             R.string.desc_anonymous_auth,
             R.string.desc_firebase_ui,

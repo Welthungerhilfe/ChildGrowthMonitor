@@ -19,6 +19,8 @@ package com.cgm.scanner;
  * limitations under the License.
  */
 
+// TODO: Not used, remove?
+
 import android.content.Intent;
 import android.media.Image;
 import android.os.Bundle;

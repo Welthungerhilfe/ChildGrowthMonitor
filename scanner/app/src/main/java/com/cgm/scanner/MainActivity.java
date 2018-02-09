@@ -197,7 +197,8 @@ public class MainActivity extends ActionBarActivity {
         }
 
         if (itemThatWasClickedId == R.id.action_logout) {
-            Intent i = new Intent(getApplicationContext(), GoogleSignInActivity.class);
+            //Intent i = new Intent(getApplicationContext(), GoogleSignInActivity.class);
+            Intent i = new Intent(getApplicationContext(), EmailPasswordActivity.class);
             i.putExtra("signout", true);
             startActivity(i);
         }

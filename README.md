@@ -55,30 +55,11 @@ The next iteration for the Pilot will guide the user to scan the child in a way 
 Users can authenticate themselves via username and password or Google OAuth. This enables access to download the latest neural network and upload data to Firebase Storage and Database.
 
 
-#### Screens
+#### User Flow
 
 Also see this [UX Prototype](https://childgrowthmonitor.org/protoio-CGM-html/frame.html)
 
-1. Login/Register
-
-2. Register
-
-3. Camera
-  - Scan QR Code (PK - Private/Primary Key)
-
-4. Child Data
-  - Enter data of parents and child
-
-5. Camera
-  - Scan Child
-
-6. Data
- - Enter additional Data
- - Enter traditional Measurements
-
-7. Scan Result
-
-8. Child History / Overview
+![Image of User Flow](res/CGM_User_Flow.png)
 
 **User eXperience (UX)**
 

@@ -57,9 +57,9 @@ Users can authenticate themselves via username and password or Google OAuth. Thi
 
 #### User Flow
 
-Also see this [UX Prototype](https://childgrowthmonitor.org/protoio-CGM-html/frame.html)
-
 ![Image of User Flow](res/CGM_User_Flow.png)
+
+Also see this first [UX Prototype](https://childgrowthmonitor.org/protoio-CGM-html/frame.html)
 
 **User eXperience (UX)**
 
@@ -107,9 +107,9 @@ There are many possibilties for developing useful neural networks.
 
 An accurate prediction of the height of a human is priority number one. Goal is to do an 99,5% accurate prediction, so that we can measure a child of 100cm height with an error of +/- 5mm.
 
-To reconstruct a 3d model of a child or of the skeleton is a non-trivial task using multiple point clouds of a moving child. Using a single point cloud probably won't be accurate enough.
+To reconstruct a 3d model of a child or of the skeleton is a non-trivial task using multiple point clouds of a moving child. Using a single point cloud isn't accurate enough.
 
-A promising approach could be to input the point clouds, the device pose for camera position and rgb video into a neural networks, to do preprocessing or get the result.
+A promising approach is to input the point clouds, the device pose for camera position and rgb video into different neural networks, to do preprocessing or get the result.
 
 Helpful research has been done in
 - 3d point cloud segmentation through labeling the points

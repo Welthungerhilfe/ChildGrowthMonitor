@@ -43,6 +43,8 @@ package de.welthungerhilfe.cgm.scanner;
         import android.opengl.GLSurfaceView;
         import android.util.Log;
 
+        import com.projecttango.tangosupport.TangoSupport;
+
         import java.nio.ByteBuffer;
         import java.nio.ByteOrder;
         import java.nio.FloatBuffer;
@@ -120,13 +122,13 @@ public class ScanVideoRenderer implements GLSurfaceView.Renderer {
         mIndices.position(0);
     }
 
-/*
+
     public void updateColorCameraTextureUv(int rotation){
         float[] textureCoords =
                 TangoSupport.getVideoOverlayUVBasedOnDisplayRotation(textureCoords0, rotation);
         setTextureCoords(textureCoords);
     }
-*/
+
     private void setTextureCoords(float[] textureCoords) {
         mTexCoord.put(textureCoords);
         mTexCoord.position(0);

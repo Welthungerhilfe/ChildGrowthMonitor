@@ -20,10 +20,13 @@
 package de.welthungerhilfe.cgm.scanner;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.hardware.display.DisplayManager;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
+import android.os.SystemClock;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -31,17 +34,27 @@ import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.Surface;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.atap.tangoservice.Tango;
 import com.google.atap.tangoservice.TangoCameraIntrinsics;
 import com.google.atap.tangoservice.TangoConfig;
+import com.google.atap.tangoservice.TangoCoordinateFramePair;
 import com.google.atap.tangoservice.TangoErrorException;
+import com.google.atap.tangoservice.TangoInvalidException;
+import com.google.atap.tangoservice.TangoOutOfDateException;
+import com.google.atap.tangoservice.TangoPointCloudData;
+import com.google.atap.tangoservice.TangoPoseData;
+import com.projecttango.tangosupport.TangoSupport;
 
+import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import android.Manifest;
+
+import static com.projecttango.tangosupport.TangoSupport.initialize;
 
 public class RecorderActivity extends AppCompatActivity {
 
@@ -80,6 +93,17 @@ public class RecorderActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
         }
 
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_scan_result);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                /*Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();*/
+                Intent i = new Intent(getApplicationContext(), MainActivity.class);
+                startActivity(i);
+            }
+        });
+
         mDisplayTextView = (TextView) findViewById(R.id.display_textview);
         mSurfaceView = (GLSurfaceView) findViewById(R.id.surfaceview);
         DisplayManager displayManager = (DisplayManager) getSystemService(DISPLAY_SERVICE);
@@ -105,6 +129,204 @@ public class RecorderActivity extends AppCompatActivity {
         setupRenderer();
     }
 
+    // TODO: implement own code&documentation or attribute Apache License 2.0 Copyright Google
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mSurfaceView.onResume();
+
+        // Set render mode to RENDERMODE_CONTINUOUSLY to force getting onDraw callbacks until the
+        // Tango Service is properly set up and we start getting onFrameAvailable callbacks.
+        mSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+
+        // Initialize Tango Service as a normal Android Service. Since we call mTango.disconnect()
+        // in onPause, this will unbind Tango Service, so every time onResume gets called we
+        // should create a new Tango object.
+        mTango = new Tango(RecorderActivity.this, new Runnable() {
+            // Pass in a Runnable to be called from UI thread when Tango is ready; this Runnable
+            // will be running on a new thread.
+            // When Tango is ready, we can call Tango functions safely here only when there is no UI
+            // thread changes involved.
+            @Override
+            public void run() {
+                // Synchronize against disconnecting while the service is being used in
+                // the OpenGL thread or in the UI thread.
+                synchronized (RecorderActivity.this) {
+                    try {
+                        mConfig = setupTangoConfig(mTango);
+                        mTango.connect(mConfig);
+                        startupTango();
+                        initialize(mTango);
+                        mIsConnected = true;
+//                        runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                mDisplayTextView.setText("scanning...");
+//                            }
+//                        });
+                        setDisplayRotation();
+                    } catch (TangoOutOfDateException e) {
+                        Log.e(TAG, getString(R.string.exception_out_of_date), e);
+                        showsToastAndFinishOnUiThread(R.string.exception_out_of_date);
+                    } catch (TangoErrorException e) {
+                        Log.e(TAG, getString(R.string.exception_tango_error), e);
+                        showsToastAndFinishOnUiThread(R.string.exception_tango_error);
+                    } catch (TangoInvalidException e) {
+                        Log.e(TAG, getString(R.string.exception_tango_invalid), e);
+                        showsToastAndFinishOnUiThread(R.string.exception_tango_invalid);
+                    }
+                }
+            }
+        });
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mSurfaceView.onPause();
+        // Synchronize against disconnecting while the service is being used in the OpenGL
+        // thread or in the UI thread.
+        // NOTE: DO NOT lock against this same object in the Tango callback thread.
+        // Tango.disconnect will block here until all Tango callback calls are finished.
+        // If you lock against this object in a Tango callback thread it will cause a deadlock.
+        synchronized (this) {
+            try {
+                mTango.disconnectCamera(TangoCameraIntrinsics.TANGO_CAMERA_COLOR);
+                // We need to invalidate the connected texture ID so that we cause a
+                // re-connection in the OpenGL thread after resume.
+                mConnectedTextureIdGlThread = INVALID_TEXTURE_ID;
+                mTango.disconnect();
+                mIsConnected = false;
+            } catch (TangoErrorException e) {
+                Log.e(TAG, getString(R.string.exception_tango_error), e);
+            }
+        }
+    }
+
+    /**
+     * Sets up the Tango configuration object. Make sure mTango object is initialized before
+     * making this call.
+     */
+    private TangoConfig setupTangoConfig(Tango tango) {
+        // Create a new Tango configuration and enable the Camera API.
+        TangoConfig config = tango.getConfig(TangoConfig.CONFIG_TYPE_DEFAULT);
+        config.putBoolean(TangoConfig.KEY_BOOLEAN_COLORCAMERA, true);
+        config.putBoolean(TangoConfig.KEY_BOOLEAN_DEPTH, true);
+        config.putInt(TangoConfig.KEY_INT_DEPTH_MODE, TangoConfig.TANGO_DEPTH_MODE_POINT_CLOUD);
+        return config;
+    }
+
+    /**
+     * Set up the callback listeners for the Tango Service and obtain other parameters required
+     * after Tango connection.
+     * Listen to updates from the RGB camera.
+     */
+    private void startupTango() {
+        // Lock configuration and connect to Tango.
+        // Select coordinate frame pair.
+        final ArrayList<TangoCoordinateFramePair> framePairs =
+                new ArrayList<TangoCoordinateFramePair>();
+        framePairs.add(new TangoCoordinateFramePair(
+                TangoPoseData.COORDINATE_FRAME_START_OF_SERVICE,
+                TangoPoseData.COORDINATE_FRAME_DEVICE));
+
+        // Listen for new Tango data.
+        mTango.connectListener(framePairs, new Tango.TangoUpdateCallback() {
+            @Override
+            public void onPoseAvailable(final TangoPoseData pose) {
+                // TODO: Save poses for scan - here or with PointCloud an TangoSupport.getPoseAtTime?
+            }
+
+            @Override
+            public void onPointCloudAvailable(final TangoPointCloudData pointCloudData) {
+
+                // TODO: get PointCloud and Camera Data
+
+
+                // Get pose transforms for openGL to depth/color cameras.
+                TangoPoseData oglTdepthPose = TangoSupport.getPoseAtTime(
+                        pointCloudData.timestamp,
+                        TangoPoseData.COORDINATE_FRAME_AREA_DESCRIPTION,
+                        TangoPoseData.COORDINATE_FRAME_CAMERA_DEPTH,
+                        TangoSupport.TANGO_SUPPORT_ENGINE_OPENGL,
+                        TangoSupport.TANGO_SUPPORT_ENGINE_TANGO,
+                        TangoSupport.ROTATION_IGNORED);
+                if (oglTdepthPose.statusCode != TangoPoseData.POSE_VALID) {
+                    Log.w(TAG, "Could not get depth camera transform at time "
+                            + pointCloudData.timestamp);
+                }
+                /*
+                TangoPoseData oglTcolorPose = TangoSupport.getPoseAtTime(
+                        rgbTimestamp,
+                        TangoPoseData.COORDINATE_FRAME_AREA_DESCRIPTION,
+                        TangoPoseData.COORDINATE_FRAME_CAMERA_COLOR,
+                        TangoSupport.TANGO_SUPPORT_ENGINE_OPENGL,
+                        TangoSupport.TANGO_SUPPORT_ENGINE_TANGO,
+                        TangoSupport.ROTATION_IGNORED);
+                if (oglTcolorPose.statusCode != TangoPoseData.POSE_VALID) {
+                    //   Log.w(TAG, "Could not get color camera transform at time "
+                    //           + rgbTimestamp);
+                }*/
+
+                final long startTime = SystemClock.uptimeMillis();
+                final long timestamp = System.currentTimeMillis();
+/*
+                if (!scanningInProgress) {
+                    //Log.v(TAG, "User has not started");
+                    return;
+                }
+
+                // Scanning in progress...
+
+                if (mCurrentScanID == null) {
+                    mCurrentScanID = dbHelper.startScan(timestamp);
+                }*/
+                //Frameset frameset = new Frameset(timestamp, oglTdepthPose, oglTcolorPose, pointCloudData, imageBuffer);
+                Log.v(TAG, "Scan " + timestamp + " with pointCloud timestamp " + pointCloudData.timestamp + " with " + pointCloudData.numPoints + " points.");
+                /*
+                Log.v(TAG, "Scan " + timestamp + " frame number: " + imageBuffer.frameNumber + " with timestamp: " + imageBuffer.timestamp +
+                        " and pointCloud timestamp " + pointCloudData.timestamp + " with " + pointCloudData.numPoints + " points.");
+                int[] pixels = convertYUV420_NV21toRGB8888(imageBuffer.data.array(), imageBuffer.width, imageBuffer.height);
+                Bitmap inputBitmap = Bitmap.createBitmap(pixels, imageBuffer.width, imageBuffer.height, Bitmap.Config.ARGB_8888);
+                */
+            }
+
+
+            @Override
+            public void onFrameAvailable(int cameraId) {
+                // This will get called every time a new RGB camera frame is available to be
+                // rendered.
+                //Log.d(TAG, "onFrameAvailable");
+
+                if (cameraId == TangoCameraIntrinsics.TANGO_CAMERA_COLOR) {
+                    // Now that we are receiving onFrameAvailable callbacks, we can switch
+                    // to RENDERMODE_WHEN_DIRTY to drive the render loop from this callback.
+                    // This will result in a frame rate of approximately 30FPS, in synchrony with
+                    // the RGB camera driver.
+                    // If you need to render at a higher rate (i.e., if you want to render complex
+                    // animations smoothly) you  can use RENDERMODE_CONTINUOUSLY throughout the
+                    // application lifecycle.
+                    if (mSurfaceView.getRenderMode() != GLSurfaceView.RENDERMODE_WHEN_DIRTY) {
+                        mSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+                    }
+
+                    // Note that the RGB data is not passed as a parameter here.
+                    // Instead, this callback indicates that you can call
+                    // the {@code updateTexture()} method to have the
+                    // RGB data copied directly to the OpenGL texture at the native layer.
+                    // Since that call needs to be done from the OpenGL thread, what we do here is
+                    // set up a flag to tell the OpenGL thread to do that in the next run.
+                    // NOTE: Even if we are using a render-by-request method, this flag is still
+                    // necessary since the OpenGL thread run requested below is not guaranteed
+                    // to run in synchrony with this requesting call.
+                    mIsFrameAvailableTangoThread.set(true);
+                    // Trigger an OpenGL render to update the OpenGL scene with the new RGB data.
+                    mSurfaceView.requestRender();
+                }
+            }
+        });
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         //Intent i = new Intent(this, PredictionsList.class);
@@ -124,7 +346,7 @@ public class RecorderActivity extends AppCompatActivity {
         return true;
     }
 
-    // TODO: setup own renderer for scanning process
+    // TODO: setup own renderer for scanning process (or attribute Apache License 2.0 from Google)
     private void setupRenderer() {
         mSurfaceView.setEGLContextClientVersion(2);
         mRenderer = new ScanVideoRenderer(getApplicationContext(), new ScanVideoRenderer.RenderCallback() {
@@ -205,8 +427,25 @@ public class RecorderActivity extends AppCompatActivity {
             @Override
             public void run() {
                 if (mIsConnected) {
-                    //mRenderer.updateColorCameraTextureUv(mDisplayRotation);
+                    mRenderer.updateColorCameraTextureUv(mDisplayRotation);
                 }
+            }
+        });
+    }
+
+    // TODO: attribute Apache License 2.0 from Google or remove
+    /**
+     * Display toast on UI thread.
+     *
+     * @param resId The resource id of the string resource to use. Can be formatted text.
+     */
+    private void showsToastAndFinishOnUiThread(final int resId) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(RecorderActivity.this,
+                        getString(resId), Toast.LENGTH_LONG).show();
+                finish();
             }
         });
     }

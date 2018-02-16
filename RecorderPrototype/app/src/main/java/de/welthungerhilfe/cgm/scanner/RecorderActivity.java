@@ -49,6 +49,7 @@ import com.google.atap.tangoservice.TangoPointCloudData;
 import com.google.atap.tangoservice.TangoPoseData;
 import com.projecttango.tangosupport.TangoSupport;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -69,6 +70,15 @@ public class RecorderActivity extends AppCompatActivity {
     private Tango mTango;
     private TangoConfig mConfig;
     private boolean mIsConnected = false;
+
+    private int mValidPoseCallbackCount;
+    private int mPreviousPoseStatus;
+    private float mDeltaTime;
+    private float mPosePreviousTimeStamp;
+
+    private boolean mIsRecording = false;
+
+    private static final int SECS_TO_MILLISECS = 1000;
 
     // NOTE: Naming indicates which thread is in charge of updating this variable.
     private int mConnectedTextureIdGlThread = INVALID_TEXTURE_ID;
@@ -232,9 +242,39 @@ public class RecorderActivity extends AppCompatActivity {
 
         // Listen for new Tango data.
         mTango.connectListener(framePairs, new Tango.TangoUpdateCallback() {
+
+            String[] poseStatusCode = {"POSE_INITIALIZING","POSE_VALID","POSE_INVALID","POSE_UNKNOWN"};
+
+            // TODO: save pose data
             @Override
             public void onPoseAvailable(final TangoPoseData pose) {
-                // TODO: Save poses for scan - here or with PointCloud an TangoSupport.getPoseAtTime?
+                mDeltaTime = (float) (pose.timestamp - mPosePreviousTimeStamp)
+                        * SECS_TO_MILLISECS;
+                mPosePreviousTimeStamp = (float) pose.timestamp;
+                if (mPreviousPoseStatus != pose.statusCode) {
+                    mValidPoseCallbackCount = 0;
+                }
+                mValidPoseCallbackCount++;
+                mPreviousPoseStatus = pose.statusCode;
+
+                DecimalFormat threeDec = new DecimalFormat("0.000");
+                String translationString = "["
+                        + threeDec.format(pose.translation[0]) + ", "
+                        + threeDec.format(pose.translation[1]) + ", "
+                        + threeDec.format(pose.translation[2]) + "] ";
+                String quaternionString = "["
+                        + threeDec.format(pose.rotation[0]) + ", "
+                        + threeDec.format(pose.rotation[1]) + ", "
+                        + threeDec.format(pose.rotation[2]) + ", "
+                        + threeDec.format(pose.rotation[3]) + "] ";
+
+                Log.v(TAG, "timestamp: "+pose.timestamp+
+                        " translationString: "+translationString+
+                        " quaternionString: "+quaternionString+
+                        " mValidPoseCallbackCount: "+Integer.toString(mValidPoseCallbackCount)+
+                        " mDeltaTime: "+threeDec.format(mDeltaTime)+
+                        " pose.statusCode: "+pose.statusCode+": "+poseStatusCode[pose.statusCode]
+                );
             }
 
             @Override
@@ -282,7 +322,7 @@ public class RecorderActivity extends AppCompatActivity {
                     mCurrentScanID = dbHelper.startScan(timestamp);
                 }*/
                 //Frameset frameset = new Frameset(timestamp, oglTdepthPose, oglTcolorPose, pointCloudData, imageBuffer);
-                Log.v(TAG, "Scan " + timestamp + " with pointCloud timestamp " + pointCloudData.timestamp + " with " + pointCloudData.numPoints + " points.");
+                Log.v(TAG, "timestamp: " + timestamp + " with pointCloud timestamp " + pointCloudData.timestamp + " with " + pointCloudData.numPoints + " points.");
                 /*
                 Log.v(TAG, "Scan " + timestamp + " frame number: " + imageBuffer.frameNumber + " with timestamp: " + imageBuffer.timestamp +
                         " and pointCloud timestamp " + pointCloudData.timestamp + " with " + pointCloudData.numPoints + " points.");

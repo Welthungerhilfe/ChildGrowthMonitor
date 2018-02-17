@@ -38,6 +38,8 @@ package de.welthungerhilfe.cgm.scanner;
 
         import android.content.Context;
         import android.graphics.Bitmap;
+        import android.graphics.SurfaceTexture;
+        import android.opengl.EGL14;
         import android.opengl.GLES11Ext;
         import android.opengl.GLES20;
         import android.opengl.GLSurfaceView;
@@ -45,6 +47,7 @@ package de.welthungerhilfe.cgm.scanner;
 
         import com.projecttango.tangosupport.TangoSupport;
 
+        import java.io.File;
         import java.nio.ByteBuffer;
         import java.nio.ByteOrder;
         import java.nio.FloatBuffer;
@@ -80,13 +83,15 @@ public class ScanVideoRenderer implements GLSurfaceView.Renderer {
     private final float[] textureCoords0 =
             new float[]{1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f};
 
-    /**
-     * A small callback to allow the caller to introduce application-specific code to be executed
-     * in the OpenGL thread.
-     */
-    public interface RenderCallback {
-        void preRender();
-    }
+    private static final int RECORDING_OFF = 0;
+    private static final int RECORDING_ON = 1;
+    private static final int RECORDING_RESUMED = 2;
+
+    private int mRecordingStatus;
+
+    private TextureMovieEncoder mVideoEncoder;
+    private File mOutputFile;
+    private boolean mRecordingEnabled;
 
     private FloatBuffer mVertex;
     private FloatBuffer mTexCoord;
@@ -96,10 +101,19 @@ public class ScanVideoRenderer implements GLSurfaceView.Renderer {
     private int mProgram;
     private RenderCallback mRenderCallback;
 
-    private boolean mInferenceReady;
-    private Bitmap mOutputBitmap;
+    private int mTextureId;
+    private SurfaceTexture mSurfaceTexture;
 
-    public ScanVideoRenderer(Context context, RenderCallback callback) {
+    public ScanVideoRenderer(Context context, TextureMovieEncoder movieEncoder, File outputFile, RenderCallback callback) {
+
+        mVideoEncoder = movieEncoder;
+        mOutputFile = outputFile;
+
+        mRecordingStatus = -1;
+        mRecordingEnabled = false;
+
+        mTextureId = -1;
+
         mRenderCallback = callback;
         mTextures[0] = 0;
         // Vertex positions.
@@ -120,6 +134,43 @@ public class ScanVideoRenderer implements GLSurfaceView.Renderer {
                 ByteOrder.nativeOrder()).asShortBuffer();
         mIndices.put(itmp);
         mIndices.position(0);
+    }
+
+
+    /**
+     * Notifies the renderer that we want to stop or start recording.
+     */
+    public void changeRecordingState(boolean isRecording) {
+        Log.d(TAG, "changeRecordingState: was " + mRecordingEnabled + " now " + isRecording);
+        mRecordingEnabled = isRecording;
+    }
+    /**
+     * A small callback to allow the caller to introduce application-specific code to be executed
+     * in the OpenGL thread.
+     */
+    public interface RenderCallback {
+        void preRender();
+    }
+
+
+    /**
+     * Notifies the renderer thread that the activity is pausing.
+     * <p>
+     * For best results, call this *after* disabling Camera preview.
+     */
+    public void notifyPausing() {
+        if (mSurfaceTexture != null) {
+            Log.d(TAG, "renderer pausing -- releasing SurfaceTexture");
+            mSurfaceTexture.release();
+            mSurfaceTexture = null;
+        }
+        /*
+        if (mFullScreen != null) {
+            mFullScreen.release(false);     // assume the GLSurfaceView EGL context is about
+            mFullScreen = null;             //  to be destroyed
+        }
+        mIncomingWidth = mIncomingHeight = -1;
+        */
     }
 
 
@@ -147,6 +198,19 @@ public class ScanVideoRenderer implements GLSurfaceView.Renderer {
         createCameraVbos();
         GLES20.glClearColor(1.0f, 1.0f, 0.0f, 1.0f);
         mProgram = getProgram(vss, fss);
+
+        mSurfaceTexture = new SurfaceTexture(mTextureId);
+
+        // We're starting up or coming back.  Either way we've got a new EGLContext that will
+        // need to be shared with the video encoder, so figure out if a recording is already
+        // in progress.
+        mRecordingEnabled = mVideoEncoder.isRecording();
+        if (mRecordingEnabled) {
+            mRecordingStatus = RECORDING_RESUMED;
+        } else {
+            mRecordingStatus = RECORDING_OFF;
+        }
+
     }
 
     @Override
@@ -161,6 +225,59 @@ public class ScanVideoRenderer implements GLSurfaceView.Renderer {
 
         // Call application-specific code that needs to run on the OpenGL thread.
         mRenderCallback.preRender();
+
+        //Log.v(TAG, "drawFrame call update on SurfaceTexture");
+        mSurfaceTexture.updateTexImage();
+
+        // Recording
+        // If the recording state is changing, take care of it here.  Ideally we wouldn't
+        // be doing all this in onDrawFrame(), but the EGLContext sharing with GLSurfaceView
+        // makes it hard to do elsewhere.
+        if (mRecordingEnabled) {
+            switch (mRecordingStatus) {
+                case RECORDING_OFF:
+                    Log.d(TAG, "START recording");
+                    // start recording
+                    // TODO: better config
+                    mVideoEncoder.startRecording(new TextureMovieEncoder.EncoderConfig(
+                            mOutputFile, 640, 480, 1000000, EGL14.eglGetCurrentContext()));
+                    mRecordingStatus = RECORDING_ON;
+                    break;
+                case RECORDING_RESUMED:
+                    Log.d(TAG, "RESUME recording");
+                    mVideoEncoder.updateSharedContext(EGL14.eglGetCurrentContext());
+                    mRecordingStatus = RECORDING_ON;
+                    break;
+                case RECORDING_ON:
+                    // yay
+                    break;
+                default:
+                    throw new RuntimeException("unknown status " + mRecordingStatus);
+            }
+        } else {
+            switch (mRecordingStatus) {
+                case RECORDING_ON:
+                case RECORDING_RESUMED:
+                    // stop recording
+                    Log.d(TAG, "STOP recording");
+                    mVideoEncoder.stopRecording();
+                    mRecordingStatus = RECORDING_OFF;
+                    break;
+                case RECORDING_OFF:
+                    // yay
+                    break;
+                default:
+                    throw new RuntimeException("unknown status " + mRecordingStatus);
+            }
+        }
+
+        // Set the video encoder's texture name.  We only need to do this once, but in the
+        // current implementation it has to happen after the video encoder is started, so
+        // we just do it here.
+        //
+        // TODO: be less lame.
+        mVideoEncoder.setTextureId(mTextureId);
+
 
         GLES20.glUseProgram(mProgram);
 
@@ -192,6 +309,10 @@ public class ScanVideoRenderer implements GLSurfaceView.Renderer {
 
         // Enable depth write again for any additional rendering on top of the camera surface.
         GLES20.glDepthMask(true);
+
+        // Tell the video encoder thread that a new frame is available.
+        // This will be ignored if we're not actually recording.
+        mVideoEncoder.frameAvailable(mSurfaceTexture);
 
     }
 

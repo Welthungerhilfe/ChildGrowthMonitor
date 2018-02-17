@@ -19,17 +19,22 @@
 
 package de.welthungerhilfe.cgm.scanner;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.hardware.display.DisplayManager;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
+import android.os.Environment;
 import android.os.SystemClock;
 import android.support.design.widget.FloatingActionButton;
+
+//TODO: new style permissions?
 import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
+
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
@@ -47,8 +52,10 @@ import com.google.atap.tangoservice.TangoInvalidException;
 import com.google.atap.tangoservice.TangoOutOfDateException;
 import com.google.atap.tangoservice.TangoPointCloudData;
 import com.google.atap.tangoservice.TangoPoseData;
+import com.google.atap.tangoservice.experimental.TangoImageBuffer;
 import com.projecttango.tangosupport.TangoSupport;
 
+import java.io.File;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -86,6 +93,12 @@ public class RecorderActivity extends AppCompatActivity {
 
     private int mDisplayRotation = Surface.ROTATION_0;
 
+    private boolean mRecordingEnabled;      // controls button state
+
+    private File outputFile;
+
+    // this is static so it survives activity restarts
+    private static TextureMovieEncoder sVideoEncoder = new TextureMovieEncoder();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,16 +116,31 @@ public class RecorderActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
         }
 
+        outputFile = new File(getExternalFilesDir(Environment.getDataDirectory().getAbsolutePath()).getAbsolutePath(), "camera-tango.mp4");
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_scan_result);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 /*Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();*/
-                Intent i = new Intent(getApplicationContext(), MainActivity.class);
-                startActivity(i);
+
+                //Intent i = new Intent(getApplicationContext(), MainActivity.class);
+                //startActivity(i);
+
+                mRecordingEnabled = !mRecordingEnabled;
+                mSurfaceView.queueEvent(new Runnable() {
+                    @Override public void run() {
+                        // notify the renderer that we want to change the encoder's state
+                        mRenderer.changeRecordingState(mRecordingEnabled);
+                    }
+                });
+                //updateControls();
+                mDisplayTextView.setText(String.valueOf(mRecordingEnabled));
             }
         });
+
+        mRecordingEnabled = sVideoEncoder.isRecording();
 
         mDisplayTextView = (TextView) findViewById(R.id.display_textview);
         mSurfaceView = (GLSurfaceView) findViewById(R.id.surfaceview);
@@ -137,6 +165,7 @@ public class RecorderActivity extends AppCompatActivity {
         }
         // Set up a dummy OpenGL renderer associated with this surface view.
         setupRenderer();
+        mRecordingEnabled = sVideoEncoder.isRecording();
     }
 
     // TODO: implement own code&documentation or attribute Apache License 2.0 Copyright Google
@@ -267,14 +296,14 @@ public class RecorderActivity extends AppCompatActivity {
                         + threeDec.format(pose.rotation[1]) + ", "
                         + threeDec.format(pose.rotation[2]) + ", "
                         + threeDec.format(pose.rotation[3]) + "] ";
-
+/*
                 Log.v(TAG, "timestamp: "+pose.timestamp+
                         " translationString: "+translationString+
                         " quaternionString: "+quaternionString+
                         " mValidPoseCallbackCount: "+Integer.toString(mValidPoseCallbackCount)+
                         " mDeltaTime: "+threeDec.format(mDeltaTime)+
                         " pose.statusCode: "+pose.statusCode+": "+poseStatusCode[pose.statusCode]
-                );
+                );*/
             }
 
             @Override
@@ -292,8 +321,8 @@ public class RecorderActivity extends AppCompatActivity {
                         TangoSupport.TANGO_SUPPORT_ENGINE_TANGO,
                         TangoSupport.ROTATION_IGNORED);
                 if (oglTdepthPose.statusCode != TangoPoseData.POSE_VALID) {
-                    Log.w(TAG, "Could not get depth camera transform at time "
-                            + pointCloudData.timestamp);
+                    //Log.w(TAG, "Could not get depth camera transform at time "
+                    //        + pointCloudData.timestamp);
                 }
                 /*
                 TangoPoseData oglTcolorPose = TangoSupport.getPoseAtTime(
@@ -322,7 +351,7 @@ public class RecorderActivity extends AppCompatActivity {
                     mCurrentScanID = dbHelper.startScan(timestamp);
                 }*/
                 //Frameset frameset = new Frameset(timestamp, oglTdepthPose, oglTcolorPose, pointCloudData, imageBuffer);
-                Log.v(TAG, "timestamp: " + timestamp + " with pointCloud timestamp " + pointCloudData.timestamp + " with " + pointCloudData.numPoints + " points.");
+                //Log.v(TAG, "timestamp: " + timestamp + " with pointCloud timestamp " + pointCloudData.timestamp + " with " + pointCloudData.numPoints + " points.");
                 /*
                 Log.v(TAG, "Scan " + timestamp + " frame number: " + imageBuffer.frameNumber + " with timestamp: " + imageBuffer.timestamp +
                         " and pointCloud timestamp " + pointCloudData.timestamp + " with " + pointCloudData.numPoints + " points.");
@@ -365,6 +394,33 @@ public class RecorderActivity extends AppCompatActivity {
                 }
             }
         });
+
+        /*
+        // needed for the actual image buffer to record video
+        // alternative would be the C++ API of Tango that also provides image data
+        mTango.experimentalConnectOnFrameListener(TangoCameraIntrinsics.TANGO_CAMERA_COLOR,
+                new Tango.OnFrameAvailableListener() {
+                    @Override
+                    public  void onFrameAvailable(TangoImageBuffer tangoImageBuffer, int i) {
+                        if (!inferenceReady) {
+                            return;
+                        }
+
+                        mCurrentImageBuffer = copyImageBuffer(tangoImageBuffer);
+                    }
+
+                    TangoImageBuffer copyImageBuffer(TangoImageBuffer imageBuffer) {
+                        ByteBuffer clone = ByteBuffer.allocateDirect(imageBuffer.data.capacity());
+                        imageBuffer.data.rewind();
+                        clone.put(imageBuffer.data);
+                        imageBuffer.data.rewind();
+                        clone.flip();
+                        return new TangoImageBuffer(imageBuffer.width, imageBuffer.height,
+                                imageBuffer.stride, imageBuffer.frameNumber,
+                                imageBuffer.timestamp, imageBuffer.format, clone);
+                    }
+                });
+                */
     }
 
     @Override
@@ -389,7 +445,7 @@ public class RecorderActivity extends AppCompatActivity {
     // TODO: setup own renderer for scanning process (or attribute Apache License 2.0 from Google)
     private void setupRenderer() {
         mSurfaceView.setEGLContextClientVersion(2);
-        mRenderer = new ScanVideoRenderer(getApplicationContext(), new ScanVideoRenderer.RenderCallback() {
+        mRenderer = new ScanVideoRenderer(getApplicationContext(), sVideoEncoder, outputFile, new ScanVideoRenderer.RenderCallback() {
             @Override
             public void preRender() {
                 //Log.d(TAG, "preRender");

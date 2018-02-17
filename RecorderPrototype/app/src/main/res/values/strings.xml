@@ -36,4 +36,17 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_main">MainActivity</string>
     <string name="action_settings">Settings</string>
+    <string name="toggleRecordingOff">rec off</string>
+    <string name="toggleRecordingOn">rec on</string>
+
+    <!-- for cameraFilter_spinner; match with CameraCaptureActivity constants
+    <string-array name="cameraFilterNames">
+        <item>Normal</item>
+        <item>Black &amp; white</item>
+        <item>Filter: blur</item>
+        <item>Filter: sharpen</item>
+        <item>Filter: edge detect</item>
+        <item>Filter: emboss</item>
+    </string-array>
+    -->
 </resources>

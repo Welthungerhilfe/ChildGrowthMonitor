@@ -44,7 +44,7 @@
             android:id="@+id/display_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="loading..."
+            android:text="Recording?"
             android:textSize="30sp"
             android:shadowColor="@color/text_shadow_white"
             android:shadowDx="-2"

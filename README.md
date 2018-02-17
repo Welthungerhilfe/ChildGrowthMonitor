@@ -13,9 +13,6 @@ Contributing to Zero Hunger through quick, accurate data on malnutrition.
 	- [Current Machine Learning solution](#current-machine-learning-solution)
 	- [Machine Learning Dev Process](#machine-learning-dev-process)
 - [Data](#data)
-	- [Child Data](#child-data)
-	- [Scan Data](#scan-data)
-	- [Scan artefacts](#scan-artefacts)
 - [Scanning Process](#scanning-process)
 	- [Top-Down approach front](#top-down-approach-front)
 	- [Scan from back](#scan-from-back)
@@ -208,27 +205,25 @@ Prediction should work offline in the mobile device as well as in the cloud base
 
 ## Data
 
-### Child Data
-- ID
-- boolean Consent of Parents
-- docref CoP
-- name
-- date of birth
-- month of birth
-- sex (male/female/other)
-
-### Scan Data
-- reference to child
-- Date
-- GPS coordinates
-- Image ref "passport" picture
-- Age in month
-
-### Scan artefacts
-- reference to scan
-- RGB Video
-- 3D point clouds with timestamp and 4 floats XYZ in meters and Confidence from 0-1
-- device pose with timestamp
+- Person Node
+	- Id : Person id (Firebase ID)
+	- Name (String)
+	- Surname (String)
+	- Birthday (date)
+	- Age in Month (int)
+	- Sex (String {"female","male","other"})
+	- Qr numbers (sub-collection)
+		- Qr code releated with this child node (String)
+		- Consent of Parent : consent image path (Firebase Storage /data/person/`id`/consent/`timestamp`_`qrcodeid`.png)
+	- Measures (sub-collection)
+		- date of measure (datetime)
+		- type of measure (String {"manual","v1.0"})
+		- Location (gps)
+		- age in days (int)
+		- Height (float)
+		- Weight (float)
+		- MUAC (float)
+		- path of Storage for binary artefacts (Firebase Storage /data/person/`id`/measures/`datetime`/)
 
 ## Scanning Process
 

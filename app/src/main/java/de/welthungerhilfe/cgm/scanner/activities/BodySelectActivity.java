@@ -19,9 +19,13 @@
 
 package de.welthungerhilfe.cgm.scanner.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.Button;
 
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import de.welthungerhilfe.cgm.scanner.R;
 
 /**
@@ -30,8 +34,19 @@ import de.welthungerhilfe.cgm.scanner.R;
 
 public class BodySelectActivity extends AppCompatActivity {
 
+    @OnClick(R.id.btnBaby)
+    void scanBaby(Button btnBaby) {
+        startActivity(new Intent(BodySelectActivity.this, BabyScanActivity.class));
+    }
+    @OnClick(R.id.btnInfant)
+    void scanInfant(Button btnInfant) {
+        startActivity(new Intent(BodySelectActivity.this, InfantScanActivity.class));
+    }
+
     protected void onCreate(Bundle saveBundle) {
         super.onCreate(saveBundle);
         setContentView(R.layout.activity_body_select);
+
+        ButterKnife.bind(this);
     }
 }

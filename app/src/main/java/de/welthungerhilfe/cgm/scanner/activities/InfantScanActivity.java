@@ -17,38 +17,21 @@
  *
  */
 
-package de.welthungerhilfe.cgm.scanner.fragments;
+package de.welthungerhilfe.cgm.scanner.activities;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.support.v7.app.AppCompatActivity;
 
 import de.welthungerhilfe.cgm.scanner.R;
-import de.welthungerhilfe.cgm.scanner.activities.BabyScanActivity;
 
 /**
  * Created by Emerald on 2/20/2018.
  */
 
-public class BabyBack1Fragment extends Fragment implements View.OnClickListener {
+public class InfantScanActivity extends AppCompatActivity {
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_baby_back1, container, false);
-
-        view.findViewById(R.id.btnStartScan).setOnClickListener(this);
-
-        return view;
-    }
-
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.btnStartScan:
-                ((BabyScanActivity)getActivity()).gotoNextStep();
-                break;
-        }
+    protected void onCreate(Bundle saveBundle) {
+        super.onCreate(saveBundle);
+        setContentView(R.layout.activity_infant_scan);
     }
 }

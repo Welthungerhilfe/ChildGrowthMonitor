@@ -20,23 +20,92 @@
 package de.welthungerhilfe.cgm.scanner.fragments;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+
+import com.orhanobut.dialogplus.DialogPlus;
+import com.orhanobut.dialogplus.OnClickListener;
+import com.orhanobut.dialogplus.ViewHolder;
+
+import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import de.welthungerhilfe.cgm.scanner.R;
+import de.welthungerhilfe.cgm.scanner.activities.BabyScanActivity;
+import de.welthungerhilfe.cgm.scanner.activities.MainActivity;
 
 /**
  * Created by Emerald on 2/20/2018.
  */
 
 public class BabyFront1Fragment extends Fragment {
+    private ViewHolder scanDialogViewHolder;
+    private DialogPlus scanResultDialog;
+
+    public void onCreate(Bundle saveBundle) {
+        super.onCreate(saveBundle);
+
+        scanDialogViewHolder = new ViewHolder(R.layout.dialog_scan_result);
+        scanResultDialog = DialogPlus.newDialog(getContext())
+            .setContentHolder(scanDialogViewHolder)
+            .setCancelable(false)
+            .setInAnimation(R.anim.abc_fade_in)
+            .setOutAnimation(R.anim.abc_fade_out)
+            .setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(DialogPlus dialog, View view) {
+                    switch (view.getId()) {
+                        case R.id.txtRepeat:
+                            dialog.dismiss();
+
+                            waitScanResult();
+                            break;
+                        case R.id.btnNext:
+                            dialog.dismiss();
+
+                            ((BabyScanActivity)getActivity()).gotoNextStep();
+                            break;
+                    }
+                }
+            })
+            .create();
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_baby_front1, container, false);
 
+        waitScanResult();
+
         return view;
+    }
+
+    private void showScanResultDialog() {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                TextView txtHeight = scanResultDialog.getHolderView().findViewById(R.id.txtHeight);
+                int height = 50 + new Random().nextInt(20);
+                txtHeight.setText(Integer.toString(height));
+
+                scanResultDialog.show();
+            }
+        });
+    }
+
+    private void waitScanResult() {
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                showScanResultDialog();
+            }
+        };
+
+        new Timer().schedule(task, 3000);
     }
 }

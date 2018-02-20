@@ -25,7 +25,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import de.welthungerhilfe.cgm.scanner.R;
+import de.welthungerhilfe.cgm.scanner.activities.BabyScanActivity;
+import de.welthungerhilfe.cgm.scanner.activities.InfantScanActivity;
 
 /**
  * Created by Emerald on 2/20/2018.
@@ -37,6 +43,20 @@ public class InfantFrontFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_infant_front, container, false);
 
+        waitScanResult();
+
         return view;
+    }
+
+    private void waitScanResult() {
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                int height = 50 + new Random().nextInt(20);
+                ((InfantScanActivity)getActivity()).setFrontHeight(height);
+            }
+        };
+
+        new Timer().schedule(task, 3000);
     }
 }

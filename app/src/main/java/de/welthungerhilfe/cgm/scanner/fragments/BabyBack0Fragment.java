@@ -25,6 +25,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import de.welthungerhilfe.cgm.scanner.R;
 import de.welthungerhilfe.cgm.scanner.activities.BabyScanActivity;
 
@@ -43,11 +47,23 @@ public class BabyBack0Fragment extends Fragment implements View.OnClickListener 
         return view;
     }
 
+    private void waitScanResult() {
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                int height = 50 + new Random().nextInt(20);
+                ((BabyScanActivity)getActivity()).setBackHeight(height);
+            }
+        };
+
+        new Timer().schedule(task, 3000);
+    }
+
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btnStartScan:
-                ((BabyScanActivity)getActivity()).gotoNextStep();
+                waitScanResult();
                 break;
         }
     }

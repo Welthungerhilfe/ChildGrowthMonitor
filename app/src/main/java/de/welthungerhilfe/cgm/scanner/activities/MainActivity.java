@@ -138,7 +138,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
         setupSidemenu();
         setupActionBar();
-        setSupportActionBar(toolbar);
 
         initUI();
     }
@@ -153,7 +152,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         navMenu.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem menuItem) {
-                menuItem.setChecked(true);
                 drawerLayout.closeDrawers();
                 return true;
             }
@@ -177,7 +175,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             }
         };
 
-        drawerLayout.setDrawerListener(mDrawerToggle);
+        drawerLayout.addDrawerListener(mDrawerToggle);
     }
 
     @Override

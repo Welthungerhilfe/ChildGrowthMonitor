@@ -25,18 +25,46 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import de.welthungerhilfe.cgm.scanner.R;
+import de.welthungerhilfe.cgm.scanner.activities.InfantScanActivity;
 
 /**
  * Created by Emerald on 2/20/2018.
  */
 
-public class InfantBackFragment extends Fragment {
+public class InfantBackFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_infant_back, container, false);
 
+        view.findViewById(R.id.btnStartScan).setOnClickListener(this);
+
         return view;
+    }
+
+    private void waitScanResult() {
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                int height = 50 + new Random().nextInt(20);
+                ((InfantScanActivity)getActivity()).setBackHeight(height);
+            }
+        };
+
+        new Timer().schedule(task, 3000);
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.btnStartScan:
+                waitScanResult();
+                break;
+        }
     }
 }

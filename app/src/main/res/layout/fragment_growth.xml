@@ -17,9 +17,34 @@
   ~     along with this program.  If not, see <http://www.gnu.org/licenses/>.
   ~
   -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="@dimen/activity_horizontal_margin"
+    android:background="@color/colorWhite"
+    android:orientation="vertical">
 
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Weight-for-length percentiles:"
+        android:textColor="@color/colorGreyDark"
+        android:textStyle="bold"
+        android:textSize="18sp"/>
 
-</android.support.constraint.ConstraintLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Boys, birth to 36 month"
+        android:textColor="@color/colorGreyDark"
+        android:textStyle="bold"
+        android:textSize="18sp"/>
+
+    <com.github.mikephil.charting.charts.ScatterChart
+        android:id="@+id/chartGrowth"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="10dp"/>
+
+</LinearLayout>

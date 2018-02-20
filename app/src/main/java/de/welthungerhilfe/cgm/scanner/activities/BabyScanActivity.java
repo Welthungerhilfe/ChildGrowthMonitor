@@ -19,17 +19,22 @@
 
 package de.welthungerhilfe.cgm.scanner.activities;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+
+import org.greenrobot.eventbus.EventBus;
+
+import java.util.Date;
 
 import de.welthungerhilfe.cgm.scanner.R;
 import de.welthungerhilfe.cgm.scanner.fragments.BabyBack0Fragment;
 import de.welthungerhilfe.cgm.scanner.fragments.BabyBack1Fragment;
 import de.welthungerhilfe.cgm.scanner.fragments.BabyFront0Fragment;
 import de.welthungerhilfe.cgm.scanner.fragments.BabyFront1Fragment;
+import de.welthungerhilfe.cgm.scanner.helper.events.MeasureResult;
+import de.welthungerhilfe.cgm.scanner.models.Measure;
+import de.welthungerhilfe.cgm.scanner.utils.Utils;
 
 /**
  * Created by Emerald on 2/20/2018.
@@ -41,7 +46,6 @@ public class BabyScanActivity extends AppCompatActivity {
     private final String BABY_BACK_0 = "baby_back_0";
     private final String BABY_BACK_1 = "baby_back_1";
 
-    private String FRAGMENT = null;
     private int step = 0;
 
     private BabyFront0Fragment babyFront0Fragment;
@@ -49,22 +53,28 @@ public class BabyScanActivity extends AppCompatActivity {
     private BabyBack0Fragment babyBack0Fragment;
     private BabyBack1Fragment babyBack1Fragment;
 
+    private Measure measure;
+
     protected void onCreate(Bundle saveBundle) {
         super.onCreate(saveBundle);
         setContentView(R.layout.activity_baby_scan);
 
-        initFragments();
+        measure = new Measure();
 
+        babyFront0Fragment = new BabyFront0Fragment();
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.add(R.id.container, babyFront0Fragment, BABY_FRONT_0);
         ft.commit();
     }
 
-    private void initFragments() {
-        babyFront0Fragment = new BabyFront0Fragment();
-        babyFront1Fragment = new BabyFront1Fragment();
-        babyBack0Fragment = new BabyBack0Fragment();
-        babyBack1Fragment = new BabyBack1Fragment();
+    public void setFrontHeight(int frontHeight) {
+        measure.setHeight(frontHeight);
+        gotoNextStep();
+    }
+
+    public void setBackHeight(int backHeight) {
+        measure.setWeight(backHeight);
+        gotoNextStep();
     }
 
     public void gotoNextStep() {
@@ -76,16 +86,21 @@ public class BabyScanActivity extends AppCompatActivity {
             ft.replace(R.id.container, babyFront0Fragment, BABY_FRONT_0);
             ft.commit();
         } else if (step == 1) {
+            babyFront1Fragment = new BabyFront1Fragment();
             ft.replace(R.id.container, babyFront1Fragment, BABY_FRONT_1);
             ft.commit();
         } else if (step == 2) {
+            babyBack0Fragment = new BabyBack0Fragment();
             ft.replace(R.id.container, babyBack0Fragment, BABY_BACK_0);
             ft.commit();
         } else if (step == 3) {
+            babyBack1Fragment = BabyBack1Fragment.newInstance(measure.getWeight());
             ft.replace(R.id.container, babyBack1Fragment, BABY_BACK_1);
             ft.commit();
         } else {
-            startActivity(new Intent(BabyScanActivity.this, CreateDataAcitivty.class));
+            measure.setDate(Utils.beautifyDate(new Date()));
+            EventBus.getDefault().post(new MeasureResult(measure));
+            finish();
         }
     }
 }

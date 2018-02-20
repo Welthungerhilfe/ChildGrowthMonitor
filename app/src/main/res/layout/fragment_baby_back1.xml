@@ -83,7 +83,7 @@
         android:id="@+id/txtMessage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/btnStartScan"
+        android:layout_above="@+id/btnNext"
         android:layout_marginBottom="30dp"
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
@@ -93,7 +93,7 @@
         android:textSize="20sp"/>
 
     <Button
-        android:id="@+id/btnStartScan"
+        android:id="@+id/btnNext"
         android:layout_width="wrap_content"
         android:layout_height="38dp"
         android:background="@drawable/button_white_round"

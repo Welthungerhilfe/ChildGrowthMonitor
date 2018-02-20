@@ -24,6 +24,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import de.welthungerhilfe.cgm.scanner.R;
 import de.welthungerhilfe.cgm.scanner.activities.BabyScanActivity;
@@ -33,12 +34,20 @@ import de.welthungerhilfe.cgm.scanner.activities.BabyScanActivity;
  */
 
 public class BabyBack1Fragment extends Fragment implements View.OnClickListener {
+    private float height;
+
+    public static BabyBack1Fragment newInstance(float height) {
+        BabyBack1Fragment fragment = new BabyBack1Fragment();
+        fragment.height = height;
+        return fragment;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_baby_back1, container, false);
 
-        view.findViewById(R.id.btnStartScan).setOnClickListener(this);
+        view.findViewById(R.id.btnNext).setOnClickListener(this);
+        ((TextView)view.findViewById(R.id.txtHeight)).setText(Float.toString(height));
 
         return view;
     }
@@ -46,7 +55,7 @@ public class BabyBack1Fragment extends Fragment implements View.OnClickListener 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.btnStartScan:
+            case R.id.btnNext:
                 ((BabyScanActivity)getActivity()).gotoNextStep();
                 break;
         }

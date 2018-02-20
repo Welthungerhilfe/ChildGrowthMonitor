@@ -17,24 +17,22 @@
  *
  */
 
-package de.welthungerhilfe.cgm.scanner.helper;
+package de.welthungerhilfe.cgm.scanner.helper.events;
+
+import de.welthungerhilfe.cgm.scanner.models.Measure;
 
 /**
- * Created by Emerald on 2/19/2018.
+ * Created by Emerald on 2/20/2018.
  */
 
-public class AppConstants {
-    public static final String GOOGLE_GEO_URL = "https://maps.googleapis.com/maps/api/geocode/json";
+public class MeasureResult {
+    private Measure measure;
 
-    public static final String VAL_SEX_FEMALE = "female";
-    public static final String VAL_SEX_MALE = "male";
-    public static final String VAL_SEX_OTHER = "other";
+    public MeasureResult(Measure measure) {
+        this.measure = measure;
+    }
 
-    public static final String VAL_MEASURE_MANUAL = "manual";
-    public static final String VAL_MEASURE_AUTO = "v1";
-
-    public static final String EXTRA_QR = "extra_qr";
-    public static final String EXTRA_LOCATION = "extra_location";
-    public static final String EXTRA_PERSON_LIST = "extra_person_list";
-    public static final String EXTRA_PERSON = "extra_person";
+    public Measure getMeasureResult() {
+        return this.measure;
+    }
 }

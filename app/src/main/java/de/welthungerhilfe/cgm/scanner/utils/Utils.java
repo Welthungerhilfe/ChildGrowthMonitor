@@ -61,12 +61,9 @@ public class Utils {
         return (res == PackageManager.PERMISSION_GRANTED);
     }
 
-    public static String beautifyDate(Date date, boolean time) {
+    public static String beautifyDate(Date date) {
         SimpleDateFormat formatter = null;
-        if (time)
-            formatter = new SimpleDateFormat("MMM dd, yyyy h:m a");
-        else
-            formatter = new SimpleDateFormat("MMM dd, yyyy");
+        formatter = new SimpleDateFormat("MM/dd/yyyy");
 
         String res = formatter.format(date);
 
@@ -74,7 +71,7 @@ public class Utils {
     }
 
     public static Date stringToDate(String dt) {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy");
         try {
             Date date = format.parse(dt);
             return date;

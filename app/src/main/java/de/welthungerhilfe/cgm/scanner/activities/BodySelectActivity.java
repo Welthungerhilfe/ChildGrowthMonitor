@@ -37,10 +37,14 @@ public class BodySelectActivity extends AppCompatActivity {
     @OnClick(R.id.btnBaby)
     void scanBaby(Button btnBaby) {
         startActivity(new Intent(BodySelectActivity.this, BabyScanActivity.class));
+
+        finish();
     }
     @OnClick(R.id.btnInfant)
     void scanInfant(Button btnInfant) {
         startActivity(new Intent(BodySelectActivity.this, InfantScanActivity.class));
+
+        finish();
     }
 
     protected void onCreate(Bundle saveBundle) {

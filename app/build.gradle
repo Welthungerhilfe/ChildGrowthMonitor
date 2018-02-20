@@ -41,7 +41,12 @@ dependencies {
     compile 'com.borax12.materialdaterangepicker:library:1.9'
     compile 'com.jakewharton:butterknife:8.8.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
+
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.0.3'
+
     compile 'me.dm7.barcodescanner:zxing:1.9'
+
+    compile 'org.greenrobot:eventbus:3.1.1'
 
     implementation 'com.google.firebase:firebase-auth:11.0.4'
     compile 'com.google.android.gms:play-services-maps:11.0.4'

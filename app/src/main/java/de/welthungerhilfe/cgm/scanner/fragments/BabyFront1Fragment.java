@@ -47,6 +47,8 @@ public class BabyFront1Fragment extends Fragment {
     private ViewHolder scanDialogViewHolder;
     private DialogPlus scanResultDialog;
 
+    private int frontHeight = 0;
+
     public void onCreate(Bundle saveBundle) {
         super.onCreate(saveBundle);
 
@@ -68,7 +70,7 @@ public class BabyFront1Fragment extends Fragment {
                         case R.id.btnNext:
                             dialog.dismiss();
 
-                            ((BabyScanActivity)getActivity()).gotoNextStep();
+                            ((BabyScanActivity)getActivity()).setFrontHeight(frontHeight);
                             break;
                     }
                 }
@@ -90,8 +92,8 @@ public class BabyFront1Fragment extends Fragment {
             @Override
             public void run() {
                 TextView txtHeight = scanResultDialog.getHolderView().findViewById(R.id.txtHeight);
-                int height = 50 + new Random().nextInt(20);
-                txtHeight.setText(Integer.toString(height));
+                frontHeight = 50 + new Random().nextInt(20);
+                txtHeight.setText(Integer.toString(frontHeight));
 
                 scanResultDialog.show();
             }

@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">CGM Scanner</string>
     <string name="app_name_long">Child Growth Monitor Scanner App</string>
+
+    <string name="google_maps_key">AIzaSyD8PSG_tlMC2agwHsTf4-jYt6D5zuswKPU</string>
+
     <string name="title_predictions_list_name">Frames Predicted</string>
     <string name="exception_tango_error">"Tango exception! Try again!"</string>
     <string name="exception_tango_invalid">"Tango invalid exception! Try again!"</string>
@@ -36,4 +39,34 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_main">MainActivity</string>
     <string name="action_settings">Settings</string>
+
+    <string name="validate_user">Please input user name</string>
+    <string name="validate_password">Please input password</string>
+    
+    <string name="label_login">Please log-in:</string>
+    <string name="user">User</string>
+    <string name="password">Password</string>
+    <string name="name">name</string>
+    <string name="prename">prename</string>
+    <string name="location">location</string>
+    <string name="birth">birth</string>
+    <string name="age">age (in month)</string>
+    <string name="guardian">name of guardian</string>
+
+    <string name="sex_male">male</string>
+    <string name="sex_female">female</string>
+    <string name="sex_fluid">fluid</string>
+    
+    <string name="forgot"><u>Forgot password?</u></string>
+    <string name="ok">OK</string>
+    <string name="select">Select</string>
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
+    <string name="back">Back</string>
+    <string name="next">Next</string>
+
+
+    <!-- drawer -->
+    <string name="drawer_open">Open</string>
+    <string name="drawer_close">Close</string>
 </resources>

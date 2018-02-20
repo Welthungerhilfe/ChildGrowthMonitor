@@ -20,6 +20,7 @@ import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.media.MediaMuxer;
+import android.opengl.GLSurfaceView;
 import android.util.Log;
 import android.view.Surface;
 
@@ -78,7 +79,14 @@ public class VideoEncoderCore {
         // we can use for input and wrap it with a class that handles the EGL work.
         mEncoder = MediaCodec.createEncoderByType(MIME_TYPE);
         mEncoder.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
-        mInputSurface = mEncoder.createInputSurface();
+
+        // mmatiaschek 20.02.2018 we need to set GLSurface to InputSurface instead of creating one
+        // TODO: do dependency injection?
+        //mInputSurface = mEncoder.createInputSurface();
+        mInputSurface = mEncoder.createPersistentInputSurface();
+        mEncoder.setInputSurface(mInputSurface);
+
+        //mInputSurface = surface;
         mEncoder.start();
 
         // Create a MediaMuxer.  We can't add the video track and start() the muxer here,

@@ -44,8 +44,10 @@ public class MainActivity extends AppCompatActivity {
                 //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                 //        .setAction("Action", null).show();
                 //Intent i = new Intent(getApplicationContext(), CameraCaptureActivity.class);
-                Intent i = new Intent(getApplicationContext(), RecorderActivity.class);
-                startActivity(i);
+                RecordingSurface rs = new RecordingSurface();
+                rs.testEncodeVideoToMp4(getApplicationContext());
+                //Intent i = new Intent(getApplicationContext(), RecorderActivity.class);
+                //startActivity(i);
             }
         });
     }

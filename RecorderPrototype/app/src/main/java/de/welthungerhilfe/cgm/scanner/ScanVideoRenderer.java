@@ -56,6 +56,11 @@ package de.welthungerhilfe.cgm.scanner;
         import javax.microedition.khronos.egl.EGLConfig;
         import javax.microedition.khronos.opengles.GL10;
 
+
+        // TODO: port from GL10 to GLES10 for better performance?
+        // TODO: projection matrix and camera transform matrix for 3D display of point clouds?
+        // TODO: use RecordingSurface
+
 /**
  * A simple OpenGL renderer that renders the Tango RGB camera texture on a full-screen background.
  */

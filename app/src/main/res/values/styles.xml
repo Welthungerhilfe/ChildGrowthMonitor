@@ -79,4 +79,16 @@
         <item name="textAllCaps">true</item>
     </style>
 
+    <style name="WhiteButton" parent="Widget.AppCompat.Button">
+        <item name="android:textColor">@color/colorPrimary</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">38dp</item>
+    </style>
+
+    <style name="GreenButton" parent="Widget.AppCompat.Button">
+        <item name="android:textColor">@color/colorWhite</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">38dp</item>
+    </style>
+
 </resources>

@@ -29,7 +29,7 @@
         android:id="@+id/txtTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="01. Front View"
+        android:text="02. Back View"
         android:textColor="@color/colorWhite"
         android:textSize="22sp"
         android:textStyle="bold"/>
@@ -47,14 +47,36 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:src="@drawable/baby"/>
+            android:src="@drawable/baby_turn"/>
 
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:src="@drawable/updown"
+            android:src="@drawable/ruler"
             android:tint="@color/colorWhite"/>
-        
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/txtHeight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="62"
+                android:textColor="@color/colorWhite"
+                android:textSize="16sp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="cm"
+                android:textColor="@color/colorWhite"
+                android:textSize="16sp"/>
+
+        </LinearLayout>
+
     </LinearLayout>
     
     <TextView
@@ -66,7 +88,7 @@
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
         android:gravity="center"
-        android:text="Start scanning the front side of the baby from top to bottom and back again"
+        android:text="Your Scan has been successful!"
         android:textColor="@color/colorWhite"
         android:textSize="20sp"/>
 
@@ -77,7 +99,7 @@
         android:background="@drawable/button_white_round"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
-        android:text="Start Scan"
+        android:text="@string/next"
         android:textColor="@color/colorPrimary"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"/>

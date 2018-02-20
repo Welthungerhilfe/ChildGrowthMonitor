@@ -46,10 +46,11 @@
             
             <ImageView
                 android:id="@+id/imgSortDate"
-                android:layout_width="18dp"
-                android:layout_height="18dp"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 android:src="@drawable/check"
                 android:visibility="visible"
+                android:tint="@color/colorPrimary"
                 android:layout_centerVertical="true"/>
 
             <LinearLayout
@@ -81,9 +82,10 @@
                 </LinearLayout>
 
                 <ImageView
-                    android:layout_width="18dp"
-                    android:layout_height="18dp"
-                    android:src="@drawable/right"/>
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:src="@drawable/right"
+                    android:tint="@color/colorGreyDark"/>
 
             </LinearLayout>
 
@@ -110,10 +112,11 @@
 
             <ImageView
                 android:id="@+id/imgSortLocation"
-                android:layout_width="18dp"
-                android:layout_height="18dp"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 android:src="@drawable/check"
                 android:visibility="invisible"
+                android:tint="@color/colorPrimary"
                 android:layout_centerVertical="true"/>
 
             <LinearLayout
@@ -145,9 +148,10 @@
                 </LinearLayout>
 
                 <ImageView
-                    android:layout_width="18dp"
-                    android:layout_height="18dp"
-                    android:src="@drawable/right"/>
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:src="@drawable/right"
+                    android:tint="@color/colorGreyDark"/>
 
             </LinearLayout>
 
@@ -174,10 +178,11 @@
 
             <ImageView
                 android:id="@+id/imgSortWasting"
-                android:layout_width="18dp"
-                android:layout_height="18dp"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 android:src="@drawable/check"
                 android:visibility="invisible"
+                android:tint="@color/colorPrimary"
                 android:layout_centerVertical="true"/>
 
             <LinearLayout
@@ -233,10 +238,11 @@
 
             <ImageView
                 android:id="@+id/imgSortStunting"
-                android:layout_width="18dp"
-                android:layout_height="18dp"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 android:src="@drawable/check"
                 android:visibility="invisible"
+                android:tint="@color/colorPrimary"
                 android:layout_centerVertical="true"/>
 
             <LinearLayout

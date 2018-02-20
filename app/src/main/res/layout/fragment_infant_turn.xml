@@ -22,22 +22,22 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimary"
+    android:background="@color/colorWhite"
     android:padding="20dp">
 
     <TextView
         android:id="@+id/txtTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="01. Front View"
-        android:textColor="@color/colorWhite"
+        android:text="02. 360' Turn"
+        android:textColor="@color/colorPrimary"
         android:textSize="22sp"
         android:textStyle="bold"/>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/txtMessage"
+        android:layout_above="@+id/lytMessage"
         android:layout_below="@+id/txtTitle"
         android:gravity="center"
         android:padding="30dp"
@@ -47,38 +47,49 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:src="@drawable/baby"/>
+            android:src="@drawable/infant_turn"/>
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:src="@drawable/updown"
-            android:tint="@color/colorWhite"/>
-        
     </LinearLayout>
-    
-    <TextView
-        android:id="@+id/txtMessage"
+
+    <LinearLayout
+        android:id="@+id/lytMessage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/btnStartScan"
         android:layout_marginBottom="30dp"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp"
-        android:gravity="center"
-        android:text="Start scanning the front side of the baby from top to bottom and back again"
-        android:textColor="@color/colorWhite"
-        android:textSize="20sp"/>
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:gravity="center"
+            android:text="Let the infant turn by 360'"
+            android:textColor="@color/colorPrimary"
+            android:textSize="20sp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:gravity="center"
+            android:text="around its own axis."
+            android:textColor="@color/colorPrimary"
+            android:textSize="20sp"/>
+
+    </LinearLayout>
 
     <Button
         android:id="@+id/btnStartScan"
         android:layout_width="wrap_content"
         android:layout_height="38dp"
-        android:background="@drawable/button_white_round"
+        android:background="@drawable/button_green_round"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         android:text="Start Scan"
-        android:textColor="@color/colorPrimary"
+        android:textColor="@color/colorWhite"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"/>
 

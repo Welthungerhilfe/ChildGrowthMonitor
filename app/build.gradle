@@ -49,8 +49,9 @@ dependencies {
 
     implementation 'com.jaredrummler:material-spinner:1.2.4'
 
-    implementation 'com.google.firebase:firebase-auth:11.0.4'
-    implementation 'com.google.firebase:firebase-storage:11.0.4'
-    implementation 'com.google.android.gms:play-services-maps:11.0.4'
+    implementation 'com.google.firebase:firebase-auth:11.8.0'
+    implementation 'com.google.firebase:firebase-storage:11.8.0'
+    implementation 'com.google.firebase:firebase-firestore:11.8.0'
+    implementation 'com.google.android.gms:play-services-maps:11.8.0'
 }
 apply plugin: 'com.google.gms.google-services'

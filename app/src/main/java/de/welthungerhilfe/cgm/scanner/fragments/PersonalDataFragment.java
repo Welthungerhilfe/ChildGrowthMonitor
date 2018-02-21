@@ -36,6 +36,7 @@ import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -176,7 +177,10 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
                 break;
             case R.id.btnNext:
                 if (validate()) {
-                    String personId = Utils.getSaltString(10);
+
+                    ((CreateDataAcitivty)getContext()).showProgressDialog();
+
+                    final String personId = Utils.getSaltString(10);
 
                     String consentPath = AppConstants.STORAGE_CONSENT_URL.replace("{id}", personId) + System.currentTimeMillis() + "_" + ((CreateDataAcitivty)getContext()).qrCode + ".png";
                     StorageReference consentRef = AppController.getInstance().storageRootRef.child(consentPath);
@@ -184,17 +188,20 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
                     uploadTask.addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-
+                            ((CreateDataAcitivty)getContext()).hideProgressDialog();
+                            Toast.makeText(getContext(), "Uploading Consent Failed", Toast.LENGTH_SHORT).show();
                         }
                     }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            ((CreateDataAcitivty)getContext()).hideProgressDialog();
+
                             Uri downloadUrl = taskSnapshot.getDownloadUrl();
 
                             ((CreateDataAcitivty)getContext()).setPersonalData(
-                                    editName.getText().toString(), editPrename.getText().toString(),
-                                    editLocation.getText().toString(), editBirth.getText().toString(),
-                                    Integer.parseInt(editAge.getText().toString()), "male", downloadUrl.toString());
+                                    personId, editName.getText().toString(), editPrename.getText().toString(),
+                                    editBirth.getText().toString(), Integer.parseInt(editAge.getText().toString()),
+                                    "male", downloadUrl.toString());
                         }
                     });
                 }

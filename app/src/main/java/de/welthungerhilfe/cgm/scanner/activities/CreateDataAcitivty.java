@@ -24,6 +24,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
@@ -36,6 +37,13 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -43,6 +51,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import de.welthungerhilfe.cgm.scanner.AppController;
 import de.welthungerhilfe.cgm.scanner.R;
 import de.welthungerhilfe.cgm.scanner.adapters.FragmentAdapter;
 import de.welthungerhilfe.cgm.scanner.fragments.GrowthDataFragment;
@@ -58,7 +67,7 @@ import de.welthungerhilfe.cgm.scanner.models.QRNumber;
  * Created by Emerald on 2/19/2018.
  */
 
-public class CreateDataAcitivty extends AppCompatActivity {
+public class CreateDataAcitivty extends BaseActivity {
     private final String TAG = CreateDataAcitivty.class.getSimpleName();
 
     public Person person;
@@ -175,6 +184,8 @@ public class CreateDataAcitivty extends AppCompatActivity {
     }
 
     public void setMeasureData(float height, float weight, float muac, String additional) {
+        showProgressDialog();
+
         Measure measure = new Measure();
         measure.setHeight(height);
         measure.setWeight(weight);
@@ -182,5 +193,22 @@ public class CreateDataAcitivty extends AppCompatActivity {
         measure.setArtifact(additional);
 
         person.setMeasure(measure);
+
+        AppController.getInstance().firebaseFirestore.collection("persons")
+                .add(person)
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        hideProgressDialog();
+                        Toast.makeText(CreateDataAcitivty.this, "Person created failed", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+                        hideProgressDialog();
+                        Toast.makeText(CreateDataAcitivty.this, "Person created", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 }

@@ -24,6 +24,7 @@ import android.os.StrictMode;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -37,8 +38,11 @@ public class AppController extends Application {
 
     public FirebaseAuth firebaseAuth;
     public FirebaseUser firebaseUser;
+
     public FirebaseStorage firebaseStorage;
     public StorageReference storageRootRef;
+
+    public FirebaseFirestore firebaseFirestore;
 
     @Override
     public void onCreate() {
@@ -51,9 +55,11 @@ public class AppController extends Application {
 
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = firebaseAuth.getCurrentUser();
-        firebaseStorage = FirebaseStorage.getInstance(AppConstants.STORAGE_ROOT_URL);
 
+        firebaseStorage = FirebaseStorage.getInstance(AppConstants.STORAGE_ROOT_URL);
         storageRootRef = firebaseStorage.getReference();
+
+        firebaseFirestore = FirebaseFirestore.getInstance();
 
         mInstance = this;
     }

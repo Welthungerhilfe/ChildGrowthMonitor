@@ -21,9 +21,13 @@ package de.welthungerhilfe.cgm.scanner;
 import android.app.Application;
 import android.os.StrictMode;
 
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
+import de.welthungerhilfe.cgm.scanner.helper.AppConstants;
 import de.welthungerhilfe.cgm.scanner.utils.Utils;
 
 public class AppController extends Application {
@@ -33,6 +37,8 @@ public class AppController extends Application {
 
     public FirebaseAuth firebaseAuth;
     public FirebaseUser firebaseUser;
+    public FirebaseStorage firebaseStorage;
+    public StorageReference storageRootRef;
 
     @Override
     public void onCreate() {
@@ -45,6 +51,9 @@ public class AppController extends Application {
 
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = firebaseAuth.getCurrentUser();
+        firebaseStorage = FirebaseStorage.getInstance(AppConstants.STORAGE_ROOT_URL);
+
+        storageRootRef = firebaseStorage.getReference();
 
         mInstance = this;
     }

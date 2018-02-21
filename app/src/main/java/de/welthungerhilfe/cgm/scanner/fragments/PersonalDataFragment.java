@@ -25,15 +25,27 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.AppCompatRadioButton;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
+
+import java.util.Calendar;
+
+import de.welthungerhilfe.cgm.scanner.AppController;
 import de.welthungerhilfe.cgm.scanner.R;
 import de.welthungerhilfe.cgm.scanner.activities.BodySelectActivity;
 import de.welthungerhilfe.cgm.scanner.activities.CreateDataAcitivty;
@@ -42,12 +54,13 @@ import de.welthungerhilfe.cgm.scanner.activities.LocationDetectActivity;
 import de.welthungerhilfe.cgm.scanner.models.Loc;
 import de.welthungerhilfe.cgm.scanner.helper.AppConstants;
 import de.welthungerhilfe.cgm.scanner.utils.BitmapUtils;
+import de.welthungerhilfe.cgm.scanner.utils.Utils;
 
 /**
  * Created by Emerald on 2/19/2018.
  */
 
-public class PersonalDataFragment extends Fragment implements View.OnClickListener {
+public class PersonalDataFragment extends Fragment implements View.OnClickListener, DatePickerDialog.OnDateSetListener {
     private final int REQUEST_LOCATION = 0x1000;
 
     public Context context;
@@ -57,6 +70,7 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
     private EditText editName, editPrename, editLocation, editBirth, editAge, editGuardian;
 
     private AppCompatRadioButton radioFemale, radioMale, radioFluid;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -71,14 +85,14 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
         imgConsent = view.findViewById(R.id.imgConsent);
         byte[] data = ((CreateDataAcitivty)getContext()).qrSource;
         if (data != null) {
-            Bitmap bmp = BitmapFactory.decodeByteArray(data, 0, data.length);
-            imgConsent.setImageBitmap(BitmapUtils.rotateBitmap(bmp, 90));
+            imgConsent.setImageBitmap(BitmapFactory.decodeByteArray(data, 0, data.length));
         }
 
         editName = view.findViewById(R.id.editName);
         editPrename = view.findViewById(R.id.editPrename);
         editLocation = view.findViewById(R.id.editLocation);
         editBirth = view.findViewById(R.id.editBirth);
+        editBirth.setText("02/21/2018");
         editAge = view.findViewById(R.id.editAge);
         editGuardian = view.findViewById(R.id.editGuardian);
 
@@ -96,6 +110,61 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
         }
     }
 
+    public boolean validate() {
+        boolean valid = true;
+
+        String name = editName.getText().toString();
+        String prename = editPrename.getText().toString();
+        String location = editLocation.getText().toString();
+        String birth = editBirth.getText().toString();
+        String age = editAge.getText().toString();
+        String guardian = editGuardian.getText().toString();
+
+        if (name.isEmpty()) {
+            editName.setError("Please input name");
+            valid = false;
+        } else {
+            editName.setError(null);
+        }
+
+        if (prename.isEmpty()) {
+            editPrename.setError("Please input prename");
+            valid = false;
+        } else {
+            editPrename.setError(null);
+        }
+
+        if (location.isEmpty()) {
+            editLocation.setError("Please input location");
+            valid = false;
+        } else {
+            editLocation.setError(null);
+        }
+
+        if (birth.isEmpty()) {
+            editBirth.setError("Please input birthday");
+            valid = false;
+        } else {
+            editBirth.setError(null);
+        }
+
+        if (age.isEmpty()) {
+            editAge.setError("Please input age");
+            valid = false;
+        } else {
+            editName.setError(null);
+        }
+
+        if (guardian.isEmpty()) {
+            editGuardian.setError("Please input guardian");
+            valid = false;
+        } else {
+            editGuardian.setError(null);
+        }
+
+        return valid;
+    }
+
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
@@ -103,10 +172,33 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
                 startActivityForResult(new Intent(getContext(), LocationDetectActivity.class), REQUEST_LOCATION);
                 break;
             case R.id.imgBirth:
-
+                com.wdullaer.materialdatetimepicker.date.DatePickerDialog.newInstance(this).show(getActivity().getFragmentManager(), "Datepickerdialog");
                 break;
             case R.id.btnNext:
-                startActivity(new Intent(getContext(), BodySelectActivity.class));
+                if (validate()) {
+                    String personId = Utils.getSaltString(10);
+
+                    String consentPath = AppConstants.STORAGE_CONSENT_URL.replace("{id}", personId) + System.currentTimeMillis() + "_" + ((CreateDataAcitivty)getContext()).qrCode + ".png";
+                    StorageReference consentRef = AppController.getInstance().storageRootRef.child(consentPath);
+                    UploadTask uploadTask = consentRef.putBytes(((CreateDataAcitivty)getContext()).qrSource);
+                    uploadTask.addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+
+                        }
+                    }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            Uri downloadUrl = taskSnapshot.getDownloadUrl();
+
+                            ((CreateDataAcitivty)getContext()).setPersonalData(
+                                    editName.getText().toString(), editPrename.getText().toString(),
+                                    editLocation.getText().toString(), editBirth.getText().toString(),
+                                    Integer.parseInt(editAge.getText().toString()), "male", downloadUrl.toString());
+                        }
+                    });
+                }
+
                 break;
             case R.id.rytConsentDetail:
                 Intent intent = new Intent(getContext(), ImageDetailActivity.class);
@@ -114,5 +206,10 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
                 startActivity(intent);
                 break;
         }
+    }
+
+    @Override
+    public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
+        editBirth.setText((monthOfYear + 1) + "/" + dayOfMonth + "/" + year);
     }
 }

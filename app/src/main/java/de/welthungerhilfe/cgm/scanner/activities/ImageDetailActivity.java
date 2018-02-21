@@ -60,7 +60,7 @@ public class ImageDetailActivity extends AppCompatActivity {
         zoomView.setZoomEnable(true);
         if (bytes != null) {
             Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-            zoomView.setImageBitmap(BitmapUtils.rotateBitmap(bmp, 90));
+            zoomView.setImageBitmap(bmp);
         }
     }
 

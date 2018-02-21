@@ -41,6 +41,7 @@ dependencies {
     compile 'com.borax12.materialdaterangepicker:library:1.9'
     compile 'com.jakewharton:butterknife:8.8.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
+    implementation 'com.wdullaer:materialdatetimepicker:3.5.1'
 
     compile 'me.dm7.barcodescanner:zxing:1.9'
 
@@ -49,6 +50,7 @@ dependencies {
     implementation 'com.jaredrummler:material-spinner:1.2.4'
 
     implementation 'com.google.firebase:firebase-auth:11.0.4'
-    compile 'com.google.android.gms:play-services-maps:11.0.4'
+    implementation 'com.google.firebase:firebase-storage:11.0.4'
+    implementation 'com.google.android.gms:play-services-maps:11.0.4'
 }
 apply plugin: 'com.google.gms.google-services'

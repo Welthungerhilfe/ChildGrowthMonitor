@@ -21,6 +21,7 @@ package de.welthungerhilfe.cgm.scanner.activities;
 
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
@@ -51,6 +52,7 @@ import de.welthungerhilfe.cgm.scanner.helper.AppConstants;
 import de.welthungerhilfe.cgm.scanner.helper.events.MeasureResult;
 import de.welthungerhilfe.cgm.scanner.models.Measure;
 import de.welthungerhilfe.cgm.scanner.models.Person;
+import de.welthungerhilfe.cgm.scanner.models.QRNumber;
 
 /**
  * Created by Emerald on 2/19/2018.
@@ -59,8 +61,8 @@ import de.welthungerhilfe.cgm.scanner.models.Person;
 public class CreateDataAcitivty extends AppCompatActivity {
     private final String TAG = CreateDataAcitivty.class.getSimpleName();
 
-    private Person person;
-    private String qrCode;
+    public Person person;
+    public String qrCode;
     public byte[] qrSource;
 
     @BindView(R.id.container)
@@ -128,11 +130,29 @@ public class CreateDataAcitivty extends AppCompatActivity {
         tabs.setupWithViewPager(viewpager);
     }
 
+    public void setPersonalData(String id, String name, String surName, String birthday, int age, String sex, String consent) {
+        person.setId(id);
+        person.setName(name);
+        person.setSurname(surName);
+        person.setBirthday(birthday);
+        person.setAge(age);
+        person.setSex(sex);
+
+        QRNumber qrNumber = new QRNumber();
+        qrNumber.setCode(qrCode);
+        qrNumber.setConsent(consent);
+
+        person.setQrNumber(qrNumber);
+
+        // Start measuring
+        startActivity(new Intent(CreateDataAcitivty.this, BodySelectActivity.class));
+    }
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(MeasureResult event) {
         Measure measure = event.getMeasureResult();
 
-        measureFragment.setMeasure(measure);
+        measureFragment.setMachineMeasure(measure);
         viewpager.setCurrentItem(1);
     }
 
@@ -152,5 +172,15 @@ public class CreateDataAcitivty extends AppCompatActivity {
         }
 
         return super.onCreateOptionsMenu(menu);
+    }
+
+    public void setMeasureData(float height, float weight, float muac, String additional) {
+        Measure measure = new Measure();
+        measure.setHeight(height);
+        measure.setWeight(weight);
+        measure.setMuac(muac);
+        measure.setArtifact(additional);
+
+        person.setMeasure(measure);
     }
 }

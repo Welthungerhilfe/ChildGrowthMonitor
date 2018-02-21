@@ -20,9 +20,11 @@
 package de.welthungerhilfe.cgm.scanner.utils;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.os.Environment;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -65,11 +67,34 @@ public class BitmapUtils {
         }
     }
 
-    public static Bitmap rotateBitmap(Bitmap bmp, float degree) {
+    public static Bitmap getRotatedBitmap(Bitmap bmp, float degree) {
         Matrix matrix = new Matrix();
         matrix.postRotate(degree);
         Bitmap result = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), bmp.getHeight(), matrix, true);
 
         return result;
+    }
+
+    public static Bitmap getRotatedBitmap(byte[] data, float degree) {
+        Bitmap bmp = BitmapFactory.decodeByteArray(data, 0, data.length);
+        Bitmap rotatedBmp = getRotatedBitmap(bmp, degree);
+
+        return rotatedBmp;
+    }
+
+    public static byte[] getRotatedByte(Bitmap bmp, float degree) {
+        Bitmap rotatedBmp = getRotatedBitmap(bmp, degree);
+
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        rotatedBmp.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        return stream.toByteArray();
+    }
+
+    public static byte[] getRotatedByte(byte[] data, float degree) {
+        Bitmap rotatedBmp = getRotatedBitmap(data, degree);
+
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        rotatedBmp.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        return stream.toByteArray();
     }
 }

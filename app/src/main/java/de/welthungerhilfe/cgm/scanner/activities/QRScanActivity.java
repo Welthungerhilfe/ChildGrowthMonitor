@@ -39,6 +39,7 @@ import java.io.OutputStream;
 
 import de.welthungerhilfe.cgm.scanner.dialogs.ConfirmDialog;
 import de.welthungerhilfe.cgm.scanner.helper.AppConstants;
+import de.welthungerhilfe.cgm.scanner.utils.BitmapUtils;
 import de.welthungerhilfe.cgm.scanner.views.QRScanView;
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
 
@@ -100,7 +101,7 @@ public class QRScanActivity extends AppCompatActivity implements ConfirmDialog.O
     public void handleQRResult(String qrCode, byte[] bitmap) {
         Intent intent = new Intent(QRScanActivity.this, CreateDataAcitivty.class);
         intent.putExtra(AppConstants.EXTRA_QR, qrCode);
-        intent.putExtra(AppConstants.EXTRA_QR_BITMAP, bitmap);
+        intent.putExtra(AppConstants.EXTRA_QR_BITMAP, BitmapUtils.getRotatedByte(bitmap, 90));
         startActivity(intent);
         finish();
     }

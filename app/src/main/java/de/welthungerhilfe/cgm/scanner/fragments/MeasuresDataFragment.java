@@ -36,6 +36,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import de.welthungerhilfe.cgm.scanner.R;
+import de.welthungerhilfe.cgm.scanner.activities.CreateDataAcitivty;
 import de.welthungerhilfe.cgm.scanner.models.Measure;
 import de.welthungerhilfe.cgm.scanner.utils.Utils;
 
@@ -78,13 +79,44 @@ public class MeasuresDataFragment extends Fragment implements View.OnClickListen
         return view;
     }
 
-    public void setMeasure(final Measure measure) {
+    public void setMachineMeasure(final Measure measure) {
         String dateStr = measure.getDate();
         txtDate.setText(dateStr);
 
         editMachineHeight.setText(Float.toString(measure.getHeight()));
         editMachineWeight.setText(Float.toString(measure.getWeight()));
         editMachineMuac.setText(Float.toString(measure.getMuac()));
+    }
+
+    public boolean validate() {
+        boolean valid = true;
+
+        String height = editManualHeight.getText().toString();
+        String weight = editManualWeight.getText().toString();
+        String muac = editManualMuac.getText().toString();
+
+        if (height.isEmpty()) {
+            editManualHeight.setError("Please input height");
+            valid = false;
+        } else {
+            editManualHeight.setError(null);
+        }
+
+        if (weight.isEmpty()) {
+            editManualWeight.setError("Please input weight");
+            valid = false;
+        } else {
+            editManualWeight.setError(null);
+        }
+
+        if (muac.isEmpty()) {
+            editManualMuac.setError("Please input MUAC");
+            valid = false;
+        } else {
+            editManualMuac.setError(null);
+        }
+
+        return valid;
     }
 
     @Override
@@ -95,6 +127,12 @@ public class MeasuresDataFragment extends Fragment implements View.OnClickListen
             case R.id.txtOK:
                 lytMeasureOperation.setVisibility(View.GONE);
                 lytMeasureMachine.setVisibility(View.VISIBLE);
+                if (validate()) {
+
+                }
+                ((CreateDataAcitivty)getContext()).setMeasureData(
+                        Float.parseFloat(editManualHeight.getText().toString()), Float.parseFloat(editManualWeight.getText().toString()),
+                        Float.parseFloat(editManualMuac.getText().toString()), editManualAddition.getText().toString());
                 break;
             case R.id.btnAlert:
                 break;

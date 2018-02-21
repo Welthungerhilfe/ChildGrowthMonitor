@@ -21,25 +21,32 @@ package de.welthungerhilfe.cgm.scanner.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import butterknife.BindString;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import de.welthungerhilfe.cgm.scanner.AppController;
 import de.welthungerhilfe.cgm.scanner.R;
+import de.welthungerhilfe.cgm.scanner.helper.SessionManager;
 
 public class LoginActivity extends BaseActivity {
 
     private static final String TAG = LoginActivity.class.getSimpleName();
-
-    private FirebaseAuth mAuth;
 
     @BindView(R.id.editUser)
     EditText editUser;
@@ -54,19 +61,41 @@ public class LoginActivity extends BaseActivity {
     @OnClick(R.id.txtOK)
     void doSignIn(TextView txtOK) {
         if (validate()) {
-            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+            String email = editUser.getText().toString();
+            String password = editPassword.getText().toString();
+
+            showProgressDialog();
+
+            AppController.getInstance().firebaseAuth.signInWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if (task.isSuccessful()) {
+                                session.setSigned(true);
+                                startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                            } else {
+                                Toast.makeText(LoginActivity.this, "Login Failed", Toast.LENGTH_LONG).show();
+                            }
+                            hideProgressDialog();
+                        }
+                    });
         }
     }
 
     @OnClick(R.id.txtCancel)
     void doSignOut(TextView txtCancel) {
+        AppController.getInstance().firebaseAuth.signOut();
+        session.setSigned(false);
 
+        //createUser("zhangnemo34@hotmail.com", "Crystal");
     }
 
     @OnClick(R.id.txtForgot)
     void doForgot(TextView txtForgot) {
 
     }
+
+    private SessionManager session;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -76,7 +105,16 @@ public class LoginActivity extends BaseActivity {
 
         ButterKnife.bind(this);
 
-        mAuth = FirebaseAuth.getInstance();
+        session = new SessionManager(this);
+    }
+
+    public void onStart() {
+        super.onStart();
+
+        if (AppController.getInstance().firebaseUser != null && session.isSigned()) {
+            startActivity(new Intent(getApplicationContext(), MainActivity.class));
+            finish();
+        }
     }
 
     private boolean validate() {
@@ -100,5 +138,25 @@ public class LoginActivity extends BaseActivity {
         }
 
         return valid;
+    }
+
+    public void createUser(String email, String password) {
+        if (true) { // Validation check
+            showProgressDialog();
+            AppController.getInstance().firebaseAuth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            session.setSigned(true);
+                            startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                        } else {
+
+                        }
+
+                        hideProgressDialog();
+                    }
+                });
+        }
     }
 }

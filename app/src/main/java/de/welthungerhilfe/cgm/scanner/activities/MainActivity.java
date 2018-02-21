@@ -51,8 +51,10 @@ import java.util.Calendar;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import de.welthungerhilfe.cgm.scanner.AppController;
 import de.welthungerhilfe.cgm.scanner.R;
 import de.welthungerhilfe.cgm.scanner.adapters.RecyclerDataAdapter;
+import de.welthungerhilfe.cgm.scanner.helper.SessionManager;
 import de.welthungerhilfe.cgm.scanner.models.Person;
 import de.welthungerhilfe.cgm.scanner.helper.AppConstants;
 
@@ -134,12 +136,16 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
     private ActionBarDrawerToggle mDrawerToggle;
 
+    private SessionManager session;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         ButterKnife.bind(this);
+
+        session = new SessionManager(MainActivity.this);
 
         setupSidemenu();
         setupActionBar();
@@ -157,10 +163,23 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         navMenu.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem menuItem) {
+                switch (menuItem.getItemId()) {
+                    case R.id.menuHome:
+                        break;
+                    case R.id.menuLogout:
+                        AppController.getInstance().firebaseAuth.signOut();
+                        session.setSigned(false);
+                        startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                        finish();
+                        break;
+                }
                 drawerLayout.closeDrawers();
                 return true;
             }
         });
+        View headerView = navMenu.getHeaderView(0);
+        TextView txtUsername = headerView.findViewById(R.id.txtUsername);
+        txtUsername.setText(AppController.getInstance().firebaseUser.getEmail());
     }
 
     private void setupActionBar() {

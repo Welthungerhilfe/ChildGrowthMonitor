@@ -21,12 +21,18 @@ package de.welthungerhilfe.cgm.scanner;
 import android.app.Application;
 import android.os.StrictMode;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 import de.welthungerhilfe.cgm.scanner.utils.Utils;
 
 public class AppController extends Application {
     public static final String TAG = AppController.class.getSimpleName();
 
     private static AppController mInstance;
+
+    public FirebaseAuth firebaseAuth;
+    public FirebaseUser firebaseUser;
 
     @Override
     public void onCreate() {
@@ -36,6 +42,9 @@ public class AppController extends Application {
         StrictMode.setVmPolicy(builder.build());
 
         Utils.overrideFont(getApplicationContext(), "SERIF", "roboto.ttf");
+
+        firebaseAuth = FirebaseAuth.getInstance();
+        firebaseUser = firebaseAuth.getCurrentUser();
 
         mInstance = this;
     }

@@ -72,6 +72,7 @@ public class LoginActivity extends BaseActivity {
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if (task.isSuccessful()) {
                                 session.setSigned(true);
+                                AppController.getInstance().prepareFirebaseUser();
                                 startActivity(new Intent(LoginActivity.this, MainActivity.class));
                             } else {
                                 Toast.makeText(LoginActivity.this, "Login Failed", Toast.LENGTH_LONG).show();

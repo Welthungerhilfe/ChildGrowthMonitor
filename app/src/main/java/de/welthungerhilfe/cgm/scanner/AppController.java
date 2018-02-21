@@ -67,4 +67,8 @@ public class AppController extends Application {
     public static synchronized AppController getInstance() {
         return mInstance;
     }
+
+    public void prepareFirebaseUser() {
+        firebaseUser = firebaseAuth.getCurrentUser();
+    }
 }

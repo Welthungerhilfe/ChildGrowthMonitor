@@ -49,6 +49,9 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.welthungerhilfe.cgm.scanner.AppController;
@@ -194,8 +197,10 @@ public class CreateDataAcitivty extends BaseActivity {
 
         person.setMeasure(measure);
 
+        Map<String, Person> map = new HashMap<>();
+        map.put(person.getId(), person);
         AppController.getInstance().firebaseFirestore.collection("persons")
-                .add(person)
+                .add(map)
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {

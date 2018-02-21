@@ -19,10 +19,9 @@
 
 package de.welthungerhilfe.cgm.scanner;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.PixelFormat;
 import android.hardware.display.DisplayManager;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
@@ -39,6 +38,7 @@ import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.Surface;
+import android.view.SurfaceView;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -52,7 +52,6 @@ import com.google.atap.tangoservice.TangoInvalidException;
 import com.google.atap.tangoservice.TangoOutOfDateException;
 import com.google.atap.tangoservice.TangoPointCloudData;
 import com.google.atap.tangoservice.TangoPoseData;
-import com.google.atap.tangoservice.experimental.TangoImageBuffer;
 import com.projecttango.tangosupport.TangoSupport;
 
 import java.io.File;
@@ -70,9 +69,12 @@ public class RecorderActivity extends AppCompatActivity {
     private static final int INVALID_TEXTURE_ID = 0;
     private static final String sTimestampFormat = "Timestamp: %f";
 
-    private GLSurfaceView mSurfaceView;
+    private GLSurfaceView mCameraSurfaceView;
     private ScanVideoRenderer mRenderer;
     private TextView mDisplayTextView;
+
+    private SurfaceView mOverlaySurfaceView;
+    private SurfaceView mPointCloudSurfaceView;
 
     private Tango mTango;
     private TangoConfig mConfig;
@@ -105,6 +107,15 @@ public class RecorderActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recorder);
 
+        mDisplayTextView = (TextView) findViewById(R.id.display_textview);
+        mCameraSurfaceView = (GLSurfaceView) findViewById(R.id.surfaceview);
+
+        mOverlaySurfaceView = (SurfaceView) findViewById(R.id.overlaySurfaceView);
+        mOverlaySurfaceView.getHolder().setFormat(PixelFormat.TRANSLUCENT);
+
+        mPointCloudSurfaceView = (SurfaceView) findViewById(R.id.pointCloudSurfaceView);
+        mPointCloudSurfaceView.getHolder().setFormat(PixelFormat.TRANSLUCENT);
+
         // The request code used in ActivityCompat.requestPermissions()
         // and returned in the Activity's onRequestPermissionsResult()
         int PERMISSION_ALL = 1;
@@ -129,7 +140,7 @@ public class RecorderActivity extends AppCompatActivity {
                 //startActivity(i);
 
                 mRecordingEnabled = !mRecordingEnabled;
-                mSurfaceView.queueEvent(new Runnable() {
+                mCameraSurfaceView.queueEvent(new Runnable() {
                     @Override public void run() {
                         // notify the renderer that we want to change the encoder's state
                         mRenderer.changeRecordingState(mRecordingEnabled);
@@ -142,8 +153,6 @@ public class RecorderActivity extends AppCompatActivity {
 
         mRecordingEnabled = sVideoEncoder.isRecording();
 
-        mDisplayTextView = (TextView) findViewById(R.id.display_textview);
-        mSurfaceView = (GLSurfaceView) findViewById(R.id.surfaceview);
         DisplayManager displayManager = (DisplayManager) getSystemService(DISPLAY_SERVICE);
         if (displayManager != null) {
             displayManager.registerDisplayListener(new DisplayManager.DisplayListener() {
@@ -172,11 +181,11 @@ public class RecorderActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        mSurfaceView.onResume();
+        mCameraSurfaceView.onResume();
 
         // Set render mode to RENDERMODE_CONTINUOUSLY to force getting onDraw callbacks until the
         // Tango Service is properly set up and we start getting onFrameAvailable callbacks.
-        mSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+        mCameraSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 
         // Initialize Tango Service as a normal Android Service. Since we call mTango.disconnect()
         // in onPause, this will unbind Tango Service, so every time onResume gets called we
@@ -222,7 +231,7 @@ public class RecorderActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        mSurfaceView.onPause();
+        mCameraSurfaceView.onPause();
         // Synchronize against disconnecting while the service is being used in the OpenGL
         // thread or in the UI thread.
         // NOTE: DO NOT lock against this same object in the Tango callback thread.
@@ -375,8 +384,8 @@ public class RecorderActivity extends AppCompatActivity {
                     // If you need to render at a higher rate (i.e., if you want to render complex
                     // animations smoothly) you  can use RENDERMODE_CONTINUOUSLY throughout the
                     // application lifecycle.
-                    if (mSurfaceView.getRenderMode() != GLSurfaceView.RENDERMODE_WHEN_DIRTY) {
-                        mSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+                    if (mCameraSurfaceView.getRenderMode() != GLSurfaceView.RENDERMODE_WHEN_DIRTY) {
+                        mCameraSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
                     }
 
                     // Note that the RGB data is not passed as a parameter here.
@@ -390,7 +399,7 @@ public class RecorderActivity extends AppCompatActivity {
                     // to run in synchrony with this requesting call.
                     mIsFrameAvailableTangoThread.set(true);
                     // Trigger an OpenGL render to update the OpenGL scene with the new RGB data.
-                    mSurfaceView.requestRender();
+                    mCameraSurfaceView.requestRender();
                 }
             }
         });
@@ -444,7 +453,7 @@ public class RecorderActivity extends AppCompatActivity {
 
     // TODO: setup own renderer for scanning process (or attribute Apache License 2.0 from Google)
     private void setupRenderer() {
-        mSurfaceView.setEGLContextClientVersion(2);
+        mCameraSurfaceView.setEGLContextClientVersion(2);
         mRenderer = new ScanVideoRenderer(getApplicationContext(), sVideoEncoder, outputFile, new ScanVideoRenderer.RenderCallback() {
             @Override
             public void preRender() {
@@ -477,6 +486,7 @@ public class RecorderActivity extends AppCompatActivity {
                         if (mIsFrameAvailableTangoThread.compareAndSet(true, false)) {
                             double rgbTimestamp =
                                     mTango.updateTexture(TangoCameraIntrinsics.TANGO_CAMERA_COLOR);
+
                             // {@code rgbTimestamp} contains the exact timestamp at which the
                             // rendered RGB frame was acquired.
 
@@ -507,7 +517,7 @@ public class RecorderActivity extends AppCompatActivity {
                 }
             }
         });
-        mSurfaceView.setRenderer(mRenderer);
+        mCameraSurfaceView.setRenderer(mRenderer);
     }
 
     /**
@@ -519,7 +529,7 @@ public class RecorderActivity extends AppCompatActivity {
 
         // We also need to update the camera texture UV coordinates. This must be run in the OpenGL
         // thread.
-        mSurfaceView.queueEvent(new Runnable() {
+        mCameraSurfaceView.queueEvent(new Runnable() {
             @Override
             public void run() {
                 if (mIsConnected) {

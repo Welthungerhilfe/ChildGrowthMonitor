@@ -45,6 +45,8 @@ package de.welthungerhilfe.cgm.scanner;
         import android.opengl.GLSurfaceView;
         import android.util.Log;
 
+        import com.android.grafika.gles.FullFrameRect;
+        import com.android.grafika.gles.Texture2dProgram;
         import com.projecttango.tangosupport.TangoSupport;
 
         import java.io.File;
@@ -106,8 +108,12 @@ public class ScanVideoRenderer implements GLSurfaceView.Renderer {
     private int mProgram;
     private RenderCallback mRenderCallback;
 
+    private FullFrameRect mFullScreen;
+
     private int mTextureId;
     private SurfaceTexture mSurfaceTexture;
+
+    private int mFrameCount;
 
     public ScanVideoRenderer(Context context, TextureMovieEncoder movieEncoder, File outputFile, RenderCallback callback) {
 
@@ -118,6 +124,8 @@ public class ScanVideoRenderer implements GLSurfaceView.Renderer {
         mRecordingEnabled = false;
 
         mTextureId = -1;
+
+        mFrameCount = -1;
 
         mRenderCallback = callback;
         mTextures[0] = 0;
@@ -169,13 +177,13 @@ public class ScanVideoRenderer implements GLSurfaceView.Renderer {
             mSurfaceTexture.release();
             mSurfaceTexture = null;
         }
-        /*
+
         if (mFullScreen != null) {
             mFullScreen.release(false);     // assume the GLSurfaceView EGL context is about
             mFullScreen = null;             //  to be destroyed
         }
-        mIncomingWidth = mIncomingHeight = -1;
-        */
+        //mIncomingWidth = mIncomingHeight = -1;
+
     }
 
 
@@ -204,6 +212,13 @@ public class ScanVideoRenderer implements GLSurfaceView.Renderer {
         GLES20.glClearColor(1.0f, 1.0f, 0.0f, 1.0f);
         mProgram = getProgram(vss, fss);
 
+        // Set up the texture blitter that will be used for on-screen display.  This
+        // is *not* applied to the recording, because that uses a separate shader.
+        mFullScreen = new FullFrameRect(
+                new Texture2dProgram(Texture2dProgram.ProgramType.TEXTURE_EXT));
+
+        mTextureId = mFullScreen.createTextureObject();
+
         mSurfaceTexture = new SurfaceTexture(mTextureId);
 
         // We're starting up or coming back.  Either way we've got a new EGLContext that will
@@ -221,12 +236,16 @@ public class ScanVideoRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onSurfaceChanged(GL10 gl10, int width, int height) {
         GLES20.glViewport(0, 0, width, height);
-        Log.v(TAG, "onSurfaceChanged");
+        Log.d(TAG, "onSurfaceChanged " + width + "x" + height);
     }
+
 
     @Override
     public void onDrawFrame(GL10 gl10) {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
+
+        //Log.d(TAG, "onDrawFrame tex=" + mTextureId);
+        boolean showBox = false;
 
         // Call application-specific code that needs to run on the OpenGL thread.
         mRenderCallback.preRender();
@@ -283,6 +302,10 @@ public class ScanVideoRenderer implements GLSurfaceView.Renderer {
         // TODO: be less lame.
         mVideoEncoder.setTextureId(mTextureId);
 
+        // Tell the video encoder thread that a new frame is available.
+        // This will be ignored if we're not actually recording.
+        //Log.v(TAG, "Timestamp onDraw: "+mSurfaceTexture.getTimestamp());
+        mVideoEncoder.frameAvailable(mSurfaceTexture);
 
         GLES20.glUseProgram(mProgram);
 
@@ -315,10 +338,23 @@ public class ScanVideoRenderer implements GLSurfaceView.Renderer {
         // Enable depth write again for any additional rendering on top of the camera surface.
         GLES20.glDepthMask(true);
 
-        // Tell the video encoder thread that a new frame is available.
-        // This will be ignored if we're not actually recording.
-        mVideoEncoder.frameAvailable(mSurfaceTexture);
+        // Draw a flashing box if we're recording.  This only appears on screen.
+        showBox = (mRecordingStatus == RECORDING_ON);
+        if (showBox && (++mFrameCount & 0x04) == 0) {
+            drawBox();
+        }
 
+    }
+
+    /**
+     * Draws a red box in the corner.
+     */
+    private void drawBox() {
+        GLES20.glEnable(GLES20.GL_SCISSOR_TEST);
+        GLES20.glScissor(0, 0, 100, 100);
+        GLES20.glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+        GLES20.glDisable(GLES20.GL_SCISSOR_TEST);
     }
 
     private void createTextures() {

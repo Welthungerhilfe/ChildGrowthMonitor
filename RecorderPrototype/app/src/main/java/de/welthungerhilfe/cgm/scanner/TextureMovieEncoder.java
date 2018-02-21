@@ -223,9 +223,8 @@ public class TextureMovieEncoder implements Runnable {
         st.getTransformMatrix(transform);
         long timestamp = st.getTimestamp();
 
-        // TODO: resolve error, why do i get no timestamp?
-        /*
-        if (timestamp == 0) {
+
+        /*if (timestamp == 0) {
             // Seeing this after device is toggled off/on with power button.  The
             // first frame back has a zero timestamp.
             //
@@ -233,7 +232,7 @@ public class TextureMovieEncoder implements Runnable {
             // important that we just ignore the frame.
             Log.w(TAG, "HEY: got SurfaceTexture with timestamp of zero");
             return;
-        } TODO: for now commented */
+        }*/
 
         mHandler.sendMessage(mHandler.obtainMessage(MSG_FRAME_AVAILABLE,
                 (int) (timestamp >> 32), (int) timestamp, transform));

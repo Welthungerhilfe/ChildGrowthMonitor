@@ -34,6 +34,7 @@ public class AppConstants {
     public static final String VAL_MEASURE_AUTO = "v1";
 
     public static final String EXTRA_QR = "extra_qr";
+    public static final String EXTRA_QR_BITMAP = "extra_qr_bitmap";
     public static final String EXTRA_LOCATION = "extra_location";
     public static final String EXTRA_PERSON_LIST = "extra_person_list";
     public static final String EXTRA_PERSON = "extra_person";

@@ -22,31 +22,41 @@ package de.welthungerhilfe.cgm.scanner.activities;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
 import com.google.zxing.Result;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+
 import de.welthungerhilfe.cgm.scanner.dialogs.ConfirmDialog;
 import de.welthungerhilfe.cgm.scanner.helper.AppConstants;
+import de.welthungerhilfe.cgm.scanner.views.QRScanView;
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
 
 /**
  * Created by Emerald on 2/19/2018.
  */
 
-public class QRScanActivity extends AppCompatActivity implements ConfirmDialog.OnConfirmListener, ZXingScannerView.ResultHandler {
+public class QRScanActivity extends AppCompatActivity implements ConfirmDialog.OnConfirmListener, QRScanView.QRScanHandler {
     private final String TAG = QRScanActivity.class.getSimpleName();
     private final int PERMISSION_LOCATION = 0x1000;
 
-    private ZXingScannerView qrScanView;
+    private QRScanView qrScanView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        qrScanView = new ZXingScannerView(this);
+        qrScanView = new QRScanView(this);
         setContentView(qrScanView);
 
         ConfirmDialog confirmDialog = new ConfirmDialog(this);
@@ -75,14 +85,6 @@ public class QRScanActivity extends AppCompatActivity implements ConfirmDialog.O
         }
     }
 
-    @Override
-    public void handleResult(Result result) {
-        Intent intent = new Intent(QRScanActivity.this, CreateDataAcitivty.class);
-        intent.putExtra(AppConstants.EXTRA_QR, result.getText());
-        startActivity(intent);
-        finish();
-    }
-
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == PERMISSION_LOCATION) {
             if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
@@ -92,5 +94,14 @@ public class QRScanActivity extends AppCompatActivity implements ConfirmDialog.O
                 qrScanView.startCamera();
             }
         }
+    }
+
+    @Override
+    public void handleQRResult(String qrCode, byte[] bitmap) {
+        Intent intent = new Intent(QRScanActivity.this, CreateDataAcitivty.class);
+        intent.putExtra(AppConstants.EXTRA_QR, qrCode);
+        intent.putExtra(AppConstants.EXTRA_QR_BITMAP, bitmap);
+        startActivity(intent);
+        finish();
     }
 }

@@ -19,6 +19,9 @@
 
 package de.welthungerhilfe.cgm.scanner.activities;
 
+import android.app.SearchManager;
+import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TabLayout;
@@ -26,7 +29,11 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 
 import org.greenrobot.eventbus.EventBus;
@@ -54,6 +61,7 @@ public class CreateDataAcitivty extends AppCompatActivity {
 
     private Person person;
     private String qrCode;
+    public byte[] qrSource;
 
     @BindView(R.id.container)
     CoordinatorLayout container;
@@ -78,6 +86,7 @@ public class CreateDataAcitivty extends AppCompatActivity {
         EventBus.getDefault().register(this);
 
         qrCode = getIntent().getStringExtra(AppConstants.EXTRA_QR);
+        qrSource = getIntent().getByteArrayExtra(AppConstants.EXTRA_QR_BITMAP);
 
         person = (Person) getIntent().getSerializableExtra(AppConstants.EXTRA_PERSON);
         if (person == null)
@@ -97,7 +106,7 @@ public class CreateDataAcitivty extends AppCompatActivity {
     private void setupActionBar() {
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
-        actionBar.setTitle("ID: XXXXXXXXXX");
+        actionBar.setTitle("ID: " + qrCode);
     }
 
     private void initFragments() {
@@ -125,5 +134,23 @@ public class CreateDataAcitivty extends AppCompatActivity {
 
         measureFragment.setMeasure(measure);
         viewpager.setCurrentItem(1);
+    }
+
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.menu_search, menu);
+
+        MenuItem searchItem = menu.findItem(R.id.actionSearch);
+        SearchManager searchManager = (SearchManager) CreateDataAcitivty.this.getSystemService(Context.SEARCH_SERVICE);
+
+        SearchView searchView = null;
+        if (searchItem != null) {
+            searchView = (SearchView) searchItem.getActionView();
+        }
+        if (searchView != null) {
+            searchView.setSearchableInfo(searchManager.getSearchableInfo(CreateDataAcitivty.this.getComponentName()));
+        }
+
+        return super.onCreateOptionsMenu(menu);
     }
 }

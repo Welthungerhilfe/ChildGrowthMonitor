@@ -34,6 +34,7 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.ScatterData;
 import com.github.mikephil.charting.data.ScatterDataSet;
 import com.github.mikephil.charting.interfaces.datasets.IScatterDataSet;
+import com.jaredrummler.materialspinner.MaterialSpinner;
 
 import java.util.ArrayList;
 
@@ -42,12 +43,20 @@ import de.welthungerhilfe.cgm.scanner.R;
 public class GrowthDataFragment extends Fragment {
 
     private ScatterChart chartGrowth;
+    private MaterialSpinner dropChart;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_growth, container, false);
 
         chartGrowth = view.findViewById(R.id.chartGrowth);
+        dropChart = view.findViewById(R.id.dropChart);
+        dropChart.setItems("Age / Height", "Age / Weight", "Height / Weight");
+        dropChart.setOnItemSelectedListener(new MaterialSpinner.OnItemSelectedListener<String>() {
+            @Override public void onItemSelected(MaterialSpinner view, int position, long id, String item) {
+
+            }
+        });
 
         initChart();
 
@@ -58,7 +67,7 @@ public class GrowthDataFragment extends Fragment {
         chartGrowth.getLegend().setEnabled(false);
         chartGrowth.getDescription().setEnabled(false);
 
-        chartGrowth.setBackgroundResource(R.drawable.back_chart);
+        //chartGrowth.setBackgroundResource(R.drawable.back_chart);
 
         YAxis yAxis = chartGrowth.getAxisLeft();
         yAxis.setDrawGridLines(true);

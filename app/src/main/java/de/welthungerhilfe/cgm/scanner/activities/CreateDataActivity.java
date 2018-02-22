@@ -22,27 +22,21 @@ package de.welthungerhilfe.cgm.scanner.activities;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 
 import org.greenrobot.eventbus.EventBus;
@@ -70,8 +64,8 @@ import de.welthungerhilfe.cgm.scanner.models.QRNumber;
  * Created by Emerald on 2/19/2018.
  */
 
-public class CreateDataAcitivty extends BaseActivity {
-    private final String TAG = CreateDataAcitivty.class.getSimpleName();
+public class CreateDataActivity extends BaseActivity {
+    private final String TAG = CreateDataActivity.class.getSimpleName();
 
     public Person person;
     public String qrCode;
@@ -157,7 +151,7 @@ public class CreateDataAcitivty extends BaseActivity {
         person.setQrNumber(qrNumber);
 
         // Start measuring
-        startActivity(new Intent(CreateDataAcitivty.this, BodySelectActivity.class));
+        startActivity(new Intent(CreateDataActivity.this, BodySelectActivity.class));
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -173,14 +167,14 @@ public class CreateDataAcitivty extends BaseActivity {
         menuInflater.inflate(R.menu.menu_search, menu);
 
         MenuItem searchItem = menu.findItem(R.id.actionSearch);
-        SearchManager searchManager = (SearchManager) CreateDataAcitivty.this.getSystemService(Context.SEARCH_SERVICE);
+        SearchManager searchManager = (SearchManager) CreateDataActivity.this.getSystemService(Context.SEARCH_SERVICE);
 
         SearchView searchView = null;
         if (searchItem != null) {
             searchView = (SearchView) searchItem.getActionView();
         }
         if (searchView != null) {
-            searchView.setSearchableInfo(searchManager.getSearchableInfo(CreateDataAcitivty.this.getComponentName()));
+            searchView.setSearchableInfo(searchManager.getSearchableInfo(CreateDataActivity.this.getComponentName()));
         }
 
         return super.onCreateOptionsMenu(menu);
@@ -205,14 +199,14 @@ public class CreateDataAcitivty extends BaseActivity {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         hideProgressDialog();
-                        Toast.makeText(CreateDataAcitivty.this, "Person created failed", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(CreateDataActivity.this, "Person created failed", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
                         hideProgressDialog();
-                        Toast.makeText(CreateDataAcitivty.this, "Person created", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(CreateDataActivity.this, "Person created", Toast.LENGTH_SHORT).show();
                     }
                 });
     }

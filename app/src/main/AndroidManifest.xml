@@ -43,7 +43,7 @@
         <activity android:name=".activities.QRScanActivity"
             android:screenOrientation="portrait"/>
 
-        <activity android:name=".activities.CreateDataAcitivty"
+        <activity android:name=".activities.CreateDataActivity"
             android:screenOrientation="portrait"/>
 
         <activity android:name=".activities.LocationSearchActivity"

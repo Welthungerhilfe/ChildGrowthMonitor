@@ -22,26 +22,15 @@ package de.welthungerhilfe.cgm.scanner.activities;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
-
-import com.google.zxing.Result;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 
 import de.welthungerhilfe.cgm.scanner.dialogs.ConfirmDialog;
 import de.welthungerhilfe.cgm.scanner.helper.AppConstants;
 import de.welthungerhilfe.cgm.scanner.utils.BitmapUtils;
 import de.welthungerhilfe.cgm.scanner.views.QRScanView;
-import me.dm7.barcodescanner.zxing.ZXingScannerView;
 
 /**
  * Created by Emerald on 2/19/2018.
@@ -99,7 +88,7 @@ public class QRScanActivity extends AppCompatActivity implements ConfirmDialog.O
 
     @Override
     public void handleQRResult(String qrCode, byte[] bitmap) {
-        Intent intent = new Intent(QRScanActivity.this, CreateDataAcitivty.class);
+        Intent intent = new Intent(QRScanActivity.this, CreateDataActivity.class);
         intent.putExtra(AppConstants.EXTRA_QR, qrCode);
         intent.putExtra(AppConstants.EXTRA_QR_BITMAP, BitmapUtils.getRotatedByte(bitmap, 90));
         startActivity(intent);

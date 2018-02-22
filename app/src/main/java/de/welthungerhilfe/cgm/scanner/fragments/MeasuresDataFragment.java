@@ -25,20 +25,13 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.util.Date;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 import de.welthungerhilfe.cgm.scanner.R;
-import de.welthungerhilfe.cgm.scanner.activities.CreateDataAcitivty;
+import de.welthungerhilfe.cgm.scanner.activities.CreateDataActivity;
 import de.welthungerhilfe.cgm.scanner.models.Measure;
-import de.welthungerhilfe.cgm.scanner.utils.Utils;
 
 /**
  * Created by Emerald on 2/19/2018.
@@ -130,7 +123,7 @@ public class MeasuresDataFragment extends Fragment implements View.OnClickListen
                 if (validate()) {
 
                 }
-                ((CreateDataAcitivty)getContext()).setMeasureData(
+                ((CreateDataActivity)getContext()).setMeasureData(
                         Float.parseFloat(editManualHeight.getText().toString()), Float.parseFloat(editManualWeight.getText().toString()),
                         Float.parseFloat(editManualMuac.getText().toString()), editManualAddition.getText().toString());
                 break;

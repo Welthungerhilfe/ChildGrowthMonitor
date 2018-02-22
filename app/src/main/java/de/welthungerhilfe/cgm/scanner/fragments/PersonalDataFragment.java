@@ -22,9 +22,7 @@ package de.welthungerhilfe.cgm.scanner.fragments;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -33,7 +31,6 @@ import android.support.v7.widget.AppCompatRadioButton;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -44,17 +41,13 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 
-import java.util.Calendar;
-
 import de.welthungerhilfe.cgm.scanner.AppController;
 import de.welthungerhilfe.cgm.scanner.R;
-import de.welthungerhilfe.cgm.scanner.activities.BodySelectActivity;
-import de.welthungerhilfe.cgm.scanner.activities.CreateDataAcitivty;
+import de.welthungerhilfe.cgm.scanner.activities.CreateDataActivity;
 import de.welthungerhilfe.cgm.scanner.activities.ImageDetailActivity;
 import de.welthungerhilfe.cgm.scanner.activities.LocationDetectActivity;
 import de.welthungerhilfe.cgm.scanner.models.Loc;
 import de.welthungerhilfe.cgm.scanner.helper.AppConstants;
-import de.welthungerhilfe.cgm.scanner.utils.BitmapUtils;
 import de.welthungerhilfe.cgm.scanner.utils.Utils;
 
 /**
@@ -84,7 +77,7 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
         view.findViewById(R.id.btnNext).setOnClickListener(this);
 
         imgConsent = view.findViewById(R.id.imgConsent);
-        byte[] data = ((CreateDataAcitivty)getContext()).qrSource;
+        byte[] data = ((CreateDataActivity)getContext()).qrSource;
         if (data != null) {
             imgConsent.setImageBitmap(BitmapFactory.decodeByteArray(data, 0, data.length));
         }
@@ -178,27 +171,27 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
             case R.id.btnNext:
                 if (validate()) {
 
-                    ((CreateDataAcitivty)getContext()).showProgressDialog();
+                    ((CreateDataActivity)getContext()).showProgressDialog();
 
                     final String personId = Utils.getSaltString(10);
 
-                    String consentPath = AppConstants.STORAGE_CONSENT_URL.replace("{id}", personId) + System.currentTimeMillis() + "_" + ((CreateDataAcitivty)getContext()).qrCode + ".png";
+                    String consentPath = AppConstants.STORAGE_CONSENT_URL.replace("{id}", personId) + System.currentTimeMillis() + "_" + ((CreateDataActivity)getContext()).qrCode + ".png";
                     StorageReference consentRef = AppController.getInstance().storageRootRef.child(consentPath);
-                    UploadTask uploadTask = consentRef.putBytes(((CreateDataAcitivty)getContext()).qrSource);
+                    UploadTask uploadTask = consentRef.putBytes(((CreateDataActivity)getContext()).qrSource);
                     uploadTask.addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            ((CreateDataAcitivty)getContext()).hideProgressDialog();
+                            ((CreateDataActivity)getContext()).hideProgressDialog();
                             Toast.makeText(getContext(), "Uploading Consent Failed", Toast.LENGTH_SHORT).show();
                         }
                     }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            ((CreateDataAcitivty)getContext()).hideProgressDialog();
+                            ((CreateDataActivity)getContext()).hideProgressDialog();
 
                             Uri downloadUrl = taskSnapshot.getDownloadUrl();
 
-                            ((CreateDataAcitivty)getContext()).setPersonalData(
+                            ((CreateDataActivity)getContext()).setPersonalData(
                                     personId, editName.getText().toString(), editPrename.getText().toString(),
                                     editBirth.getText().toString(), Integer.parseInt(editAge.getText().toString()),
                                     "male", downloadUrl.toString());
@@ -209,7 +202,7 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
                 break;
             case R.id.rytConsentDetail:
                 Intent intent = new Intent(getContext(), ImageDetailActivity.class);
-                intent.putExtra(AppConstants.EXTRA_QR_BITMAP, ((CreateDataAcitivty)getContext()).qrSource);
+                intent.putExtra(AppConstants.EXTRA_QR_BITMAP, ((CreateDataActivity)getContext()).qrSource);
                 startActivity(intent);
                 break;
         }

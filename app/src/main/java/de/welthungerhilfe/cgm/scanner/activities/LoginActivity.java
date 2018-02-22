@@ -24,8 +24,10 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -58,29 +60,9 @@ public class LoginActivity extends BaseActivity {
     @BindString(R.string.validate_password)
     String strPasswordValidation;
 
-    @OnClick(R.id.txtOK)
-    void doSignIn(TextView txtOK) {
-        if (validate()) {
-            String email = editUser.getText().toString();
-            String password = editPassword.getText().toString();
-
-            showProgressDialog();
-
-            AppController.getInstance().firebaseAuth.signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            if (task.isSuccessful()) {
-                                session.setSigned(true);
-                                AppController.getInstance().prepareFirebaseUser();
-                                startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                            } else {
-                                Toast.makeText(LoginActivity.this, "Login Failed", Toast.LENGTH_LONG).show();
-                            }
-                            hideProgressDialog();
-                        }
-                    });
-        }
+    @OnClick(R.id.btnOK)
+    void doSignIn(TextView btnOK) {
+        doSignInAction();
     }
 
     @OnClick(R.id.txtCancel)
@@ -105,6 +87,18 @@ public class LoginActivity extends BaseActivity {
         setContentView(R.layout.activity_login);
 
         ButterKnife.bind(this);
+
+        editPassword.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    doSignInAction();
+
+                    return true;
+                }
+                return false;
+            }
+        });
 
         session = new SessionManager(this);
     }
@@ -158,6 +152,30 @@ public class LoginActivity extends BaseActivity {
                         hideProgressDialog();
                     }
                 });
+        }
+    }
+
+    private void doSignInAction() {
+        if (validate()) {
+            String email = editUser.getText().toString();
+            String password = editPassword.getText().toString();
+
+            showProgressDialog();
+
+            AppController.getInstance().firebaseAuth.signInWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if (task.isSuccessful()) {
+                                session.setSigned(true);
+                                AppController.getInstance().prepareFirebaseUser();
+                                startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                            } else {
+                                Toast.makeText(LoginActivity.this, "Login Failed", Toast.LENGTH_LONG).show();
+                            }
+                            hideProgressDialog();
+                        }
+                    });
         }
     }
 }

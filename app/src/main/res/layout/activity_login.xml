@@ -65,45 +65,49 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPassword"
+                    android:imeOptions="actionDone"
                     android:hint="@string/password"/>
 
             </android.support.design.widget.TextInputLayout>
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp">
 
                 <TextView
                     android:id="@+id/txtForgot"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
-                    android:paddingTop="10dp"
                     android:text="@string/forgot"
                     android:textStyle="bold"/>
 
-                <TextView
-                    android:id="@+id/txtOK"
+                <Button
+                    android:id="@+id/btnOK"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="30dp"
+                    android:layout_height="30dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_centerVertical="true"
                     android:layout_alignParentRight="true"
-                    android:paddingTop="10dp"
+                    android:background="@color/colorPrimary"
                     android:text="@string/ok"
-                    android:textSize="18sp"
-                    android:textAllCaps="true"
-                    android:textColor="@color/colorGreen"/>
+                    android:textColor="@color/colorWhite"
+                    android:textSize="18sp"/>
 
                 <TextView
                     android:id="@+id/txtCancel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_toLeftOf="@+id/txtOK"
-                    android:paddingTop="10dp"
+                    android:layout_toLeftOf="@+id/btnOK"
+                    android:layout_alignParentTop="true"
+                    android:layout_centerVertical="true"
+                    android:layout_centerHorizontal="true"
                     android:text="@string/cancel"
-                    android:textSize="18sp"
                     android:textAllCaps="true"
-                    android:textColor="@color/colorGreen"/>
+                    android:textColor="@color/colorGreen"
+                    android:textSize="18sp" />
 
             </RelativeLayout>
 

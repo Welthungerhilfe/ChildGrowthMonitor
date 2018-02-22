@@ -87,7 +87,7 @@
             <Button
                 android:id="@+id/btnNext"
                 android:layout_width="100dp"
-                android:layout_height="40dp"
+                android:layout_height="38dp"
                 android:background="@color/colorPrimary"
                 android:text="@string/next"
                 android:textColor="@color/colorWhite"

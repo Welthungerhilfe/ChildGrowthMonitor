@@ -24,6 +24,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
@@ -41,12 +42,21 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.borax12.materialdaterangepicker.date.DatePickerDialog;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.orhanobut.dialogplus.DialogPlus;
 import com.orhanobut.dialogplus.OnClickListener;
 import com.orhanobut.dialogplus.ViewHolder;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -58,7 +68,7 @@ import de.welthungerhilfe.cgm.scanner.helper.SessionManager;
 import de.welthungerhilfe.cgm.scanner.models.Person;
 import de.welthungerhilfe.cgm.scanner.helper.AppConstants;
 
-public class MainActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
+public class MainActivity extends BaseActivity implements DatePickerDialog.OnDateSetListener {
     private final int REQUEST_LOCATION = 0x1000;
 
     @OnClick(R.id.fabCreate)
@@ -133,6 +143,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     NavigationView navMenu;
     @BindView(R.id.txtSortCase)
     TextView txtSortCase;
+    @BindView(R.id.txtNoPerson)
+    TextView txtNoPerson;
 
     private ActionBarDrawerToggle mDrawerToggle;
 
@@ -151,6 +163,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         setupActionBar();
 
         initUI();
+
+        loadDadta();
     }
 
     private void initUI() {
@@ -200,6 +214,32 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         };
 
         drawerLayout.addDrawerListener(mDrawerToggle);
+    }
+
+    private void loadDadta() {
+        showProgressDialog();
+
+        AppController.getInstance().firebaseFirestore.collection("persons")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        hideProgressDialog();
+                        boolean noData = true;
+                        if (task.isSuccessful()) {
+                            for (DocumentSnapshot document : task.getResult()) {
+                                Person person = document.toObject(Person.class);
+
+                                adapterData.addPerson(person);
+                                noData = false;
+                            }
+                        }
+                        if (noData) {
+                            recyclerData.setVisibility(View.GONE);
+                            txtNoPerson.setVisibility(View.VISIBLE);
+                        }
+                    }
+                });
     }
 
     @Override

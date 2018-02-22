@@ -55,21 +55,18 @@ public class RecyclerDataAdapter extends RecyclerView.Adapter<RecyclerDataAdapte
 
     @Override
     public void onBindViewHolder(RecyclerDataAdapter.ViewHolder holder, int position) {
-        /*
         Person person = personList.get(position);
 
         holder.txtName.setText(person.getName() + " " + person.getSurname());
         holder.txtWeight.setText(Float.toString(person.getMeasure().getWeight()));
         holder.txtHeight.setText(Float.toString(person.getMeasure().getHeight()));
-        */
 
         setAnimation(holder.itemView, position);
     }
 
     @Override
     public int getItemCount() {
-        //return personList.size();
-        return 15;
+        return personList.size();
     }
 
     private void setAnimation(View viewToAnimate, int position) {
@@ -85,18 +82,22 @@ public class RecyclerDataAdapter extends RecyclerView.Adapter<RecyclerDataAdapte
         notifyDataSetChanged();
     }
 
+    public void addPerson(Person person) {
+        personList.add(person);
+        notifyItemInserted(personList.size() - 1);
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.txtName)
-        TextView txtName;
-        @BindView(R.id.txtWeight)
-        TextView txtWeight;
-        @BindView(R.id.txtHeight)
-        TextView txtHeight;
+        public TextView txtName;
+        public TextView txtWeight;
+        public TextView txtHeight;
 
         public ViewHolder(View itemView) {
             super(itemView);
 
-            ButterKnife.bind(itemView);
+            txtName = itemView.findViewById(R.id.txtName);
+            txtWeight = itemView.findViewById(R.id.txtWeight);
+            txtHeight = itemView.findViewById(R.id.txtHeight);
         }
     }
 }

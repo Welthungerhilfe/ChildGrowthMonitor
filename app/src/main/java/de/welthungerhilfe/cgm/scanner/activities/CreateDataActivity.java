@@ -191,10 +191,8 @@ public class CreateDataActivity extends BaseActivity {
 
         person.setMeasure(measure);
 
-        Map<String, Person> map = new HashMap<>();
-        map.put(person.getId(), person);
         AppController.getInstance().firebaseFirestore.collection("persons")
-                .add(map)
+                .add(person)
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {

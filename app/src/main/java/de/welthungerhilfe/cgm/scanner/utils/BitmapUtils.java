@@ -30,6 +30,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import de.welthungerhilfe.cgm.scanner.helper.AppConstants;
+
 /**
  * Created by Emerald on 2/21/2018.
  */
@@ -82,6 +84,37 @@ public class BitmapUtils {
         return rotatedBmp;
     }
 
+    public static Bitmap getResizedBitmap(Bitmap bm, int w, int h) {
+        Bitmap BitmapOrg = bm;
+        int width = BitmapOrg.getWidth();
+        int height = BitmapOrg.getHeight();
+        int newWidth = w;
+        int newHeight = h;
+        float scaleWidth = ((float) newWidth) / width;
+        float scaleHeight = ((float) newHeight) / height;
+        Matrix matrix = new Matrix();
+        matrix.postScale(scaleWidth, scaleHeight);
+        Bitmap resizedBitmap = Bitmap.createBitmap(BitmapOrg, 0, 0, width, height, matrix, true);
+        return resizedBitmap;
+    }
+
+    public static byte[] getResizedByte(byte[] data, int w, int h) {
+        Bitmap bm = BitmapFactory.decodeByteArray(data, 0, data.length);
+        Bitmap BitmapOrg = bm;
+        int width = BitmapOrg.getWidth();
+        int height = BitmapOrg.getHeight();
+        int newWidth = w;
+        int newHeight = h;
+        float scaleWidth = ((float) newWidth) / width;
+        float scaleHeight = ((float) newHeight) / height;
+        Matrix matrix = new Matrix();
+        matrix.postScale(scaleWidth, scaleHeight);
+        Bitmap resizedBitmap = Bitmap.createBitmap(BitmapOrg, 0, 0, width, height, matrix, true);
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        resizedBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        return stream.toByteArray();
+    }
+
     public static byte[] getRotatedByte(Bitmap bmp, float degree) {
         Bitmap rotatedBmp = getRotatedBitmap(bmp, degree);
 
@@ -95,6 +128,49 @@ public class BitmapUtils {
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         rotatedBmp.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        return stream.toByteArray();
+    }
+
+    public static byte[] getResizedByte(Bitmap bm, int w, int h) {
+        Bitmap BitmapOrg = bm;
+        int width = BitmapOrg.getWidth();
+        int height = BitmapOrg.getHeight();
+        int newWidth = w;
+        int newHeight = h;
+        float scaleWidth = ((float) newWidth) / width;
+        float scaleHeight = ((float) newHeight) / height;
+        Matrix matrix = new Matrix();
+        matrix.postScale(scaleWidth, scaleHeight);
+        Bitmap resizedBitmap = Bitmap.createBitmap(BitmapOrg, 0, 0, width, height, matrix, true);
+
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        resizedBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        return stream.toByteArray();
+    }
+
+    public static Bitmap getAcceptableBitmap(Bitmap bmp) {
+        float ratio = 0;
+        float scaledWidth = 0, scaledHeight = 0;
+        if (bmp.getHeight() > AppConstants.MAX_IMAGE_SIZE) {
+            ratio = AppConstants.MAX_IMAGE_SIZE / bmp.getHeight();
+            scaledWidth = bmp.getWidth() * ratio;
+            scaledHeight= bmp.getHeight() * ratio;
+        }
+        if (bmp.getWidth() > AppConstants.MAX_IMAGE_SIZE) {
+            ratio = AppConstants.MAX_IMAGE_SIZE / bmp.getWidth();
+            scaledWidth = bmp.getWidth() * ratio;
+            scaledHeight= bmp.getHeight() * ratio;
+        }
+
+        if (ratio == 0)
+            return bmp;
+        else
+            return getResizedBitmap(bmp, (int)scaledWidth, (int)scaledHeight);
+    }
+
+    public static byte[] getByteData(Bitmap bmp) {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bmp.compress(Bitmap.CompressFormat.PNG, 100, stream);
         return stream.toByteArray();
     }
 }

@@ -47,6 +47,8 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
+import de.welthungerhilfe.cgm.scanner.helper.AppConstants;
+import de.welthungerhilfe.cgm.scanner.utils.BitmapUtils;
 import me.dm7.barcodescanner.core.BarcodeScannerView;
 import me.dm7.barcodescanner.core.DisplayUtils;
 
@@ -159,9 +161,14 @@ public class QRScanView extends BarcodeScannerView {
                                     ByteArrayOutputStream output_stream = new ByteArrayOutputStream();
                                     yuv_image.compressToJpeg(rect, 100, output_stream);
                                     byte[] byt = output_stream.toByteArray();
-                                    tmpResultHandler.handleQRResult(finalRawResult.getText(), byt);
-                                } else
-                                    tmpResultHandler.handleQRResult(finalRawResult.getText(), finalData);
+                                    Bitmap bmp = BitmapUtils.getAcceptableBitmap(BitmapFactory.decodeByteArray(byt, 0, byt.length));
+                                    byte[] data = BitmapUtils.getByteData(bmp);
+                                    tmpResultHandler.handleQRResult(finalRawResult.getText(), data);
+                                } else {
+                                    Bitmap bmp = BitmapUtils.getAcceptableBitmap(BitmapFactory.decodeByteArray(finalData, 0, finalData.length));
+                                    byte[] data = BitmapUtils.getByteData(bmp);
+                                    tmpResultHandler.handleQRResult(finalRawResult.getText(), data);
+                                }
                             }
                         }
                     });

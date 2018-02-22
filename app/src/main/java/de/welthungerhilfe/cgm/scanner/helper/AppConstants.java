@@ -24,6 +24,8 @@ package de.welthungerhilfe.cgm.scanner.helper;
  */
 
 public class AppConstants {
+    public static final int MAX_IMAGE_SIZE = 1024;
+
     public static final String GOOGLE_GEO_URL = "https://maps.googleapis.com/maps/api/geocode/json";
     public static final String STORAGE_ROOT_URL = "gs://scanner-195716.appspot.com";
     public static final String STORAGE_CONSENT_URL = "/data/person/{id}/consent/";

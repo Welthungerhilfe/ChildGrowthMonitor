@@ -6,6 +6,7 @@
     app:mrl_rippleOverlay="true">
 
     <RelativeLayout
+        android:id="@+id/rytItem"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingLeft="@dimen/activity_horizontal_margin"

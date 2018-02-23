@@ -22,6 +22,7 @@ package de.welthungerhilfe.cgm.scanner.activities;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
@@ -35,15 +36,23 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import butterknife.BindView;
@@ -56,9 +65,11 @@ import de.welthungerhilfe.cgm.scanner.fragments.MeasuresDataFragment;
 import de.welthungerhilfe.cgm.scanner.fragments.PersonalDataFragment;
 import de.welthungerhilfe.cgm.scanner.helper.AppConstants;
 import de.welthungerhilfe.cgm.scanner.helper.events.MeasureResult;
+import de.welthungerhilfe.cgm.scanner.models.Loc;
 import de.welthungerhilfe.cgm.scanner.models.Measure;
 import de.welthungerhilfe.cgm.scanner.models.Person;
 import de.welthungerhilfe.cgm.scanner.models.QRNumber;
+import de.welthungerhilfe.cgm.scanner.utils.Utils;
 
 /**
  * Created by Emerald on 2/19/2018.
@@ -97,13 +108,12 @@ public class CreateDataActivity extends BaseActivity {
         qrSource = getIntent().getByteArrayExtra(AppConstants.EXTRA_QR_BITMAP);
 
         person = (Person) getIntent().getSerializableExtra(AppConstants.EXTRA_PERSON);
-        if (person == null)
-            person = new Person();
 
         setupActionBar();
-
         initFragments();
         initUI();
+
+        checkQR();
     }
 
     public void onDestroy() {
@@ -114,7 +124,10 @@ public class CreateDataActivity extends BaseActivity {
     private void setupActionBar() {
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
-        actionBar.setTitle("ID: " + qrCode);
+        if (person != null)
+            actionBar.setTitle("ID: " + person.getId());
+        else
+            actionBar.setTitle("ID: " + "XXXXXXXXXX");
     }
 
     private void initFragments() {
@@ -136,29 +149,136 @@ public class CreateDataActivity extends BaseActivity {
         tabs.setupWithViewPager(viewpager);
     }
 
-    public void setPersonalData(String id, String name, String surName, String birthday, int age, String sex, String consent) {
-        person.setId(id);
+    public void setPersonalData(String name, String surName, String birthday, int age, String sex, Loc loc, String guardian) {
+        person = new Person();
         person.setName(name);
         person.setSurname(surName);
         person.setBirthday(birthday);
         person.setAge(age);
         person.setSex(sex);
+        person.setLastLocation(loc);
+        person.setGuardian(guardian);
+        person.setCreated(System.currentTimeMillis());
 
-        QRNumber qrNumber = new QRNumber();
-        qrNumber.setCode(qrCode);
-        qrNumber.setConsent(consent);
+        createPerson();
+    }
 
-        person.setQrNumber(qrNumber);
+    public void setMeasureData(float height, float weight, float muac, String additional) {
+        showProgressDialog();
 
-        // Start measuring
-        startActivity(new Intent(CreateDataActivity.this, BodySelectActivity.class));
+        final Measure measure = new Measure();
+        measure.setDate(System.currentTimeMillis());
+        measure.setHeight(height);
+        measure.setWeight(weight);
+        measure.setMuac(muac);
+        measure.setArtifact(additional);
+        measure.setType("manual");
+
+        AppController.getInstance().firebaseFirestore.collection("persons")
+                .document(person.getId())
+                .update("measures", measure)
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        hideProgressDialog();
+                        Toast.makeText(CreateDataActivity.this, "Add measure data failed", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        List<Measure> measures = person.getMeasures();
+                        measures.add(measure);
+                        person.setMeasures(measures);
+
+                        hideProgressDialog();
+                    }
+                });
+    }
+
+    private void createPerson() {
+        showProgressDialog();
+
+        AppController.getInstance().firebaseFirestore.collection("persons")
+                .add(person)
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        hideProgressDialog();
+                        Toast.makeText(CreateDataActivity.this, "Person created failed", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess(final DocumentReference documentReference) {
+                        person.setId(documentReference.getId());
+
+                        String consentPath = AppConstants.STORAGE_CONSENT_URL.replace("{id}", person.getId()) + System.currentTimeMillis() + "_" + qrCode + ".png";
+                        StorageReference consentRef = AppController.getInstance().storageRootRef.child(consentPath);
+                        UploadTask uploadTask = consentRef.putBytes(qrSource);
+                        uploadTask.addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                hideProgressDialog();
+                                documentReference.set(person);
+                                getSupportActionBar().setTitle("ID: " + person.getId());
+
+                                Toast.makeText(CreateDataActivity.this, "Uploading Consent Failed", Toast.LENGTH_SHORT).show();
+
+                                // Start measuring
+                                startActivity(new Intent(CreateDataActivity.this, BodySelectActivity.class));
+                            }
+                        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                hideProgressDialog();
+
+                                Uri downloadUrl = taskSnapshot.getDownloadUrl();
+
+                                QRNumber qrNumber = new QRNumber();
+                                qrNumber.setCode(qrCode);
+                                qrNumber.setConsent(downloadUrl.toString());
+
+                                person.setQrNumber(qrNumber);
+                                documentReference.set(person);
+                                getSupportActionBar().setTitle("ID: " + person.getId());
+
+                                // Start measuring
+                                startActivity(new Intent(CreateDataActivity.this, BodySelectActivity.class));
+                            }
+                        });
+                    }
+                });
+    }
+
+    public void checkQR() {
+        AppController.getInstance().firebaseFirestore.collection("persons")
+                .whereEqualTo("qrNumber.code", qrCode)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        boolean exist = false;
+                        if (task.isSuccessful()) {
+                            for (DocumentSnapshot document : task.getResult()) {
+                                person = document.toObject(Person.class);
+                                exist = true;
+                                break;
+                            }
+                        }
+                        if (exist) {
+                            getSupportActionBar().setTitle("ID: " + person.getId());
+                            personalFragment.initUI();
+                        }
+                    }
+                });
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(MeasureResult event) {
         Measure measure = event.getMeasureResult();
 
-        measureFragment.setMachineMeasure(measure);
+        measureFragment.addMeasure(measure);
         viewpager.setCurrentItem(1);
     }
 
@@ -178,34 +298,5 @@ public class CreateDataActivity extends BaseActivity {
         }
 
         return super.onCreateOptionsMenu(menu);
-    }
-
-    public void setMeasureData(float height, float weight, float muac, String additional) {
-        showProgressDialog();
-
-        Measure measure = new Measure();
-        measure.setHeight(height);
-        measure.setWeight(weight);
-        measure.setMuac(muac);
-        measure.setArtifact(additional);
-
-        person.setMeasure(measure);
-
-        AppController.getInstance().firebaseFirestore.collection("persons")
-                .add(person)
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        hideProgressDialog();
-                        Toast.makeText(CreateDataActivity.this, "Person created failed", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        hideProgressDialog();
-                        Toast.makeText(CreateDataActivity.this, "Person created", Toast.LENGTH_SHORT).show();
-                    }
-                });
     }
 }

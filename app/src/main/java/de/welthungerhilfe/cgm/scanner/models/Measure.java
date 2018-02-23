@@ -26,20 +26,21 @@ import java.io.Serializable;
  */
 
 public class Measure implements Serializable {
-    private String date;
+    private long date;
     private String type;
-    private Loc location;
     private int age;
     private float height;
     private float weight;
     private float muac;
+    private Loc location;
     private String artifact;
+    private boolean visible;
 
-    public String getDate() {
+    public long getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(long date) {
         this.date = date;
     }
 
@@ -49,14 +50,6 @@ public class Measure implements Serializable {
 
     public void setType(String type) {
         this.type = type;
-    }
-
-    public Loc getLocation() {
-        return location;
-    }
-
-    public void setLocation(Loc location) {
-        this.location = location;
     }
 
     public int getAge() {
@@ -97,5 +90,21 @@ public class Measure implements Serializable {
 
     public void setArtifact(String artifact) {
         this.artifact = artifact;
+    }
+
+    public Loc getLocation() {
+        return location;
+    }
+
+    public void setLocation(Loc location) {
+        this.location = location;
+    }
+
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
     }
 }

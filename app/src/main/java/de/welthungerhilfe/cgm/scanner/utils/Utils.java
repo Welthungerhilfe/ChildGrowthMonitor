@@ -61,6 +61,12 @@ public class Utils {
         return (res == PackageManager.PERMISSION_GRANTED);
     }
 
+    public static String beautifyDate(long timestamp) {
+        Date date = new Date(timestamp);
+
+        return beautifyDate(date);
+    }
+
     public static String beautifyDate(Date date) {
         SimpleDateFormat formatter = null;
         formatter = new SimpleDateFormat("MM/dd/yyyy");

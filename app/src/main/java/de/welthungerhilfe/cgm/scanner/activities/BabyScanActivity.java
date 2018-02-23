@@ -98,7 +98,7 @@ public class BabyScanActivity extends AppCompatActivity {
             ft.replace(R.id.container, babyBack1Fragment, BABY_BACK_1);
             ft.commit();
         } else {
-            measure.setDate(Utils.beautifyDate(new Date()));
+            measure.setDate(System.currentTimeMillis());
             EventBus.getDefault().post(new MeasureResult(measure));
             finish();
         }

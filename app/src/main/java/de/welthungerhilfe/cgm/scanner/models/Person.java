@@ -20,6 +20,7 @@
 package de.welthungerhilfe.cgm.scanner.models;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Created by Emerald on 2/19/2018.
@@ -32,8 +33,11 @@ public class Person implements Serializable {
     private String birthday;
     private int age;  // age in month
     private String sex;  // female, male, other
+    private Loc lastLocation;
+    private String guardian;
+    private long created;
     private QRNumber qrNumber;
-    private Measure measure;
+    private List<Measure> measures;
 
     public String getId() {
         return id;
@@ -83,6 +87,30 @@ public class Person implements Serializable {
         this.sex = sex;
     }
 
+    public Loc getLastLocation() {
+        return lastLocation;
+    }
+
+    public void setLastLocation(Loc lastLocation) {
+        this.lastLocation = lastLocation;
+    }
+
+    public String getGuardian() {
+        return guardian;
+    }
+
+    public void setGuardian(String guardian) {
+        this.guardian = guardian;
+    }
+
+    public long getCreated() {
+        return created;
+    }
+
+    public void setCreated(long created) {
+        this.created = created;
+    }
+
     public QRNumber getQrNumber() {
         return qrNumber;
     }
@@ -91,11 +119,11 @@ public class Person implements Serializable {
         this.qrNumber = qrNumber;
     }
 
-    public Measure getMeasure() {
-        return measure;
+    public List<Measure> getMeasures() {
+        return measures;
     }
 
-    public void setMeasure(Measure measure) {
-        this.measure = measure;
+    public void setMeasures(List<Measure> measures) {
+        this.measures = measures;
     }
 }

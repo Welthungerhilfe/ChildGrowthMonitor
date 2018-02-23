@@ -47,6 +47,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.orhanobut.dialogplus.DialogPlus;
 import com.orhanobut.dialogplus.OnClickListener;
@@ -68,7 +69,7 @@ import de.welthungerhilfe.cgm.scanner.helper.SessionManager;
 import de.welthungerhilfe.cgm.scanner.models.Person;
 import de.welthungerhilfe.cgm.scanner.helper.AppConstants;
 
-public class MainActivity extends BaseActivity implements DatePickerDialog.OnDateSetListener {
+public class MainActivity extends BaseActivity implements DatePickerDialog.OnDateSetListener, RecyclerDataAdapter.OnPersonDetail {
     private final int REQUEST_LOCATION = 0x1000;
 
     @OnClick(R.id.fabCreate)
@@ -169,6 +170,7 @@ public class MainActivity extends BaseActivity implements DatePickerDialog.OnDat
 
     private void initUI() {
         adapterData = new RecyclerDataAdapter(this, new ArrayList<Person>());
+        adapterData.setPersonDetailListener(this);
         recyclerData.setAdapter(adapterData);
         recyclerData.setLayoutManager(new LinearLayoutManager(MainActivity.this));
     }
@@ -242,6 +244,10 @@ public class MainActivity extends BaseActivity implements DatePickerDialog.OnDat
                 });
     }
 
+    private void sortData() {
+
+    }
+
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
@@ -286,8 +292,8 @@ public class MainActivity extends BaseActivity implements DatePickerDialog.OnDat
         Calendar to = Calendar.getInstance();
         to.set(yearEnd, monthOfYearEnd, dayOfMonthEnd);
 
-        int diffDays = from.compareTo(to) / 1000 / 60 / 60 / 24;
-        txtSortCase.setText("Last Scans (" + Integer.toString(diffDays) + " days)");
+        int diffDays = (int) (to.getTimeInMillis() - from.getTimeInMillis()) / 1000 / 60 / 60 / 24;
+        txtSortCase.setText("Last Scans (" + Integer.toString(Math.abs(diffDays)) + " days)");
     }
 
     public void onActivityResult(int reqCode, int resCode, Intent result) {
@@ -313,5 +319,12 @@ public class MainActivity extends BaseActivity implements DatePickerDialog.OnDat
         }
 
         return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public void onPersonDetail(Person person) {
+        Intent intent = new Intent(MainActivity.this, CreateDataActivity.class);
+        intent.putExtra(AppConstants.EXTRA_PERSON, person);
+        startActivity(intent);
     }
 }

@@ -27,6 +27,7 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -41,6 +42,8 @@ public class RecyclerDataAdapter extends RecyclerView.Adapter<RecyclerDataAdapte
     private ArrayList<Person> personList;
     private int lastPosition = -1;
 
+    private OnPersonDetail personDetailListener;
+
     public RecyclerDataAdapter(Context ctx, ArrayList<Person> pl) {
         context = ctx;
         personList = pl;
@@ -48,7 +51,7 @@ public class RecyclerDataAdapter extends RecyclerView.Adapter<RecyclerDataAdapte
 
     @Override
     public RecyclerDataAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_data, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.row_data, parent, false);
 
         return new ViewHolder(view);
     }
@@ -58,8 +61,17 @@ public class RecyclerDataAdapter extends RecyclerView.Adapter<RecyclerDataAdapte
         Person person = personList.get(position);
 
         holder.txtName.setText(person.getName() + " " + person.getSurname());
-        holder.txtWeight.setText(Float.toString(person.getMeasure().getWeight()));
-        holder.txtHeight.setText(Float.toString(person.getMeasure().getHeight()));
+        if (person.getMeasures() == null || person.getMeasures().size() == 0) {
+            holder.txtWeight.setText(Float.toString(0f));
+            holder.txtHeight.setText(Float.toString(0f));
+        } else {
+            holder.txtWeight.setText(Float.toString(person.getMeasures().get(person.getMeasures().size() - 1).getWeight()));
+            holder.txtHeight.setText(Float.toString(person.getMeasures().get(person.getMeasures().size() - 1).getHeight()));
+        }
+
+        if (personDetailListener != null) {
+            holder.bindPersonDetail(person);
+        }
 
         setAnimation(holder.itemView, position);
     }
@@ -77,6 +89,10 @@ public class RecyclerDataAdapter extends RecyclerView.Adapter<RecyclerDataAdapte
         }
     }
 
+    public void setPersonDetailListener(OnPersonDetail listener) {
+        personDetailListener = listener;
+    }
+
     public void resetData(ArrayList<Person> personList) {
         this.personList = personList;
         notifyDataSetChanged();
@@ -88,6 +104,8 @@ public class RecyclerDataAdapter extends RecyclerView.Adapter<RecyclerDataAdapte
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
+        public RelativeLayout rytItem;
+
         public TextView txtName;
         public TextView txtWeight;
         public TextView txtHeight;
@@ -95,9 +113,24 @@ public class RecyclerDataAdapter extends RecyclerView.Adapter<RecyclerDataAdapte
         public ViewHolder(View itemView) {
             super(itemView);
 
+            rytItem = itemView.findViewById(R.id.rytItem);
+
             txtName = itemView.findViewById(R.id.txtName);
             txtWeight = itemView.findViewById(R.id.txtWeight);
             txtHeight = itemView.findViewById(R.id.txtHeight);
         }
+
+        public void bindPersonDetail(final Person person) {
+            rytItem.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    personDetailListener.onPersonDetail(person);
+                }
+            });
+        }
+    }
+
+    public interface OnPersonDetail {
+        void onPersonDetail(Person person);
     }
 }

@@ -21,116 +21,86 @@ package de.welthungerhilfe.cgm.scanner.fragments;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
+import com.codetroopers.betterpickers.calendardatepicker.CalendarDatePickerDialogFragment;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 import de.welthungerhilfe.cgm.scanner.R;
 import de.welthungerhilfe.cgm.scanner.activities.CreateDataActivity;
+import de.welthungerhilfe.cgm.scanner.adapters.RecyclerMeasureAdapter;
+import de.welthungerhilfe.cgm.scanner.dialogs.ManulMeasureDialog;
 import de.welthungerhilfe.cgm.scanner.models.Measure;
+import de.welthungerhilfe.cgm.scanner.utils.Utils;
 
 /**
  * Created by Emerald on 2/19/2018.
  */
 
-public class MeasuresDataFragment extends Fragment implements View.OnClickListener {
+public class MeasuresDataFragment extends Fragment implements View.OnClickListener, ManulMeasureDialog.OnManualMeasureListener {
+    private RecyclerView recyclerMeasure;
+    private RecyclerMeasureAdapter adapterMeasure;
 
-    private TextView txtDate;
-    private LinearLayout lytMeasureManual, lytMeasureMachine, lytMeasureOperation;
-    private EditText editManualHeight, editManualWeight, editManualMuac, editManualAddition;
-    private EditText editMachineHeight, editMachineWeight, editMachineMuac;
+    private FloatingActionButton fabCreate;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_measure, container, false);
 
-        txtDate = view.findViewById(R.id.txtDate);
+        recyclerMeasure = view.findViewById(R.id.recyclerMeasure);
+        if (((CreateDataActivity)getContext()).person == null)
+            adapterMeasure = new RecyclerMeasureAdapter(getContext(), new ArrayList<Measure>());
+        else if (((CreateDataActivity)getContext()).person.getMeasures() == null) {
+            ((CreateDataActivity)getContext()).person.setMeasures(new ArrayList<Measure>());
+            adapterMeasure = new RecyclerMeasureAdapter(getContext(), new ArrayList<Measure>());
+        } else
+            adapterMeasure = new RecyclerMeasureAdapter(getContext(), ((CreateDataActivity)getContext()).person.getMeasures());
+        recyclerMeasure.setAdapter(adapterMeasure);
+        recyclerMeasure.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        editManualHeight = view.findViewById(R.id.editManualHeight);
-        editManualWeight = view.findViewById(R.id.editManualWeight);
-        editManualMuac = view.findViewById(R.id.editManualMuac);
-        editManualAddition = view.findViewById(R.id.editManualAddition);
-
-        editMachineHeight = view.findViewById(R.id.editMachineHeight);
-        editMachineWeight = view.findViewById(R.id.editMachineWeight);
-        editMachineMuac = view.findViewById(R.id.editMachineMuac);
-
-        lytMeasureManual = view.findViewById(R.id.lytMeasureManual);
-        lytMeasureMachine = view.findViewById(R.id.lytMeasureMachine);
-        lytMeasureOperation = view.findViewById(R.id.lytMeasureOperation);
-
-        view.findViewById(R.id.txtCancel).setOnClickListener(this);
-        view.findViewById(R.id.txtOK).setOnClickListener(this);
-        view.findViewById(R.id.btnAlert).setOnClickListener(this);
-        view.findViewById(R.id.lytSelectDate).setOnClickListener(this);
+        fabCreate = view.findViewById(R.id.fabCreate);
+        fabCreate.setOnClickListener(this);
 
         return view;
     }
 
-    public void setMachineMeasure(final Measure measure) {
-        String dateStr = measure.getDate();
-        txtDate.setText(dateStr);
-
-        editMachineHeight.setText(Float.toString(measure.getHeight()));
-        editMachineWeight.setText(Float.toString(measure.getWeight()));
-        editMachineMuac.setText(Float.toString(measure.getMuac()));
-    }
-
-    public boolean validate() {
-        boolean valid = true;
-
-        String height = editManualHeight.getText().toString();
-        String weight = editManualWeight.getText().toString();
-        String muac = editManualMuac.getText().toString();
-
-        if (height.isEmpty()) {
-            editManualHeight.setError("Please input height");
-            valid = false;
-        } else {
-            editManualHeight.setError(null);
-        }
-
-        if (weight.isEmpty()) {
-            editManualWeight.setError("Please input weight");
-            valid = false;
-        } else {
-            editManualWeight.setError(null);
-        }
-
-        if (muac.isEmpty()) {
-            editManualMuac.setError("Please input MUAC");
-            valid = false;
-        } else {
-            editManualMuac.setError(null);
-        }
-
-        return valid;
+    public void addMeasure(Measure measure) {
+        adapterMeasure.addMeasure(measure);
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.txtCancel:
-                break;
-            case R.id.txtOK:
-                lytMeasureOperation.setVisibility(View.GONE);
-                lytMeasureMachine.setVisibility(View.VISIBLE);
-                if (validate()) {
-
+            case R.id.fabCreate:
+                if (((CreateDataActivity)getContext()).person == null) {
+                    Snackbar.make(fabCreate, "Please register person first", Snackbar.LENGTH_LONG).show();
+                } else {
+                    ManulMeasureDialog dialog = new ManulMeasureDialog(getContext());
+                    dialog.setManualMeasureListener(this);
+                    dialog.show();
                 }
-                ((CreateDataActivity)getContext()).setMeasureData(
-                        Float.parseFloat(editManualHeight.getText().toString()), Float.parseFloat(editManualWeight.getText().toString()),
-                        Float.parseFloat(editManualMuac.getText().toString()), editManualAddition.getText().toString());
-                break;
-            case R.id.btnAlert:
-                break;
-            case R.id.lytSelectDate:
                 break;
         }
+    }
+
+    @Override
+    public void onManualMeasure(float height, float weight, float muac) {
+        ((CreateDataActivity)getContext()).setMeasureData(height, weight, muac, "No Additional Info");
     }
 }

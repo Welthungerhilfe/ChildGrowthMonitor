@@ -23,9 +23,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.AppCompatRadioButton;
 import android.view.LayoutInflater;
@@ -33,15 +32,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Toast;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
-import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
+import com.bumptech.glide.Glide;
+import com.codetroopers.betterpickers.calendardatepicker.CalendarDatePickerDialogFragment;
+import com.codetroopers.betterpickers.calendardatepicker.MonthAdapter;
 
-import de.welthungerhilfe.cgm.scanner.AppController;
+import java.util.Calendar;
+import java.util.Date;
+
 import de.welthungerhilfe.cgm.scanner.R;
 import de.welthungerhilfe.cgm.scanner.activities.CreateDataActivity;
 import de.welthungerhilfe.cgm.scanner.activities.ImageDetailActivity;
@@ -54,16 +54,22 @@ import de.welthungerhilfe.cgm.scanner.utils.Utils;
  * Created by Emerald on 2/19/2018.
  */
 
-public class PersonalDataFragment extends Fragment implements View.OnClickListener, DatePickerDialog.OnDateSetListener {
+public class PersonalDataFragment extends Fragment implements View.OnClickListener, CalendarDatePickerDialogFragment.OnDateSetListener {
     private final int REQUEST_LOCATION = 0x1000;
 
     public Context context;
 
+    private LinearLayout lytCreate;
+
     private ImageView imgConsent;
+
+    private TextView txtDate;
 
     private EditText editName, editPrename, editLocation, editBirth, editAge, editGuardian;
 
     private AppCompatRadioButton radioFemale, radioMale, radioFluid;
+
+    private Loc location = null;
 
 
     @Override
@@ -76,17 +82,15 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
         view.findViewById(R.id.txtBack).setOnClickListener(this);
         view.findViewById(R.id.btnNext).setOnClickListener(this);
 
-        imgConsent = view.findViewById(R.id.imgConsent);
-        byte[] data = ((CreateDataActivity)getContext()).qrSource;
-        if (data != null) {
-            imgConsent.setImageBitmap(BitmapFactory.decodeByteArray(data, 0, data.length));
-        }
+        lytCreate = view.findViewById(R.id.lytCreate);
 
+        imgConsent = view.findViewById(R.id.imgConsent);
+
+        txtDate = view.findViewById(R.id.txtDate);
         editName = view.findViewById(R.id.editName);
         editPrename = view.findViewById(R.id.editPrename);
         editLocation = view.findViewById(R.id.editLocation);
         editBirth = view.findViewById(R.id.editBirth);
-        editBirth.setText("02/21/2018");
         editAge = view.findViewById(R.id.editAge);
         editGuardian = view.findViewById(R.id.editGuardian);
 
@@ -94,13 +98,34 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
         radioMale = view.findViewById(R.id.radioMale);
         radioFluid = view.findViewById(R.id.radioFluid);
 
+        initUI();
+
         return view;
     }
 
-    public void onActivityResult(int reqCode, int resCode, Intent data) {
-        if (reqCode == REQUEST_LOCATION && resCode == Activity.RESULT_OK) {
-            Loc location = (Loc)data.getSerializableExtra(AppConstants.EXTRA_LOCATION);
-            editLocation.setText(location.getAddress());
+    public void initUI() {
+        if (((CreateDataActivity)getContext()).person != null) {
+            lytCreate.setVisibility(View.GONE);
+
+            Glide.with(getContext()).load(((CreateDataActivity)getContext()).person.getQrNumber().getConsent()).into(imgConsent);
+
+            txtDate.setText(Utils.beautifyDate(((CreateDataActivity)getContext()).person.getCreated()));
+
+            editName.setText(((CreateDataActivity)getContext()).person.getName());
+            editPrename.setText(((CreateDataActivity)getContext()).person.getSurname());
+            editBirth.setText(((CreateDataActivity)getContext()).person.getBirthday());
+            editAge.setText(Integer.toString(((CreateDataActivity)getContext()).person.getAge()));
+            editGuardian.setText(((CreateDataActivity)getContext()).person.getGuardian());
+            editLocation.setText(((CreateDataActivity)getContext()).person.getLastLocation().getAddress());
+        } else {
+            lytCreate.setVisibility(View.VISIBLE);
+
+            txtDate.setText(Utils.beautifyDate(new Date()));
+
+            byte[] data = ((CreateDataActivity)getContext()).qrSource;
+            if (data != null) {
+                imgConsent.setImageBitmap(BitmapFactory.decodeByteArray(data, 0, data.length));
+            }
         }
     }
 
@@ -156,6 +181,13 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
             editGuardian.setError(null);
         }
 
+        if (radioFemale.isChecked() || radioMale.isChecked() || radioFluid.isChecked()) {
+            valid = true;
+        } else {
+            valid = false;
+            Snackbar.make(radioFemale, "Please select sex", Snackbar.LENGTH_SHORT).show();
+        }
+
         return valid;
     }
 
@@ -166,50 +198,55 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
                 startActivityForResult(new Intent(getContext(), LocationDetectActivity.class), REQUEST_LOCATION);
                 break;
             case R.id.imgBirth:
-                com.wdullaer.materialdatetimepicker.date.DatePickerDialog.newInstance(this).show(getActivity().getFragmentManager(), "Datepickerdialog");
+                Date date = new Date();
+
+                CalendarDatePickerDialogFragment cdp = new CalendarDatePickerDialogFragment()
+                        .setOnDateSetListener(this)
+                        .setFirstDayOfWeek(Calendar.SUNDAY)
+                        .setPreselectedDate(date.getYear() + 1900, date.getMonth() + 1, date.getDay())
+                        .setDoneText("OK")
+                        .setCancelText("Cancel");
+                cdp.show(getActivity().getSupportFragmentManager(), "Select Birthday");
                 break;
             case R.id.btnNext:
                 if (validate()) {
 
-                    ((CreateDataActivity)getContext()).showProgressDialog();
+                    String sex = "";
+                    if (radioMale.isChecked())
+                        sex = radioMale.getText().toString();
+                    else if (radioFemale.isChecked())
+                        sex = radioMale.getText().toString();
+                    else if (radioFluid.isChecked())
+                        sex = radioFluid.getText().toString();
 
-                    final String personId = Utils.getSaltString(10);
-
-                    String consentPath = AppConstants.STORAGE_CONSENT_URL.replace("{id}", personId) + System.currentTimeMillis() + "_" + ((CreateDataActivity)getContext()).qrCode + ".png";
-                    StorageReference consentRef = AppController.getInstance().storageRootRef.child(consentPath);
-                    UploadTask uploadTask = consentRef.putBytes(((CreateDataActivity)getContext()).qrSource);
-                    uploadTask.addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            ((CreateDataActivity)getContext()).hideProgressDialog();
-                            Toast.makeText(getContext(), "Uploading Consent Failed", Toast.LENGTH_SHORT).show();
-                        }
-                    }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            ((CreateDataActivity)getContext()).hideProgressDialog();
-
-                            Uri downloadUrl = taskSnapshot.getDownloadUrl();
-
-                            ((CreateDataActivity)getContext()).setPersonalData(
-                                    personId, editName.getText().toString(), editPrename.getText().toString(),
-                                    editBirth.getText().toString(), Integer.parseInt(editAge.getText().toString()),
-                                    "male", downloadUrl.toString());
-                        }
-                    });
+                    ((CreateDataActivity)getContext()).setPersonalData(
+                            editName.getText().toString(), editPrename.getText().toString(),
+                            editBirth.getText().toString(), Integer.parseInt(editAge.getText().toString()),
+                            sex, location, editGuardian.getText().toString());
                 }
 
                 break;
             case R.id.rytConsentDetail:
                 Intent intent = new Intent(getContext(), ImageDetailActivity.class);
                 intent.putExtra(AppConstants.EXTRA_QR_BITMAP, ((CreateDataActivity)getContext()).qrSource);
-                startActivity(intent);
+                //startActivity(intent);
+                break;
+            case R.id.txtBack:
+                getActivity().finish();
                 break;
         }
     }
 
+    public void onActivityResult(int reqCode, int resCode, Intent data) {
+        if (reqCode == REQUEST_LOCATION && resCode == Activity.RESULT_OK) {
+            location = (Loc)data.getSerializableExtra(AppConstants.EXTRA_LOCATION);
+            editLocation.setText(location.getAddress());
+        }
+    }
+
     @Override
-    public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
-        editBirth.setText((monthOfYear + 1) + "/" + dayOfMonth + "/" + year);
+    public void onDateSet(CalendarDatePickerDialogFragment dialog, int year, int monthOfYear, int dayOfMonth) {
+        Date date = new Date(year - 1900, monthOfYear, dayOfMonth);
+        editBirth.setText(Utils.beautifyDate(date));
     }
 }

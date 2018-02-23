@@ -45,6 +45,7 @@ import de.welthungerhilfe.cgm.scanner.R;
 import de.welthungerhilfe.cgm.scanner.activities.CreateDataActivity;
 import de.welthungerhilfe.cgm.scanner.adapters.RecyclerMeasureAdapter;
 import de.welthungerhilfe.cgm.scanner.dialogs.ManulMeasureDialog;
+import de.welthungerhilfe.cgm.scanner.models.Loc;
 import de.welthungerhilfe.cgm.scanner.models.Measure;
 import de.welthungerhilfe.cgm.scanner.utils.Utils;
 
@@ -64,13 +65,7 @@ public class MeasuresDataFragment extends Fragment implements View.OnClickListen
         View view = inflater.inflate(R.layout.fragment_measure, container, false);
 
         recyclerMeasure = view.findViewById(R.id.recyclerMeasure);
-        if (((CreateDataActivity)getContext()).person == null)
-            adapterMeasure = new RecyclerMeasureAdapter(getContext(), new ArrayList<Measure>());
-        else if (((CreateDataActivity)getContext()).person.getMeasures() == null) {
-            ((CreateDataActivity)getContext()).person.setMeasures(new ArrayList<Measure>());
-            adapterMeasure = new RecyclerMeasureAdapter(getContext(), new ArrayList<Measure>());
-        } else
-            adapterMeasure = new RecyclerMeasureAdapter(getContext(), ((CreateDataActivity)getContext()).person.getMeasures());
+        adapterMeasure = new RecyclerMeasureAdapter(getContext(), ((CreateDataActivity)getContext()).measures);
         recyclerMeasure.setAdapter(adapterMeasure);
         recyclerMeasure.setLayoutManager(new LinearLayoutManager(getContext()));
 
@@ -100,7 +95,7 @@ public class MeasuresDataFragment extends Fragment implements View.OnClickListen
     }
 
     @Override
-    public void onManualMeasure(float height, float weight, float muac) {
-        ((CreateDataActivity)getContext()).setMeasureData(height, weight, muac, "No Additional Info");
+    public void onManualMeasure(float height, float weight, float muac, Loc location) {
+        ((CreateDataActivity)getContext()).setMeasureData(height, weight, muac, "No Additional Info", location);
     }
 }

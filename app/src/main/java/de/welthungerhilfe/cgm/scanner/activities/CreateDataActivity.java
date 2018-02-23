@@ -34,6 +34,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -79,6 +80,7 @@ public class CreateDataActivity extends BaseActivity {
     private final String TAG = CreateDataActivity.class.getSimpleName();
 
     public Person person;
+    public ArrayList<Measure> measures;
     public String qrCode;
     public byte[] qrSource;
 
@@ -108,6 +110,10 @@ public class CreateDataActivity extends BaseActivity {
         qrSource = getIntent().getByteArrayExtra(AppConstants.EXTRA_QR_BITMAP);
 
         person = (Person) getIntent().getSerializableExtra(AppConstants.EXTRA_PERSON);
+        measures = new ArrayList<>();
+        if (person != null) {
+            loadMeasures();
+        }
 
         setupActionBar();
         initFragments();
@@ -156,14 +162,13 @@ public class CreateDataActivity extends BaseActivity {
         person.setBirthday(birthday);
         person.setAge(age);
         person.setSex(sex);
-        person.setLastLocation(loc);
         person.setGuardian(guardian);
         person.setCreated(System.currentTimeMillis());
 
         createPerson();
     }
 
-    public void setMeasureData(float height, float weight, float muac, String additional) {
+    public void setMeasureData(float height, float weight, float muac, String additional, Loc location) {
         showProgressDialog();
 
         final Measure measure = new Measure();
@@ -172,11 +177,13 @@ public class CreateDataActivity extends BaseActivity {
         measure.setWeight(weight);
         measure.setMuac(muac);
         measure.setArtifact(additional);
+        measure.setLocation(location);
         measure.setType("manual");
 
         AppController.getInstance().firebaseFirestore.collection("persons")
                 .document(person.getId())
-                .update("measures", measure)
+                .collection("measures")
+                .add(measure)
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
@@ -184,13 +191,12 @@ public class CreateDataActivity extends BaseActivity {
                         Toast.makeText(CreateDataActivity.this, "Add measure data failed", Toast.LENGTH_SHORT).show();
                     }
                 })
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
-                    public void onSuccess(Void aVoid) {
-                        List<Measure> measures = person.getMeasures();
-                        measures.add(measure);
-                        person.setMeasures(measures);
+                    public void onSuccess(DocumentReference documentReference) {
 
+                        person.setLastMeasure(measure);
+                        person.setLastLocation(measure.getLocation());
                         hideProgressDialog();
                     }
                 });
@@ -251,7 +257,7 @@ public class CreateDataActivity extends BaseActivity {
                 });
     }
 
-    public void checkQR() {
+    private void checkQR() {
         AppController.getInstance().firebaseFirestore.collection("persons")
                 .whereEqualTo("qrNumber.code", qrCode)
                 .get()
@@ -263,6 +269,7 @@ public class CreateDataActivity extends BaseActivity {
                             for (DocumentSnapshot document : task.getResult()) {
                                 person = document.toObject(Person.class);
                                 exist = true;
+                                loadMeasures();
                                 break;
                             }
                         }
@@ -272,6 +279,30 @@ public class CreateDataActivity extends BaseActivity {
                         }
                     }
                 });
+    }
+
+    private void loadMeasures() {
+        showProgressDialog();
+
+        if (person != null) {
+            AppController.getInstance().firebaseFirestore.collection("persons")
+                    .document(person.getId())
+                    .collection("measures")
+                    .get()
+                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            hideProgressDialog();
+                            if (task.isSuccessful()) {
+                                for (DocumentSnapshot document : task.getResult()) {
+                                    Measure measure = document.toObject(Measure.class);
+
+                                    measures.add(measure);
+                                }
+                            }
+                        }
+                    });
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

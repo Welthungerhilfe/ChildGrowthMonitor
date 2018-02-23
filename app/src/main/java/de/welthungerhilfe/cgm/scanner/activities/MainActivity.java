@@ -165,7 +165,7 @@ public class MainActivity extends BaseActivity implements DatePickerDialog.OnDat
 
         initUI();
 
-        loadDadta();
+        loadData();
     }
 
     private void initUI() {
@@ -218,7 +218,7 @@ public class MainActivity extends BaseActivity implements DatePickerDialog.OnDat
         drawerLayout.addDrawerListener(mDrawerToggle);
     }
 
-    private void loadDadta() {
+    private void loadData() {
         showProgressDialog();
 
         AppController.getInstance().firebaseFirestore.collection("persons")

@@ -33,11 +33,11 @@ public class Person implements Serializable {
     private String birthday;
     private int age;  // age in month
     private String sex;  // female, male, other
-    private Loc lastLocation;
     private String guardian;
     private long created;
+    private Loc lastLocation;
     private QRNumber qrNumber;
-    private List<Measure> measures;
+    private Measure lastMeasure;
 
     public String getId() {
         return id;
@@ -87,14 +87,6 @@ public class Person implements Serializable {
         this.sex = sex;
     }
 
-    public Loc getLastLocation() {
-        return lastLocation;
-    }
-
-    public void setLastLocation(Loc lastLocation) {
-        this.lastLocation = lastLocation;
-    }
-
     public String getGuardian() {
         return guardian;
     }
@@ -119,11 +111,19 @@ public class Person implements Serializable {
         this.qrNumber = qrNumber;
     }
 
-    public List<Measure> getMeasures() {
-        return measures;
+    public Measure getLastMeasure() {
+        return lastMeasure;
     }
 
-    public void setMeasures(List<Measure> measures) {
-        this.measures = measures;
+    public void setLastMeasure(Measure lastMeasure) {
+        this.lastMeasure = lastMeasure;
+    }
+
+    public Loc getLastLocation() {
+        return lastLocation;
+    }
+
+    public void setLastLocation(Loc lastLocation) {
+        this.lastLocation = lastLocation;
     }
 }

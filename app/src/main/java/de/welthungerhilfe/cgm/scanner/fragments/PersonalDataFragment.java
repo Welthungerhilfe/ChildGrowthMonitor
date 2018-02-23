@@ -77,7 +77,7 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
         View view = inflater.inflate(R.layout.fragment_personal, container, false);
 
         view.findViewById(R.id.rytConsentDetail).setOnClickListener(this);
-        view.findViewById(R.id.imgLocation).setOnClickListener(this);
+        //view.findViewById(R.id.imgLocation).setOnClickListener(this);
         view.findViewById(R.id.imgBirth).setOnClickListener(this);
         view.findViewById(R.id.txtBack).setOnClickListener(this);
         view.findViewById(R.id.btnNext).setOnClickListener(this);
@@ -116,7 +116,8 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
             editBirth.setText(((CreateDataActivity)getContext()).person.getBirthday());
             editAge.setText(Integer.toString(((CreateDataActivity)getContext()).person.getAge()));
             editGuardian.setText(((CreateDataActivity)getContext()).person.getGuardian());
-            editLocation.setText(((CreateDataActivity)getContext()).person.getLastLocation().getAddress());
+            if (((CreateDataActivity)getContext()).person.getLastLocation() != null)
+                editLocation.setText(((CreateDataActivity)getContext()).person.getLastLocation().getAddress());
         } else {
             lytCreate.setVisibility(View.VISIBLE);
 
@@ -153,12 +154,14 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
             editPrename.setError(null);
         }
 
+        /*
         if (location.isEmpty()) {
             editLocation.setError("Please input location");
             valid = false;
         } else {
             editLocation.setError(null);
         }
+        */
 
         if (birth.isEmpty()) {
             editBirth.setError("Please input birthday");

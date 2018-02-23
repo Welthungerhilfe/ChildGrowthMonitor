@@ -61,12 +61,12 @@ public class RecyclerDataAdapter extends RecyclerView.Adapter<RecyclerDataAdapte
         Person person = personList.get(position);
 
         holder.txtName.setText(person.getName() + " " + person.getSurname());
-        if (person.getMeasures() == null || person.getMeasures().size() == 0) {
+        if (person.getLastMeasure() == null) {
             holder.txtWeight.setText(Float.toString(0f));
             holder.txtHeight.setText(Float.toString(0f));
         } else {
-            holder.txtWeight.setText(Float.toString(person.getMeasures().get(person.getMeasures().size() - 1).getWeight()));
-            holder.txtHeight.setText(Float.toString(person.getMeasures().get(person.getMeasures().size() - 1).getHeight()));
+            holder.txtWeight.setText(Float.toString(person.getLastMeasure().getWeight()));
+            holder.txtHeight.setText(Float.toString(person.getLastMeasure().getHeight()));
         }
 
         if (personDetailListener != null) {

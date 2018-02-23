@@ -34,6 +34,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import de.welthungerhilfe.cgm.scanner.R;
 import de.welthungerhilfe.cgm.scanner.activities.CreateDataActivity;
+import de.welthungerhilfe.cgm.scanner.models.Loc;
 
 /**
  * Created by Emerald on 2/23/2018.
@@ -48,6 +49,8 @@ public class ManulMeasureDialog extends Dialog {
     EditText editManualMuac;
     @BindView(R.id.editManualAddition)
     EditText editManualAddition;
+    @BindView(R.id.editManualLocation)
+    EditText editManualLocation;
     @BindView(R.id.btnOK)
     Button btnOK;
 
@@ -62,12 +65,18 @@ public class ManulMeasureDialog extends Dialog {
     @OnClick(R.id.btnOK)
     void OnConfirm(Button btnOK) {
         if (validate()) {
-            if (measureListener != null)
+            if (measureListener != null) {
+                Loc loc = new Loc();
+                loc.setAddress(editManualLocation.getText().toString());
+                loc.setLongitude(0);
+                loc.setLatitude(0);
                 measureListener.onManualMeasure(
                         Float.parseFloat(editManualHeight.getText().toString()),
                         Float.parseFloat(editManualWeight.getText().toString()),
-                        Float.parseFloat(editManualMuac.getText().toString())
-                        );
+                        Float.parseFloat(editManualMuac.getText().toString()),
+                        loc
+                );
+            }
             dismiss();
         }
     }
@@ -123,6 +132,6 @@ public class ManulMeasureDialog extends Dialog {
     }
 
     public interface OnManualMeasureListener {
-        void onManualMeasure(float height, float weight, float muac);
+        void onManualMeasure(float height, float weight, float muac, Loc location);
     }
 }

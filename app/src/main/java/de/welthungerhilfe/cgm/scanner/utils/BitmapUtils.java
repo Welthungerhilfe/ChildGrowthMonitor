@@ -152,12 +152,12 @@ public class BitmapUtils {
         float ratio = 0;
         float scaledWidth = 0, scaledHeight = 0;
         if (bmp.getHeight() > AppConstants.MAX_IMAGE_SIZE) {
-            ratio = AppConstants.MAX_IMAGE_SIZE / bmp.getHeight();
+            ratio = (float)AppConstants.MAX_IMAGE_SIZE / bmp.getHeight();
             scaledWidth = bmp.getWidth() * ratio;
             scaledHeight= bmp.getHeight() * ratio;
         }
         if (bmp.getWidth() > AppConstants.MAX_IMAGE_SIZE) {
-            ratio = AppConstants.MAX_IMAGE_SIZE / bmp.getWidth();
+            ratio = (float) AppConstants.MAX_IMAGE_SIZE / bmp.getWidth();
             scaledWidth = bmp.getWidth() * ratio;
             scaledHeight= bmp.getHeight() * ratio;
         }

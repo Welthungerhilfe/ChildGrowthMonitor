@@ -43,7 +43,9 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
@@ -194,9 +196,12 @@ public class CreateDataActivity extends BaseActivity {
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
-
-                        person.setLastMeasure(measure);
-                        person.setLastLocation(measure.getLocation());
+                        HashMap<String, Measure> lastMeasure = new HashMap<>();
+                        lastMeasure.put("lastMeasure", measure);
+                        documentReference.getParent().getParent().set(lastMeasure, SetOptions.merge());
+                        HashMap<String, Loc> lastLocation = new HashMap<>();
+                        lastLocation.put("lastLocation", measure.getLocation());
+                        documentReference.getParent().getParent().set(lastLocation, SetOptions.merge());
                         hideProgressDialog();
                     }
                 });

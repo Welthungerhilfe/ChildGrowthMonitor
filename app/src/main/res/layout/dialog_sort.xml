@@ -49,7 +49,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/check"
-                android:visibility="visible"
+                android:visibility="invisible"
                 android:tint="@color/colorPrimary"
                 android:layout_centerVertical="true"/>
 

@@ -27,6 +27,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -39,15 +40,16 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.borax12.materialdaterangepicker.date.DatePickerDialog;
+import com.appeaser.sublimepickerlibrary.SublimePicker;
+import com.appeaser.sublimepickerlibrary.datepicker.SelectedDate;
+import com.appeaser.sublimepickerlibrary.datepicker.SublimeDatePicker;
+import com.appeaser.sublimepickerlibrary.recurrencepicker.SublimeRecurrencePicker;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.orhanobut.dialogplus.DialogPlus;
 import com.orhanobut.dialogplus.OnClickListener;
@@ -55,9 +57,6 @@ import com.orhanobut.dialogplus.ViewHolder;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -65,12 +64,15 @@ import butterknife.OnClick;
 import de.welthungerhilfe.cgm.scanner.AppController;
 import de.welthungerhilfe.cgm.scanner.R;
 import de.welthungerhilfe.cgm.scanner.adapters.RecyclerDataAdapter;
+import de.welthungerhilfe.cgm.scanner.dialogs.DateRangePickerDialog;
 import de.welthungerhilfe.cgm.scanner.helper.SessionManager;
 import de.welthungerhilfe.cgm.scanner.models.Person;
 import de.welthungerhilfe.cgm.scanner.helper.AppConstants;
 
-public class MainActivity extends BaseActivity implements DatePickerDialog.OnDateSetListener, RecyclerDataAdapter.OnPersonDetail {
+public class MainActivity extends BaseActivity implements RecyclerDataAdapter.OnPersonDetail, DateRangePickerDialog.Callback {
     private final int REQUEST_LOCATION = 0x1000;
+
+    private int sortType = 0;
 
     @OnClick(R.id.fabCreate)
     void createData(FloatingActionButton fabCreate) {
@@ -115,6 +117,8 @@ public class MainActivity extends BaseActivity implements DatePickerDialog.OnDat
 
                                 txtSortCase.setText("worst weight/height on top");
                                 dialog.dismiss();
+
+                                doSortByWasting();
                                 break;
                             case R.id.rytSortStunting:
                                 dialog.getHolderView().findViewById(R.id.imgSortDate).setVisibility(View.INVISIBLE);
@@ -124,11 +128,31 @@ public class MainActivity extends BaseActivity implements DatePickerDialog.OnDat
 
                                 txtSortCase.setText("worst height/age on top");
                                 dialog.dismiss();
+
+                                doSortByStunting();
                                 break;
                         }
                     }
                 })
                 .create();
+        ImageView imgSortDate = sortDialog.getHolderView().findViewById(R.id.imgSortDate);
+        ImageView imgSortLocation = sortDialog.getHolderView().findViewById(R.id.imgSortLocation);
+        ImageView imgSortWasting = sortDialog.getHolderView().findViewById(R.id.imgSortWasting);
+        ImageView imgSortStunting = sortDialog.getHolderView().findViewById(R.id.imgSortStunting);
+        switch (sortType) {
+            case 0:
+                imgSortDate.setVisibility(View.VISIBLE);
+                break;
+            case 1:
+                imgSortLocation.setVisibility(View.VISIBLE);
+                break;
+            case 2:
+                imgSortWasting.setVisibility(View.VISIBLE);
+                break;
+            case 3:
+                imgSortStunting.setVisibility(View.VISIBLE);
+                break;
+        }
 
         sortDialog.show();
     }
@@ -261,39 +285,27 @@ public class MainActivity extends BaseActivity implements DatePickerDialog.OnDat
     }
 
     private void doSortByDate() {
-        Calendar now = Calendar.getInstance();
-        DatePickerDialog dateRangePickerDlg = DatePickerDialog.newInstance(
-                MainActivity.this,
-                now.get(Calendar.YEAR),
-                now.get(Calendar.MONTH),
-                now.get(Calendar.DAY_OF_MONTH)
-        );
-        dateRangePickerDlg.show(getFragmentManager(), "Datepickerdialog");
+        sortType = 0;
+
+        DateRangePickerDialog dateRangePicker = new DateRangePickerDialog();
+        dateRangePicker.setCallback(this);
+        dateRangePicker.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
+        dateRangePicker.show(getSupportFragmentManager(), "DATE_RANGE_PICKER");
     }
 
     private void doSortByLocation() {
+        sortType = 1;
+
         Intent intent = new Intent(MainActivity.this, LocationSearchActivity.class);
         startActivityForResult(intent, REQUEST_LOCATION);
     }
 
     private void doSortByWasting() {
-
+        sortType = 2;
     }
 
     private void doSortByStunting() {
-
-    }
-
-    @Override
-    public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth, int yearEnd, int monthOfYearEnd, int dayOfMonthEnd) {
-        Calendar from = Calendar.getInstance();
-        from.set(year, monthOfYear, dayOfMonth);
-
-        Calendar to = Calendar.getInstance();
-        to.set(yearEnd, monthOfYearEnd, dayOfMonthEnd);
-
-        int diffDays = (int) (to.getTimeInMillis() - from.getTimeInMillis()) / 1000 / 60 / 60 / 24;
-        txtSortCase.setText("Last Scans (" + Integer.toString(Math.abs(diffDays)) + " days)");
+        sortType = 3;
     }
 
     public void onActivityResult(int reqCode, int resCode, Intent result) {
@@ -326,5 +338,14 @@ public class MainActivity extends BaseActivity implements DatePickerDialog.OnDat
         Intent intent = new Intent(MainActivity.this, CreateDataActivity.class);
         intent.putExtra(AppConstants.EXTRA_PERSON, person);
         startActivity(intent);
+    }
+
+    @Override
+    public void onDateTimeRecurrenceSet(SelectedDate selectedDate, int hourOfDay, int minute, SublimeRecurrencePicker.RecurrenceOption recurrenceOption, String recurrenceRule) {
+        Calendar start = selectedDate.getStartDate();
+        Calendar end = selectedDate.getEndDate();
+
+        int diffDays = (int) (end.getTimeInMillis() - start.getTimeInMillis()) / 1000 / 60 / 60 / 24;
+        txtSortCase.setText("Last Scans (" + Integer.toString(Math.abs(diffDays)) + " days)");
     }
 }

@@ -25,6 +25,7 @@ import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.AppCompatRadioButton;
 import android.view.LayoutInflater;
@@ -35,17 +36,17 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.appeaser.sublimepickerlibrary.datepicker.SelectedDate;
+import com.appeaser.sublimepickerlibrary.recurrencepicker.SublimeRecurrencePicker;
 import com.bumptech.glide.Glide;
-import com.codetroopers.betterpickers.calendardatepicker.CalendarDatePickerDialogFragment;
-import com.codetroopers.betterpickers.calendardatepicker.MonthAdapter;
 
-import java.util.Calendar;
 import java.util.Date;
 
 import de.welthungerhilfe.cgm.scanner.R;
 import de.welthungerhilfe.cgm.scanner.activities.CreateDataActivity;
 import de.welthungerhilfe.cgm.scanner.activities.ImageDetailActivity;
 import de.welthungerhilfe.cgm.scanner.activities.LocationDetectActivity;
+import de.welthungerhilfe.cgm.scanner.dialogs.DateRangePickerDialog;
 import de.welthungerhilfe.cgm.scanner.models.Loc;
 import de.welthungerhilfe.cgm.scanner.helper.AppConstants;
 import de.welthungerhilfe.cgm.scanner.utils.Utils;
@@ -54,7 +55,7 @@ import de.welthungerhilfe.cgm.scanner.utils.Utils;
  * Created by Emerald on 2/19/2018.
  */
 
-public class PersonalDataFragment extends Fragment implements View.OnClickListener, CalendarDatePickerDialogFragment.OnDateSetListener {
+public class PersonalDataFragment extends Fragment implements View.OnClickListener, DateRangePickerDialog.Callback {
     private final int REQUEST_LOCATION = 0x1000;
 
     public Context context;
@@ -201,15 +202,11 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
                 startActivityForResult(new Intent(getContext(), LocationDetectActivity.class), REQUEST_LOCATION);
                 break;
             case R.id.imgBirth:
-                Date date = new Date();
+                DateRangePickerDialog dateRangePicker = new DateRangePickerDialog();
+                dateRangePicker.setCallback(this);
+                dateRangePicker.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
+                dateRangePicker.show(getActivity().getSupportFragmentManager(), "DATE_RANGE_PICKER");
 
-                CalendarDatePickerDialogFragment cdp = new CalendarDatePickerDialogFragment()
-                        .setOnDateSetListener(this)
-                        .setFirstDayOfWeek(Calendar.SUNDAY)
-                        .setPreselectedDate(date.getYear() + 1900, date.getMonth() + 1, date.getDay())
-                        .setDoneText("OK")
-                        .setCancelText("Cancel");
-                cdp.show(getActivity().getSupportFragmentManager(), "Select Birthday");
                 break;
             case R.id.btnNext:
                 if (validate()) {
@@ -248,8 +245,7 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
     }
 
     @Override
-    public void onDateSet(CalendarDatePickerDialogFragment dialog, int year, int monthOfYear, int dayOfMonth) {
-        Date date = new Date(year - 1900, monthOfYear, dayOfMonth);
-        editBirth.setText(Utils.beautifyDate(date));
+    public void onDateTimeRecurrenceSet(SelectedDate selectedDate, int hourOfDay, int minute, SublimeRecurrencePicker.RecurrenceOption recurrenceOption, String recurrenceRule) {
+        int a = 0;
     }
 }

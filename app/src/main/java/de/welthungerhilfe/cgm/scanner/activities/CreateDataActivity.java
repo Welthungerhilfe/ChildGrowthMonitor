@@ -137,10 +137,7 @@ public class CreateDataActivity extends BaseActivity {
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeButtonEnabled(true);
-        if (person != null)
-            actionBar.setTitle("ID: " + person.getQrNumber().getCode());
-        else
-            actionBar.setTitle("ID: " + qrCode);
+        actionBar.setTitle("ID: " + qrCode);
     }
 
     private void initFragments() {
@@ -270,7 +267,6 @@ public class CreateDataActivity extends BaseActivity {
                             }
                         }
                         if (exist) {
-                            getSupportActionBar().setTitle("ID: " + person.getId());
                             personalFragment.initUI();
                         }
                     }

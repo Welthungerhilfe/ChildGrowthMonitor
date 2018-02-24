@@ -29,6 +29,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -43,9 +44,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.appeaser.sublimepickerlibrary.SublimePicker;
 import com.appeaser.sublimepickerlibrary.datepicker.SelectedDate;
-import com.appeaser.sublimepickerlibrary.datepicker.SublimeDatePicker;
 import com.appeaser.sublimepickerlibrary.recurrencepicker.SublimeRecurrencePicker;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -73,6 +72,7 @@ public class MainActivity extends BaseActivity implements RecyclerDataAdapter.On
     private final int REQUEST_LOCATION = 0x1000;
 
     private int sortType = 0;
+    private ArrayList<Person> personList = new ArrayList<>();
 
     @OnClick(R.id.fabCreate)
     void createData(FloatingActionButton fabCreate) {
@@ -157,6 +157,8 @@ public class MainActivity extends BaseActivity implements RecyclerDataAdapter.On
         sortDialog.show();
     }
 
+    @BindView(R.id.refreshLayout)
+    SwipeRefreshLayout refreshLayout;
     @BindView(R.id.recyclerData)
     RecyclerView recyclerData;
     RecyclerDataAdapter adapterData;
@@ -189,10 +191,20 @@ public class MainActivity extends BaseActivity implements RecyclerDataAdapter.On
 
         initUI();
 
+        showProgressDialog();
+
         loadData();
     }
 
     private void initUI() {
+        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                adapterData.resetData(new ArrayList<Person>());
+                loadData();
+            }
+        });
+
         adapterData = new RecyclerDataAdapter(this, new ArrayList<Person>());
         adapterData.setPersonDetailListener(this);
         recyclerData.setAdapter(adapterData);
@@ -243,8 +255,6 @@ public class MainActivity extends BaseActivity implements RecyclerDataAdapter.On
     }
 
     private void loadData() {
-        showProgressDialog();
-
         AppController.getInstance().firebaseFirestore.collection("persons")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -263,13 +273,13 @@ public class MainActivity extends BaseActivity implements RecyclerDataAdapter.On
                         if (noData) {
                             recyclerData.setVisibility(View.GONE);
                             txtNoPerson.setVisibility(View.VISIBLE);
+                        } else {
+                            recyclerData.setVisibility(View.VISIBLE);
+                            txtNoPerson.setVisibility(View.GONE);
                         }
+                        refreshLayout.setRefreshing(false);
                     }
                 });
-    }
-
-    private void sortData() {
-
     }
 
     @Override

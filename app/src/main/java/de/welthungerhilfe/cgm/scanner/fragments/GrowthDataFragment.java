@@ -19,12 +19,14 @@
 
 package de.welthungerhilfe.cgm.scanner.fragments;
 
+import android.content.Context;
 import android.graphics.DashPathEffect;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.ScatterChart;
@@ -51,6 +53,14 @@ public class GrowthDataFragment extends Fragment {
     private VerticalTextView txtYAxis;
     private TextView txtXAxis;
 
+    private int chartType = 0;
+
+    public void onResume() {
+        super.onResume();
+        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_growth, container, false);
@@ -64,7 +74,8 @@ public class GrowthDataFragment extends Fragment {
         dropChart.setItems("Age / Height", "Age / Weight", "Height / Weight");
         dropChart.setOnItemSelectedListener(new MaterialSpinner.OnItemSelectedListener<String>() {
             @Override public void onItemSelected(MaterialSpinner view, int position, long id, String item) {
-                setChartData(position + 1, item);
+                chartType = position + 1;
+                setChartData();
             }
         });
 
@@ -73,36 +84,34 @@ public class GrowthDataFragment extends Fragment {
         return view;
     }
 
-    private void setChartData(int position, String title) {
-        if (position == 0) {
-            chartGrowth.invalidate();
-
+    public void setChartData() {
+        if (chartType == 0) {
             return;
         }
-        if (((CreateDataActivity)getContext()).measures == null)
+        if (((CreateDataActivity)getContext()).measures == null || ((CreateDataActivity)getContext()).measures.size() == 0) {
             return;
-
+        }
 
         ArrayList<Entry> yVals1 = new ArrayList<Entry>();
         for (int i = 0; i < ((CreateDataActivity)getContext()).measures.size(); i++) {
             Measure measure = ((CreateDataActivity)getContext()).measures.get(i);
 
-            if (position == 1) {
+            if (chartType == 1) {
                 txtXAxis.setText("Age");
                 txtYAxis.setText("Height");
                 yVals1.add(new Entry(measure.getAge(), measure.getHeight()));
-            } else if (position == 2) {
+            } else if (chartType == 2) {
                 txtXAxis.setText("Age");
                 txtYAxis.setText("Weight");
                 yVals1.add(new Entry(measure.getAge(), measure.getWeight()));
-            } else if (position == 3) {
+            } else if (chartType == 3) {
                 txtXAxis.setText("Height");
                 txtYAxis.setText("Weight");
                 yVals1.add(new Entry(measure.getHeight(), measure.getWeight()));
             }
         }
 
-        ScatterDataSet set1 = new ScatterDataSet(yVals1, title);
+        ScatterDataSet set1 = new ScatterDataSet(yVals1, "");
         set1.setScatterShapeHoleColor(getResources().getColor(R.color.colorPrimary));
         set1.setScatterShapeHoleRadius(5f);
         set1.setScatterShape(ScatterChart.ScatterShape.CIRCLE);

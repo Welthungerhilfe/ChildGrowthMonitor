@@ -112,12 +112,12 @@ public class RecyclerDataAdapter extends RecyclerView.Adapter<RecyclerDataAdapte
 
     public void resetData(ArrayList<Person> personList) {
         this.personList = personList;
-        notifyDataSetChanged();
+        getFilter().filter("");
     }
 
     public void addPerson(Person person) {
         personList.add(person);
-        notifyItemInserted(personList.size() - 1);
+        getFilter().filter("");
     }
 
     public void setDateFilter(long start, long end) {
@@ -151,6 +151,10 @@ public class RecyclerDataAdapter extends RecyclerView.Adapter<RecyclerDataAdapte
     @Override
     public Filter getFilter() {
         return personFilter;
+    }
+
+    public void emptyData() {
+        personList = new ArrayList<>();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

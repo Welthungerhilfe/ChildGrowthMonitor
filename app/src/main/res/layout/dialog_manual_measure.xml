@@ -59,7 +59,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:singleLine="true"
-            android:inputType="number"
+            android:inputType="numberDecimal"
             android:hint="01 Height"/>
 
     </android.support.design.widget.TextInputLayout>
@@ -74,7 +74,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:singleLine="true"
-            android:inputType="number"
+            android:inputType="numberDecimal"
             android:hint="02 Weight"/>
 
     </android.support.design.widget.TextInputLayout>
@@ -89,7 +89,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:singleLine="true"
-            android:inputType="number"
+            android:inputType="numberDecimal"
             android:hint="03 MUAC"/>
 
     </android.support.design.widget.TextInputLayout>

@@ -19,6 +19,7 @@
 
 package de.welthungerhilfe.cgm.scanner.fragments;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -29,6 +30,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -58,6 +60,12 @@ public class MeasuresDataFragment extends Fragment implements View.OnClickListen
     private RecyclerMeasureAdapter adapterMeasure;
 
     private FloatingActionButton fabCreate;
+
+    public void onResume() {
+        super.onResume();
+        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
+    }
 
     @Nullable
     @Override

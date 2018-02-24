@@ -85,6 +85,7 @@ public class CreateDataActivity extends BaseActivity {
     public ArrayList<Measure> measures;
     public String qrCode;
     public byte[] qrSource;
+    public String qrPath;
 
     @BindView(R.id.container)
     CoordinatorLayout container;
@@ -115,6 +116,8 @@ public class CreateDataActivity extends BaseActivity {
         measures = new ArrayList<>();
         if (person != null) {
             loadMeasures();
+        } else {
+            uploadQR();
         }
 
         setupActionBar();
@@ -132,10 +135,12 @@ public class CreateDataActivity extends BaseActivity {
     private void setupActionBar() {
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setHomeButtonEnabled(true);
         if (person != null)
-            actionBar.setTitle("ID: " + person.getId());
+            actionBar.setTitle("ID: " + person.getQrNumber().getCode());
         else
-            actionBar.setTitle("ID: " + "XXXXXXXXXX");
+            actionBar.setTitle("ID: " + qrCode);
     }
 
     private void initFragments() {
@@ -158,6 +163,10 @@ public class CreateDataActivity extends BaseActivity {
     }
 
     public void setPersonalData(String name, String surName, long birthday, int age, String sex, Loc loc, String guardian) {
+        if (qrPath == null) {
+            Toast.makeText(CreateDataActivity.this, "Still uploading QR code, please try after a while", Toast.LENGTH_SHORT).show();
+            return;
+        }
         person = new Person();
         person.setName(name);
         person.setSurname(surName);
@@ -167,6 +176,11 @@ public class CreateDataActivity extends BaseActivity {
         person.setGuardian(guardian);
         person.setCreated(System.currentTimeMillis());
 
+        QRNumber qrNumber = new QRNumber();
+        qrNumber.setCode(qrCode);
+        qrNumber.setConsent(qrPath);
+        person.setQrNumber(qrNumber);
+
         createPerson();
     }
 
@@ -175,7 +189,7 @@ public class CreateDataActivity extends BaseActivity {
 
         final Measure measure = new Measure();
         measure.setDate(System.currentTimeMillis());
-        long age = System.currentTimeMillis() - person.getBirthday() / 1000 / 60 / 60 / 24;
+        long age = (System.currentTimeMillis() - person.getBirthday()) / 1000 / 60 / 60 / 24;
         measure.setAge(age);
         measure.setHeight(height);
         measure.setWeight(weight);
@@ -198,6 +212,10 @@ public class CreateDataActivity extends BaseActivity {
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
+                        personalFragment.initUI();
+                        measureFragment.addMeasure(measure);
+                        growthFragment.setChartData();
+
                         HashMap<String, Measure> lastMeasure = new HashMap<>();
                         lastMeasure.put("lastMeasure", measure);
                         documentReference.getParent().getParent().set(lastMeasure, SetOptions.merge());
@@ -218,48 +236,19 @@ public class CreateDataActivity extends BaseActivity {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         hideProgressDialog();
-                        Toast.makeText(CreateDataActivity.this, "Person created failed", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(CreateDataActivity.this, "Person create failed", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
                     public void onSuccess(final DocumentReference documentReference) {
                         person.setId(documentReference.getId());
+                        Map<String, Object> personID = new HashMap<>();
+                        personID.put("id", person.getId());
+                        documentReference.update(personID);
 
-                        String consentPath = AppConstants.STORAGE_CONSENT_URL.replace("{id}", person.getId()) + System.currentTimeMillis() + "_" + qrCode + ".png";
-                        StorageReference consentRef = AppController.getInstance().storageRootRef.child(consentPath);
-                        UploadTask uploadTask = consentRef.putBytes(qrSource);
-                        uploadTask.addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                hideProgressDialog();
-                                documentReference.set(person);
-                                getSupportActionBar().setTitle("ID: " + person.getId());
-
-                                Toast.makeText(CreateDataActivity.this, "Uploading Consent Failed", Toast.LENGTH_SHORT).show();
-
-                                // Start measuring
-                                startActivity(new Intent(CreateDataActivity.this, BodySelectActivity.class));
-                            }
-                        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                            @Override
-                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                hideProgressDialog();
-
-                                Uri downloadUrl = taskSnapshot.getDownloadUrl();
-
-                                QRNumber qrNumber = new QRNumber();
-                                qrNumber.setCode(qrCode);
-                                qrNumber.setConsent(downloadUrl.toString());
-
-                                person.setQrNumber(qrNumber);
-                                documentReference.set(person);
-                                getSupportActionBar().setTitle("ID: " + person.getId());
-
-                                // Start measuring
-                                startActivity(new Intent(CreateDataActivity.this, BodySelectActivity.class));
-                            }
-                        });
+                        // Start measuring
+                        startActivity(new Intent(CreateDataActivity.this, BodySelectActivity.class));
                     }
                 });
     }
@@ -286,6 +275,29 @@ public class CreateDataActivity extends BaseActivity {
                         }
                     }
                 });
+    }
+
+    private void uploadQR() {
+        //String consentPath = AppConstants.STORAGE_CONSENT_URL.replace("{id}", person.getId()) + System.currentTimeMillis() + "_" + qrCode + ".png";
+        String consentPath = AppConstants.STORAGE_CONSENT_URL + System.currentTimeMillis() + "_" + qrCode + ".png";
+        StorageReference consentRef = AppController.getInstance().storageRootRef.child(consentPath);
+        UploadTask uploadTask = consentRef.putBytes(qrSource);
+        uploadTask.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                hideProgressDialog();
+
+                Toast.makeText(CreateDataActivity.this, "Uploading Consent Failed", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                hideProgressDialog();
+
+                Uri downloadUrl = taskSnapshot.getDownloadUrl();
+                qrPath = downloadUrl.toString();
+            }
+        });
     }
 
     private void loadMeasures() {
@@ -316,7 +328,10 @@ public class CreateDataActivity extends BaseActivity {
     public void onEvent(MeasureResult event) {
         Measure measure = event.getMeasureResult();
 
+        personalFragment.initUI();
         measureFragment.addMeasure(measure);
+        growthFragment.setChartData();
+
         viewpager.setCurrentItem(1);
     }
 
@@ -336,5 +351,13 @@ public class CreateDataActivity extends BaseActivity {
         }
 
         return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem menuItem) {
+        if (menuItem.getItemId() == android.R.id.home) {
+            finish();
+        }
+        return super.onOptionsItemSelected(menuItem);
     }
 }

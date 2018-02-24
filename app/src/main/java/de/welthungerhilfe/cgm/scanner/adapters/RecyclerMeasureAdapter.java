@@ -72,7 +72,10 @@ public class RecyclerMeasureAdapter extends RecyclerView.Adapter<RecyclerMeasure
         Measure measure = measureList.get(position);
 
         holder.editDate.setText(Utils.beautifyDate(measure.getDate()));
-        holder.editLocation.setText(measure.getLocation().getAddress());
+        if (measure.getLocation() == null)
+            holder.editLocation.setText("Location not available");
+        else
+            holder.editLocation.setText(measure.getLocation().getAddress());
         holder.editHeight.setText(Float.toString(measure.getHeight()));
         holder.editWeight.setText(Float.toString(measure.getWeight()));
         holder.editMuac.setText(Float.toString(measure.getMuac()));

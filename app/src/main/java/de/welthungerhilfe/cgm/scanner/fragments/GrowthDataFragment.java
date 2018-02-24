@@ -39,6 +39,8 @@ import com.github.mikephil.charting.interfaces.datasets.IScatterDataSet;
 import com.jaredrummler.materialspinner.MaterialSpinner;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 import de.welthungerhilfe.cgm.scanner.R;
 import de.welthungerhilfe.cgm.scanner.activities.CreateDataActivity;
@@ -53,7 +55,9 @@ public class GrowthDataFragment extends Fragment {
     private VerticalTextView txtYAxis;
     private TextView txtXAxis;
 
-    private int chartType = 0;
+    private TextView txtLabel;
+
+    private int chartType = 1;
 
     public void onResume() {
         super.onResume();
@@ -64,6 +68,11 @@ public class GrowthDataFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_growth, container, false);
+
+        txtLabel = view.findViewById(R.id.txtLabel);
+        if (((CreateDataActivity)getContext()).person != null) {
+            txtLabel.setText(((CreateDataActivity)getContext()).person.getSex() + ", birth to " + ((CreateDataActivity)getContext()).person.getAge() + "month");
+        }
 
         txtYAxis = view.findViewById(R.id.txtYAxis);
         txtXAxis = view.findViewById(R.id.txtXAxis);
@@ -80,6 +89,7 @@ public class GrowthDataFragment extends Fragment {
         });
 
         initChart();
+        setChartData();
 
         return view;
     }
@@ -123,6 +133,8 @@ public class GrowthDataFragment extends Fragment {
 
         ScatterData data = new ScatterData(dataSets);
         chartGrowth.setData(data);
+        chartGrowth.getXAxis().setAxisMinValue(-0.1f);
+        chartGrowth.setVisibleXRangeMinimum(20);
         chartGrowth.invalidate();
     }
 

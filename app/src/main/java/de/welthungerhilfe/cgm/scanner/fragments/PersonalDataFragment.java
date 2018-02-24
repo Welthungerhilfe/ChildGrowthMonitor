@@ -93,6 +93,7 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
         editPrename = view.findViewById(R.id.editPrename);
         editLocation = view.findViewById(R.id.editLocation);
         editBirth = view.findViewById(R.id.editBirth);
+        editBirth.setOnClickListener(this);
         editAge = view.findViewById(R.id.editAge);
         editGuardian = view.findViewById(R.id.editGuardian);
 
@@ -215,6 +216,13 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
             case R.id.imgLocation:
                 //startActivityForResult(new Intent(getContext(), LocationDetectActivity.class), REQUEST_LOCATION);
                 break;
+            case R.id.editBirth:
+                DateRangePickerDialog pickerDialog = new DateRangePickerDialog();
+                pickerDialog.setCallback(this);
+                pickerDialog.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
+                pickerDialog.show(getActivity().getSupportFragmentManager(), "DATE_RANGE_PICKER");
+
+                break;
             case R.id.imgBirth:
                 DateRangePickerDialog dateRangePicker = new DateRangePickerDialog();
                 dateRangePicker.setCallback(this);
@@ -229,7 +237,7 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
                     if (radioMale.isChecked())
                         sex = radioMale.getText().toString();
                     else if (radioFemale.isChecked())
-                        sex = radioMale.getText().toString();
+                        sex = radioFemale.getText().toString();
                     else if (radioFluid.isChecked())
                         sex = radioFluid.getText().toString();
 

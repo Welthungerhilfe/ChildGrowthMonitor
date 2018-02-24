@@ -89,7 +89,8 @@ public class LoginActivity extends BaseActivity implements
 
         Log.v(TAG, "Sign out requested by user: " + signout);
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser != null && !signout) {
+        //if (currentUser != null && !signout) {
+        if (true) {
             Intent i = new Intent(getApplicationContext(), MainActivity.class);
             startActivity(i);
         }

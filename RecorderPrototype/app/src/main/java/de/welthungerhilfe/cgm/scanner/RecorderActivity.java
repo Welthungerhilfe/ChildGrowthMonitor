@@ -62,6 +62,7 @@ import com.google.atap.tangoservice.TangoPoseData;
 import com.projecttango.tangosupport.TangoSupport;
 
 import java.io.File;
+import java.nio.FloatBuffer;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -114,19 +115,15 @@ public class RecorderActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recorder);
 
-        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
+        mCameraSurfaceView = findViewById(R.id.surfaceview);
+        mOverlaySurfaceView = findViewById(R.id.overlaySurfaceView);
 
-        mOverlaySurfaceView = new OverlaySurface(getApplicationContext());
-        addContentView(mOverlaySurfaceView,params);
-
-        mDisplayTextView = (TextView) findViewById(R.id.display_textview);
-
-        mCameraSurfaceView = new GLSurfaceView(getApplicationContext());
         // Set up a dummy OpenGL renderer associated with this surface view.
         setupRenderer();
-        addContentView(mCameraSurfaceView,params);
 
-        // TODO: programmatically add Point Cloud GLSurface
+        mDisplayTextView = (TextView) findViewById(R.id.display_textview);
+        mDisplayTextView.setText("Starting...");
+
         //mPointCloudSurfaceView = (SurfaceView) findViewById(R.id.pointCloudSurfaceView);
         //mPointCloudSurfaceView.getHolder().setFormat(PixelFormat.TRANSLUCENT);
 
@@ -143,7 +140,7 @@ public class RecorderActivity extends AppCompatActivity {
 
         outputFile = new File(getExternalFilesDir(Environment.getDataDirectory().getAbsolutePath()).getAbsolutePath(), "camera-tango.mp4");
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_scan_result);
+        /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_scan_result);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -152,7 +149,7 @@ public class RecorderActivity extends AppCompatActivity {
 
                 //Intent i = new Intent(getApplicationContext(), MainActivity.class);
                 //startActivity(i);
-
+/*
                 mRecordingEnabled = !mRecordingEnabled;
                 mCameraSurfaceView.queueEvent(new Runnable() {
                     @Override public void run() {
@@ -163,7 +160,7 @@ public class RecorderActivity extends AppCompatActivity {
                 //updateControls();
                 mDisplayTextView.setText(String.valueOf(mRecordingEnabled));
             }
-        });
+        });*/
 
         mRecordingEnabled = sVideoEncoder.isRecording();
 
@@ -332,6 +329,18 @@ public class RecorderActivity extends AppCompatActivity {
 
                 // TODO: get PointCloud and Camera Data
 
+                StringBuilder stringBuilder = new StringBuilder();
+                //stringBuilder.append("Point count: " + pointCloudData.numPoints);
+                stringBuilder.append("center depth (m): " + calculateAveragedDepth(pointCloudData.points, pointCloudData.numPoints));
+                final String pointCloudString = stringBuilder.toString();
+                //Log.i(TAG, pointCloudString);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mDisplayTextView.setText(pointCloudString);
+                    }
+                });
+
 
                 // Get pose transforms for openGL to depth/color cameras.
                 TangoPoseData oglTdepthPose = TangoSupport.getPoseAtTime(
@@ -443,6 +452,34 @@ public class RecorderActivity extends AppCompatActivity {
                     }
                 });
                 */
+    }
+
+    /**
+     * Calculates the average depth at Center from a point cloud buffer.
+     */
+    private float calculateAveragedDepth(FloatBuffer pointCloudBuffer, int numPoints) {
+        float totalZ = 0;
+        float averageZ = 0;
+        float currentX;
+        float currentY;
+        int countingPoints = 0;
+
+        if (numPoints != 0) {
+            int numFloats = 4 * numPoints;
+            for (int i = 0; i < numFloats; i++) {
+                currentX = pointCloudBuffer.get(i);
+                i++;
+                currentY = pointCloudBuffer.get(i);
+                i++;
+                if (currentX < 0.01 && currentX > -0.01 && currentY < 0.01 && currentY > -0.1) {
+                    totalZ = totalZ + pointCloudBuffer.get(i);
+                    countingPoints++;
+                }
+                i++;
+            }
+            averageZ = totalZ / countingPoints;
+        }
+        return averageZ;
     }
 
     @Override

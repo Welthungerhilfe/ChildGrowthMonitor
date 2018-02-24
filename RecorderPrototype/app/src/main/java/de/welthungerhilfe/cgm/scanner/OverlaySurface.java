@@ -31,30 +31,51 @@ import android.view.SurfaceView;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class OverlaySurface extends SurfaceView implements SurfaceHolder.Callback {
+public class OverlaySurface extends SurfaceView
+        implements SurfaceHolder.Callback, Runnable {
 
 
     private static final String TAG = OverlaySurface.class.getSimpleName();
     private Context mContext;
     private Bitmap mOverlay;
 
+    private boolean isReadyToDraw = false;
+
+    SurfaceHolder holder;
+
+    Thread thread = null;
+
     public OverlaySurface(Context context) {
         super(context);
         this.mContext = context;
-        getHolder().addCallback(this);
-        getHolder().setFormat(PixelFormat.TRANSLUCENT);
+        holder = getHolder();
+        holder.addCallback(this);
+        holder.setFormat(PixelFormat.TRANSLUCENT);
     }
 
     public OverlaySurface(Context context, AttributeSet attrs) {
+
         super(context, attrs);
+        this.mContext = context;
+        holder = getHolder();
+        holder.addCallback(this);
+        holder.setFormat(PixelFormat.TRANSLUCENT);
     }
 
     public OverlaySurface(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        this.mContext = context;
+        holder = getHolder();
+        holder.addCallback(this);
+        holder.setFormat(PixelFormat.TRANSLUCENT);
     }
 
     public OverlaySurface(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
+        this.mContext = context;
+        holder = getHolder();
+        holder.addCallback(this);
+        holder.setFormat(PixelFormat.TRANSLUCENT);
     }
 
     @Override
@@ -67,6 +88,7 @@ public class OverlaySurface extends SurfaceView implements SurfaceHolder.Callbac
 
         }
         mOverlay = BitmapFactory.decodeResource(mContext.getResources(),R.drawable.scan_outline_dots);
+        isReadyToDraw = true;
     }
 
     /**
@@ -110,6 +132,7 @@ public class OverlaySurface extends SurfaceView implements SurfaceHolder.Callbac
     public void surfaceDestroyed(SurfaceHolder holder) {
         // ignore
         Log.d(TAG, "Surface destroyed holder=" + holder);
+        isReadyToDraw = false;
     }
 
     @Override
@@ -119,15 +142,35 @@ public class OverlaySurface extends SurfaceView implements SurfaceHolder.Callbac
     }
 
     private void drawOverlaySurface() {
-        Surface surface = getHolder().getSurface();
-        Canvas canvas = surface.lockCanvas(null);
-        //canvas.drawColor(Color.BLACK);
-        canvas.drawBitmap(mOverlay, 150, 200, new Paint());
-        //outline.draw(canvas);
-        surface.unlockCanvasAndPost(canvas);
+        Surface surface = holder.getSurface();
+        if (isReadyToDraw) {
+            Canvas canvas = surface.lockCanvas(null);
+            if (canvas != null) {
+                //canvas.drawColor(Color.BLACK);
+                canvas.drawBitmap(mOverlay, 150, 200, new Paint());
+                surface.unlockCanvasAndPost(canvas);
+            }
+
+
+        }
     }
 
 
+    @Override
+    public void run() {
+        drawOverlaySurface();
+    }
 
-
+    public void pause(){
+        isReadyToDraw = false;
+        while (true) {
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            break;
+        }
+        thread = null;
+    }
 }

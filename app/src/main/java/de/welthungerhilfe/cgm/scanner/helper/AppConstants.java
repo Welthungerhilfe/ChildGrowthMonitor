@@ -33,7 +33,7 @@ public class AppConstants {
 
     public static final String VAL_SEX_FEMALE = "female";
     public static final String VAL_SEX_MALE = "male";
-    public static final String VAL_SEX_OTHER = "other";
+    public static final String VAL_SEX_OTHER = "fluid";
 
     public static final String VAL_MEASURE_MANUAL = "manual";
     public static final String VAL_MEASURE_AUTO = "v1";

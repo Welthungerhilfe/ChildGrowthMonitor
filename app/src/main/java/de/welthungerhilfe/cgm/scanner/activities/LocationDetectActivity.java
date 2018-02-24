@@ -19,8 +19,15 @@
 
 package de.welthungerhilfe.cgm.scanner.activities;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -36,10 +43,15 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.greenrobot.eventbus.EventBus;
+
+import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import de.welthungerhilfe.cgm.scanner.R;
+import de.welthungerhilfe.cgm.scanner.helper.events.LocationResult;
 import de.welthungerhilfe.cgm.scanner.models.Loc;
 import de.welthungerhilfe.cgm.scanner.helper.AppConstants;
 import de.welthungerhilfe.cgm.scanner.helper.tasks.AddressTask;
@@ -49,6 +61,8 @@ import de.welthungerhilfe.cgm.scanner.helper.tasks.AddressTask;
  */
 
 public class LocationDetectActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMarkerDragListener, AddressTask.OnAddressResult {
+    private final int PERMISSION_LOCATION = 0x1001;
+    private Marker marker = null;
 
     @BindView(R.id.txtAddress)
     TextView txtAddress;
@@ -58,6 +72,7 @@ public class LocationDetectActivity extends AppCompatActivity implements OnMapRe
 
     @OnClick(R.id.lytConfirm)
     void onConfirm(LinearLayout lytConfirm) {
+        EventBus.getDefault().post(new LocationResult(location));
         setResult(RESULT_OK, LocationDetectActivity.this.getIntent().putExtra(AppConstants.EXTRA_LOCATION, location));
         finish();
     }
@@ -80,10 +95,7 @@ public class LocationDetectActivity extends AppCompatActivity implements OnMapRe
         MapsInitializer.initialize(this);
         mapView.getMapAsync(this);
 
-        location = new Loc();
-        location.setLatitude(40.771330);
-        location.setLongitude(-74.353335);
-        location.setAddress("Livingstone");
+        getCurrentLocation();
     }
 
     @Override
@@ -115,11 +127,17 @@ public class LocationDetectActivity extends AppCompatActivity implements OnMapRe
     public void onMapReady(GoogleMap mMap) {
         googleMap = mMap;
 
-        Marker marker = googleMap.addMarker(new MarkerOptions().position(new LatLng(40.771330, -74.353335)));
-        marker.setDraggable(true);
+        if (location != null) {
+            drawMarker();
+        }
         googleMap.setOnMarkerDragListener(this);
+    }
 
-        CameraPosition cameraPosition = new CameraPosition.Builder().target(new LatLng(40.771330, -74.353335)).zoom(12).build();
+    private void drawMarker() {
+        marker = googleMap.addMarker(new MarkerOptions().position(new LatLng(location.getLatitude(), location.getLongitude())));
+        marker.setDraggable(true);
+
+        CameraPosition cameraPosition = new CameraPosition.Builder().target(new LatLng(location.getLatitude(), location.getLongitude())).zoom(12).build();
         googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
 
@@ -176,6 +194,42 @@ public class LocationDetectActivity extends AppCompatActivity implements OnMapRe
         */
     }
 
+    private void getCurrentLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{"android.permission.ACCESS_FINE_LOCATION"}, PERMISSION_LOCATION);
+        } else {
+            LocationManager lm = (LocationManager)getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+
+            boolean isGPSEnabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+            boolean isNetworkEnabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+
+            Location loc = null;
+
+            if (!isGPSEnabled && !isNetworkEnabled) {
+                startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+            } else if (isNetworkEnabled || isGPSEnabled) {
+                List<String> providers = lm.getProviders(true);
+                for (String provider : providers) {
+                    Location l = lm.getLastKnownLocation(provider);
+                    if (l == null) {
+                        continue;
+                    }
+                    if (loc == null || l.getAccuracy() < loc.getAccuracy()) {
+                        loc = l;
+                    }
+                }
+                if (loc != null) {
+                    new AddressTask(loc.getLatitude(), loc.getLongitude(), this).execute();
+                    location = new Loc();
+                    location.setLatitude(loc.getLatitude());
+                    location.setLongitude(loc.getLongitude());
+                    if (googleMap != null) {
+                        drawMarker();
+                    }
+                }
+            }
+        }
+    }
 
     @Override
     public void onAddress(String address) {

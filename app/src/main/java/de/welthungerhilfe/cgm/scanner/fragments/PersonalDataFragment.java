@@ -62,7 +62,7 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
 
     private LinearLayout lytCreate;
 
-    private ImageView imgConsent;
+    private ImageView imgConsent, imgBirth;
 
     private TextView txtDate;
 
@@ -79,7 +79,8 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
 
         view.findViewById(R.id.rytConsentDetail).setOnClickListener(this);
         //view.findViewById(R.id.imgLocation).setOnClickListener(this);
-        view.findViewById(R.id.imgBirth).setOnClickListener(this);
+        imgBirth = view.findViewById(R.id.imgBirth);
+        imgBirth.setOnClickListener(this);
         view.findViewById(R.id.txtBack).setOnClickListener(this);
         view.findViewById(R.id.btnNext).setOnClickListener(this);
 
@@ -119,6 +120,16 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
             editGuardian.setText(((CreateDataActivity)getContext()).person.getGuardian());
             if (((CreateDataActivity)getContext()).person.getLastLocation() != null)
                 editLocation.setText(((CreateDataActivity)getContext()).person.getLastLocation().getAddress());
+
+            if (((CreateDataActivity)getContext()).person.getSex().equals(AppConstants.VAL_SEX_FEMALE)) {
+                radioFemale.setChecked(true);
+            } else if (((CreateDataActivity)getContext()).person.getSex().equals(AppConstants.VAL_SEX_MALE)) {
+                radioMale.setChecked(true);
+            } else if (((CreateDataActivity)getContext()).person.getSex().equals(AppConstants.VAL_SEX_OTHER)) {
+                radioFluid.setChecked(true);
+            }
+
+            imgBirth.setVisibility(View.GONE);
         } else {
             lytCreate.setVisibility(View.VISIBLE);
 
@@ -199,7 +210,7 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.imgLocation:
-                startActivityForResult(new Intent(getContext(), LocationDetectActivity.class), REQUEST_LOCATION);
+                //startActivityForResult(new Intent(getContext(), LocationDetectActivity.class), REQUEST_LOCATION);
                 break;
             case R.id.imgBirth:
                 DateRangePickerDialog dateRangePicker = new DateRangePickerDialog();
@@ -237,12 +248,14 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
         }
     }
 
+    /*
     public void onActivityResult(int reqCode, int resCode, Intent data) {
         if (reqCode == REQUEST_LOCATION && resCode == Activity.RESULT_OK) {
             location = (Loc)data.getSerializableExtra(AppConstants.EXTRA_LOCATION);
             editLocation.setText(location.getAddress());
         }
     }
+    */
 
     @Override
     public void onDateTimeRecurrenceSet(SelectedDate selectedDate, int hourOfDay, int minute, SublimeRecurrencePicker.RecurrenceOption recurrenceOption, String recurrenceRule) {

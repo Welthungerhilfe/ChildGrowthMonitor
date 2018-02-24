@@ -247,5 +247,6 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
     @Override
     public void onDateTimeRecurrenceSet(SelectedDate selectedDate, int hourOfDay, int minute, SublimeRecurrencePicker.RecurrenceOption recurrenceOption, String recurrenceRule) {
         int a = 0;
+        editBirth.setText(Utils.beautifyDate(selectedDate.getStartDate().getTimeInMillis()));
     }
 }

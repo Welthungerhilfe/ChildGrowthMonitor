@@ -21,6 +21,9 @@ package de.welthungerhilfe.cgm.scanner.utils;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
+import android.location.Location;
+
+import com.google.android.gms.maps.model.LatLng;
 
 import java.lang.reflect.Field;
 
@@ -29,6 +32,8 @@ import java.text.SimpleDateFormat;
 
 import java.util.Date;
 import java.util.Random;
+
+import de.welthungerhilfe.cgm.scanner.models.Loc;
 
 public class Utils {
     public static void overrideFont(Context context, String defaultFontNameToOverride, String customFontFileNameInAssets) {
@@ -85,5 +90,17 @@ public class Utils {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static double distanceBetweenLocs(Loc l1, Loc l2) {
+        Location loc1 = new Location("");
+        loc1.setLatitude(l1.getLatitude());
+        loc1.setLongitude(l1.getLongitude());
+
+        Location loc2 = new Location("");
+        loc2.setLatitude(l2.getLatitude());
+        loc2.setLongitude(l2.getLongitude());
+
+        return loc1.distanceTo(loc2);
     }
 }

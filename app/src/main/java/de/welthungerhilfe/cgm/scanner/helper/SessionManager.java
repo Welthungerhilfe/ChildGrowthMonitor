@@ -22,6 +22,8 @@ package de.welthungerhilfe.cgm.scanner.helper;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import de.welthungerhilfe.cgm.scanner.models.Loc;
+
 /**
  * Created by Emerald on 2/21/2018.
  */
@@ -31,6 +33,9 @@ public class SessionManager {
     private final String PREF_KEY_USER = "pref_key_user";
 
     private final String KEY_USER_SIGNED = "key_user_signed";
+    private final String KEY_USER_LOCATION_LATITUDE = "key_user_location_latitude";
+    private final String KEY_USER_LOCATION_LONGITUDE = "key_user_location_longitude";
+    private final String KEY_USER_LOCATION_ADDRESS = "key_user_location_address";
 
     SharedPreferences pref;
     SharedPreferences.Editor editor;
@@ -51,5 +56,22 @@ public class SessionManager {
 
     public boolean isSigned() {
         return pref.getBoolean(KEY_USER_SIGNED, false);
+    }
+
+    public void setLocation(Loc location) {
+        editor.putString(KEY_USER_LOCATION_LATITUDE, Double.toString(location.getLatitude()));
+        editor.putString(KEY_USER_LOCATION_LONGITUDE, Double.toString(location.getLongitude()));
+        editor.putString(KEY_USER_LOCATION_ADDRESS, location.getAddress());
+
+        editor.commit();
+    }
+
+    public Loc getLocation() {
+        Loc location = new Loc();
+        location.setLatitude(Double.parseDouble(pref.getString(KEY_USER_LOCATION_LATITUDE, "0")));
+        location.setLongitude(Double.parseDouble(pref.getString(KEY_USER_LOCATION_LONGITUDE, "0")));
+        location.setAddress(pref.getString(KEY_USER_LOCATION_ADDRESS, ""));
+
+        return location;
     }
 }

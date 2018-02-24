@@ -140,16 +140,16 @@ public class MainActivity extends BaseActivity implements RecyclerDataAdapter.On
         ImageView imgSortWasting = sortDialog.getHolderView().findViewById(R.id.imgSortWasting);
         ImageView imgSortStunting = sortDialog.getHolderView().findViewById(R.id.imgSortStunting);
         switch (sortType) {
-            case 0:
+            case 1:
                 imgSortDate.setVisibility(View.VISIBLE);
                 break;
-            case 1:
+            case 2:
                 imgSortLocation.setVisibility(View.VISIBLE);
                 break;
-            case 2:
+            case 3:
                 imgSortWasting.setVisibility(View.VISIBLE);
                 break;
-            case 3:
+            case 4:
                 imgSortStunting.setVisibility(View.VISIBLE);
                 break;
         }
@@ -285,7 +285,7 @@ public class MainActivity extends BaseActivity implements RecyclerDataAdapter.On
     }
 
     private void doSortByDate() {
-        sortType = 0;
+        sortType = 1;
 
         DateRangePickerDialog dateRangePicker = new DateRangePickerDialog();
         dateRangePicker.setCallback(this);
@@ -294,24 +294,29 @@ public class MainActivity extends BaseActivity implements RecyclerDataAdapter.On
     }
 
     private void doSortByLocation() {
-        sortType = 1;
+        sortType = 2;
 
         Intent intent = new Intent(MainActivity.this, LocationSearchActivity.class);
         startActivityForResult(intent, REQUEST_LOCATION);
     }
 
     private void doSortByWasting() {
-        sortType = 2;
+        sortType = 3;
+
+        adapterData.setWastingFilter();
     }
 
     private void doSortByStunting() {
-        sortType = 3;
+        sortType = 4;
+
+        adapterData.setStuntingFilter();
     }
 
     public void onActivityResult(int reqCode, int resCode, Intent result) {
         if (reqCode == REQUEST_LOCATION && resCode == Activity.RESULT_OK) {
-            ArrayList<Person> personList = (ArrayList<Person>) result.getSerializableExtra(AppConstants.EXTRA_PERSON_LIST);
-            adapterData.resetData(personList);
+            int radius = result.getIntExtra(AppConstants.EXTRA_RADIUS, 0);
+
+            adapterData.setLocationFilter(session.getLocation(), radius);
         }
     }
 
@@ -347,5 +352,7 @@ public class MainActivity extends BaseActivity implements RecyclerDataAdapter.On
 
         int diffDays = (int) (end.getTimeInMillis() - start.getTimeInMillis()) / 1000 / 60 / 60 / 24;
         txtSortCase.setText("Last Scans (" + Integer.toString(Math.abs(diffDays)) + " days)");
+
+        adapterData.setDateFilter(start.getTimeInMillis(), end.getTimeInMillis());
     }
 }

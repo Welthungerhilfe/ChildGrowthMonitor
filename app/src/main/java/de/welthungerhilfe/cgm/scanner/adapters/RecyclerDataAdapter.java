@@ -26,27 +26,44 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.welthungerhilfe.cgm.scanner.R;
+import de.welthungerhilfe.cgm.scanner.models.Loc;
 import de.welthungerhilfe.cgm.scanner.models.Person;
+import de.welthungerhilfe.cgm.scanner.utils.Utils;
 
-public class RecyclerDataAdapter extends RecyclerView.Adapter<RecyclerDataAdapter.ViewHolder> {
+public class RecyclerDataAdapter extends RecyclerView.Adapter<RecyclerDataAdapter.ViewHolder> implements Filterable {
     private Context context;
     private ArrayList<Person> personList;
+    private ArrayList<Person> filteredList;
     private int lastPosition = -1;
+
+    private int sortType = 0; // 0 : All, 1 : date, 2 : location, 3 : wasting, 4 : stunting;
+    private long startDate, endDate;
+    private Loc currentLoc;
+    private int radius;
+
+    private PersonFilter personFilter = new PersonFilter();
 
     private OnPersonDetail personDetailListener;
 
     public RecyclerDataAdapter(Context ctx, ArrayList<Person> pl) {
         context = ctx;
         personList = pl;
+        filteredList = pl;
     }
 
     @Override
@@ -58,7 +75,7 @@ public class RecyclerDataAdapter extends RecyclerView.Adapter<RecyclerDataAdapte
 
     @Override
     public void onBindViewHolder(RecyclerDataAdapter.ViewHolder holder, int position) {
-        Person person = personList.get(position);
+        Person person = filteredList.get(position);
 
         holder.txtName.setText(person.getName() + " " + person.getSurname());
         if (person.getLastMeasure() == null) {
@@ -78,7 +95,7 @@ public class RecyclerDataAdapter extends RecyclerView.Adapter<RecyclerDataAdapte
 
     @Override
     public int getItemCount() {
-        return personList.size();
+        return filteredList.size();
     }
 
     private void setAnimation(View viewToAnimate, int position) {
@@ -101,6 +118,39 @@ public class RecyclerDataAdapter extends RecyclerView.Adapter<RecyclerDataAdapte
     public void addPerson(Person person) {
         personList.add(person);
         notifyItemInserted(personList.size() - 1);
+    }
+
+    public void setDateFilter(long start, long end) {
+        startDate = start;
+        endDate = end;
+        sortType = 1;
+
+        getFilter().filter("");
+    }
+
+    public void setLocationFilter(Loc loc, int r) {
+        currentLoc = loc;
+        radius = r;
+        sortType = 2;
+
+        getFilter().filter("");
+    }
+
+    public void setWastingFilter() {
+        sortType = 3;
+
+        getFilter().filter("");
+    }
+
+    public void setStuntingFilter() {
+        sortType = 4;
+
+        getFilter().filter("");
+    }
+
+    @Override
+    public Filter getFilter() {
+        return personFilter;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -132,5 +182,53 @@ public class RecyclerDataAdapter extends RecyclerView.Adapter<RecyclerDataAdapte
 
     public interface OnPersonDetail {
         void onPersonDetail(Person person);
+    }
+
+    public class PersonFilter extends Filter {
+
+        @Override
+        protected FilterResults performFiltering(CharSequence charSequence) {
+            FilterResults results = new FilterResults();
+
+            ArrayList<Person> tempList = new ArrayList<>();
+            for (int i = 0; i < personList.size(); i++) {
+                if (sortType == 1) {
+                    if (personList.get(i).getCreated() <= endDate && personList.get(i).getCreated() >= startDate)
+                        tempList.add(personList.get(i));
+                } else if (sortType == 2) {
+                    if (Utils.distanceBetweenLocs(currentLoc, personList.get(i).getLastLocation()) < radius)
+                        tempList.add(personList.get(i));
+                } else {
+                    tempList.add(personList.get(i));
+                }
+            }
+
+            Collections.sort(tempList, new Comparator<Person>() {
+                @Override
+                public int compare(Person person, Person t1) {
+                    if (sortType == 1) {   // Sort by created date
+                        return person.getCreated() > t1.getCreated() ? 1 : person.getCreated() < t1.getCreated() ? -1 : 0;
+                    } else if (sortType == 2) {   // Sort by distance from me
+                        return Utils.distanceBetweenLocs(currentLoc, person.getLastLocation()) > Utils.distanceBetweenLocs(currentLoc, t1.getLastLocation()) ? 1 : Utils.distanceBetweenLocs(currentLoc, person.getLastLocation()) < Utils.distanceBetweenLocs(currentLoc, t1.getLastLocation()) ? -1 : 0;
+                    } else if (sortType == 3) {   // Sort by wasting
+                        return person.getLastMeasure().getWeight() / person.getLastMeasure().getHeight() > t1.getLastMeasure().getWeight() / t1.getLastMeasure().getHeight() ? -1 : person.getLastMeasure().getWeight() / person.getLastMeasure().getHeight() < t1.getLastMeasure().getWeight() / t1.getLastMeasure().getHeight() ? 1 : 0;
+                    } else if (sortType == 4) {   // sort by stunting
+                        return person.getLastMeasure().getHeight() / person.getLastMeasure().getAge() > t1.getLastMeasure().getHeight() / t1.getLastMeasure().getAge() ? -1 : person.getLastMeasure().getHeight() / person.getLastMeasure().getAge() < t1.getLastMeasure().getHeight() / t1.getLastMeasure().getAge() ? 1 : 0;
+                    }
+                    return 0;
+                }
+            });
+
+            results.values = tempList;
+            results.count = tempList.size();
+
+            return results;
+        }
+
+        @Override
+        protected void publishResults(CharSequence charSequence, FilterResults results) {
+            filteredList = (ArrayList<Person>) results.values;
+            notifyDataSetChanged();
+        }
     }
 }

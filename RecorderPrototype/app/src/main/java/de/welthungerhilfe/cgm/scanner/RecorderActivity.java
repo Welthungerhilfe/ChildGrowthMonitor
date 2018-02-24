@@ -21,7 +21,12 @@ package de.welthungerhilfe.cgm.scanner;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.PixelFormat;
+import android.graphics.drawable.Drawable;
 import android.hardware.display.DisplayManager;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
@@ -38,8 +43,10 @@ import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.Surface;
+import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -69,12 +76,12 @@ public class RecorderActivity extends AppCompatActivity {
     private static final int INVALID_TEXTURE_ID = 0;
     private static final String sTimestampFormat = "Timestamp: %f";
 
-    private GLSurfaceView mCameraSurfaceView;
+    private static GLSurfaceView mCameraSurfaceView;
     private ScanVideoRenderer mRenderer;
     private TextView mDisplayTextView;
 
-    private SurfaceView mOverlaySurfaceView;
-    private SurfaceView mPointCloudSurfaceView;
+    private static OverlaySurface mOverlaySurfaceView;
+    private static SurfaceView mPointCloudSurfaceView;
 
     private Tango mTango;
     private TangoConfig mConfig;
@@ -107,14 +114,21 @@ public class RecorderActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recorder);
 
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
+
+        mOverlaySurfaceView = new OverlaySurface(getApplicationContext());
+        addContentView(mOverlaySurfaceView,params);
+
         mDisplayTextView = (TextView) findViewById(R.id.display_textview);
-        mCameraSurfaceView = (GLSurfaceView) findViewById(R.id.surfaceview);
 
-        mOverlaySurfaceView = (SurfaceView) findViewById(R.id.overlaySurfaceView);
-        mOverlaySurfaceView.getHolder().setFormat(PixelFormat.TRANSLUCENT);
+        mCameraSurfaceView = new GLSurfaceView(getApplicationContext());
+        // Set up a dummy OpenGL renderer associated with this surface view.
+        setupRenderer();
+        addContentView(mCameraSurfaceView,params);
 
-        mPointCloudSurfaceView = (SurfaceView) findViewById(R.id.pointCloudSurfaceView);
-        mPointCloudSurfaceView.getHolder().setFormat(PixelFormat.TRANSLUCENT);
+        // TODO: programmatically add Point Cloud GLSurface
+        //mPointCloudSurfaceView = (SurfaceView) findViewById(R.id.pointCloudSurfaceView);
+        //mPointCloudSurfaceView.getHolder().setFormat(PixelFormat.TRANSLUCENT);
 
         // The request code used in ActivityCompat.requestPermissions()
         // and returned in the Activity's onRequestPermissionsResult()
@@ -172,8 +186,6 @@ public class RecorderActivity extends AppCompatActivity {
                 }
             }, null);
         }
-        // Set up a dummy OpenGL renderer associated with this surface view.
-        setupRenderer();
         mRecordingEnabled = sVideoEncoder.isRecording();
     }
 
@@ -405,8 +417,9 @@ public class RecorderActivity extends AppCompatActivity {
         });
 
         /*
-        // needed for the actual image buffer to record video
+        // needed for the actual image buffer to record video?
         // alternative would be the C++ API of Tango that also provides image data
+        // or recording directly from GLSurfaceView
         mTango.experimentalConnectOnFrameListener(TangoCameraIntrinsics.TANGO_CAMERA_COLOR,
                 new Tango.OnFrameAvailableListener() {
                     @Override
@@ -484,6 +497,7 @@ public class RecorderActivity extends AppCompatActivity {
                         // If there is a new RGB camera frame available, update the texture and
                         // scene camera pose.
                         if (mIsFrameAvailableTangoThread.compareAndSet(true, false)) {
+
                             double rgbTimestamp =
                                     mTango.updateTexture(TangoCameraIntrinsics.TANGO_CAMERA_COLOR);
 
@@ -555,5 +569,21 @@ public class RecorderActivity extends AppCompatActivity {
             }
         });
     }
+
+    /**
+     * Returns an ordinal value for the SurfaceHolder, or -1 for an invalid surface.
+     */
+    public static int getSurfaceId(SurfaceHolder holder) {
+        if (holder.equals(mCameraSurfaceView.getHolder())) {
+            return 1;
+        } else if (holder.equals(mOverlaySurfaceView.getHolder())) {
+            return 2;
+        } else if (holder.equals(mPointCloudSurfaceView.getHolder())) {
+            return 3;
+        } else {
+            return -1;
+        }
+    }
+
 
 }

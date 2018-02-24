@@ -71,7 +71,7 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
     private AppCompatRadioButton radioFemale, radioMale, radioFluid;
 
     private Loc location = null;
-
+    private long birthday = 0;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -115,7 +115,7 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
 
             editName.setText(((CreateDataActivity)getContext()).person.getName());
             editPrename.setText(((CreateDataActivity)getContext()).person.getSurname());
-            editBirth.setText(((CreateDataActivity)getContext()).person.getBirthday());
+            editBirth.setText(Utils.beautifyDate(((CreateDataActivity)getContext()).person.getBirthday()));
             editAge.setText(Integer.toString(((CreateDataActivity)getContext()).person.getAge()));
             editGuardian.setText(((CreateDataActivity)getContext()).person.getGuardian());
             if (((CreateDataActivity)getContext()).person.getLastLocation() != null)
@@ -232,7 +232,7 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
 
                     ((CreateDataActivity)getContext()).setPersonalData(
                             editName.getText().toString(), editPrename.getText().toString(),
-                            editBirth.getText().toString(), Integer.parseInt(editAge.getText().toString()),
+                            birthday, Integer.parseInt(editAge.getText().toString()),
                             sex, location, editGuardian.getText().toString());
                 }
 
@@ -259,7 +259,7 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
 
     @Override
     public void onDateTimeRecurrenceSet(SelectedDate selectedDate, int hourOfDay, int minute, SublimeRecurrencePicker.RecurrenceOption recurrenceOption, String recurrenceRule) {
-        int a = 0;
+        birthday = selectedDate.getStartDate().getTimeInMillis();
         editBirth.setText(Utils.beautifyDate(selectedDate.getStartDate().getTimeInMillis()));
     }
 }

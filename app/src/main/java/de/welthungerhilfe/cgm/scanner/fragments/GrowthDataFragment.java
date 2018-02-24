@@ -25,9 +25,9 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.ScatterChart;
-import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
@@ -39,28 +39,82 @@ import com.jaredrummler.materialspinner.MaterialSpinner;
 import java.util.ArrayList;
 
 import de.welthungerhilfe.cgm.scanner.R;
+import de.welthungerhilfe.cgm.scanner.activities.CreateDataActivity;
+import de.welthungerhilfe.cgm.scanner.models.Measure;
+import de.welthungerhilfe.cgm.scanner.views.VerticalTextView;
 
 public class GrowthDataFragment extends Fragment {
 
     private ScatterChart chartGrowth;
     private MaterialSpinner dropChart;
 
+    private VerticalTextView txtYAxis;
+    private TextView txtXAxis;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_growth, container, false);
 
+        txtYAxis = view.findViewById(R.id.txtYAxis);
+        txtXAxis = view.findViewById(R.id.txtXAxis);
+
         chartGrowth = view.findViewById(R.id.chartGrowth);
         dropChart = view.findViewById(R.id.dropChart);
+
         dropChart.setItems("Age / Height", "Age / Weight", "Height / Weight");
         dropChart.setOnItemSelectedListener(new MaterialSpinner.OnItemSelectedListener<String>() {
             @Override public void onItemSelected(MaterialSpinner view, int position, long id, String item) {
-
+                setChartData(position + 1, item);
             }
         });
 
         initChart();
 
         return view;
+    }
+
+    private void setChartData(int position, String title) {
+        if (position == 0) {
+            chartGrowth.invalidate();
+
+            return;
+        }
+        if (((CreateDataActivity)getContext()).measures == null)
+            return;
+
+
+        ArrayList<Entry> yVals1 = new ArrayList<Entry>();
+        for (int i = 0; i < ((CreateDataActivity)getContext()).measures.size(); i++) {
+            Measure measure = ((CreateDataActivity)getContext()).measures.get(i);
+
+            if (position == 1) {
+                txtXAxis.setText("Age");
+                txtYAxis.setText("Height");
+                yVals1.add(new Entry(measure.getAge(), measure.getHeight()));
+            } else if (position == 2) {
+                txtXAxis.setText("Age");
+                txtYAxis.setText("Weight");
+                yVals1.add(new Entry(measure.getAge(), measure.getWeight()));
+            } else if (position == 3) {
+                txtXAxis.setText("Height");
+                txtYAxis.setText("Weight");
+                yVals1.add(new Entry(measure.getHeight(), measure.getWeight()));
+            }
+        }
+
+        ScatterDataSet set1 = new ScatterDataSet(yVals1, title);
+        set1.setScatterShapeHoleColor(getResources().getColor(R.color.colorPrimary));
+        set1.setScatterShapeHoleRadius(5f);
+        set1.setScatterShape(ScatterChart.ScatterShape.CIRCLE);
+        set1.setColor(getResources().getColor(R.color.colorWhite));
+        set1.setScatterShapeSize(30f);
+
+        ArrayList<IScatterDataSet> dataSets = new ArrayList<IScatterDataSet>();
+        dataSets.add(set1);
+
+        ScatterData data = new ScatterData(dataSets);
+        chartGrowth.setData(data);
+        chartGrowth.invalidate();
     }
 
     private void initChart() {
@@ -73,6 +127,7 @@ public class GrowthDataFragment extends Fragment {
         yAxis.setDrawGridLines(true);
         yAxis.enableGridDashedLine(5f, 5f, 0f);
         yAxis.setAxisMinimum(0f);
+        //yAxis.setGranularity(1f);
 
         chartGrowth.getAxisRight().setEnabled(false);
 
@@ -80,25 +135,9 @@ public class GrowthDataFragment extends Fragment {
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setDrawGridLines(true);
         xAxis.enableGridDashedLine(5f, 5f, 0f);
+        xAxis.setAxisMinimum(0f);
+        //xAxis.setGranularity(1f);
 
-        ArrayList<Entry> yVals1 = new ArrayList<Entry>();
-        for (int i = 0; i < 3; i++) {
-            float val = (float) (Math.random() * i) + 3;
-            yVals1.add(new Entry(i, val));
-        }
-
-        ScatterDataSet set1 = new ScatterDataSet(yVals1, "Weight-Height");
-        set1.setScatterShapeHoleColor(getResources().getColor(R.color.colorPrimary));
-        set1.setScatterShapeHoleRadius(5f);
-        set1.setScatterShape(ScatterChart.ScatterShape.CIRCLE);
-        set1.setColor(getResources().getColor(R.color.colorWhite));
-        set1.setScatterShapeSize(30f);
-
-        ArrayList<IScatterDataSet> dataSets = new ArrayList<IScatterDataSet>();
-        dataSets.add(set1);
-
-        ScatterData data = new ScatterData(dataSets);
-        chartGrowth.setData(data);
         chartGrowth.invalidate();
     }
 }

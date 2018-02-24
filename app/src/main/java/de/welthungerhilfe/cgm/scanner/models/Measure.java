@@ -28,7 +28,7 @@ import java.io.Serializable;
 public class Measure implements Serializable {
     private long date;
     private String type;
-    private int age;
+    private long age; // age from birthday in days
     private float height;
     private float weight;
     private float muac;
@@ -52,11 +52,11 @@ public class Measure implements Serializable {
         this.type = type;
     }
 
-    public int getAge() {
+    public long getAge() {
         return age;
     }
 
-    public void setAge(int age) {
+    public void setAge(long age) {
         this.age = age;
     }
 

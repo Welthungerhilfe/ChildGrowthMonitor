@@ -17,10 +17,10 @@
   ~     along with this program.  If not, see <http://www.gnu.org/licenses/>.
   ~
   -->
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:padding="@dimen/activity_horizontal_margin"
     android:background="@color/colorWhite"
     android:orientation="vertical">
@@ -43,10 +43,33 @@
         android:textStyle="bold"
         android:textSize="18sp"/>
 
-    <com.github.mikephil.charting.charts.ScatterChart
-        android:id="@+id/chartGrowth"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="10dp"/>
+        android:layout_marginTop="10dp">
+
+        <de.welthungerhilfe.cgm.scanner.views.VerticalTextView
+            android:id="@+id/txtYAxis"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Y Axis"
+            android:rotation="180"/>
+
+        <com.github.mikephil.charting.charts.ScatterChart
+            android:id="@+id/chartGrowth"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_toRightOf="@+id/txtYAxis"
+            android:layout_above="@+id/txtXAxis"/>
+
+        <TextView
+            android:id="@+id/txtXAxis"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="X Axis"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"/>
+
+    </RelativeLayout>
 
 </LinearLayout>

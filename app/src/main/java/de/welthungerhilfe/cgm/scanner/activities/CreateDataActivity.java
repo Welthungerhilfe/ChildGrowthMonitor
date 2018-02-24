@@ -157,7 +157,7 @@ public class CreateDataActivity extends BaseActivity {
         tabs.setupWithViewPager(viewpager);
     }
 
-    public void setPersonalData(String name, String surName, String birthday, int age, String sex, Loc loc, String guardian) {
+    public void setPersonalData(String name, String surName, long birthday, int age, String sex, Loc loc, String guardian) {
         person = new Person();
         person.setName(name);
         person.setSurname(surName);
@@ -175,6 +175,8 @@ public class CreateDataActivity extends BaseActivity {
 
         final Measure measure = new Measure();
         measure.setDate(System.currentTimeMillis());
+        long age = System.currentTimeMillis() - person.getBirthday() / 1000 / 60 / 60 / 24;
+        measure.setAge(age);
         measure.setHeight(height);
         measure.setWeight(weight);
         measure.setMuac(muac);

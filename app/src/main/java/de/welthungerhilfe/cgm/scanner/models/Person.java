@@ -30,7 +30,7 @@ public class Person implements Serializable {
     private String id;  // firebase id
     private String name;
     private String surname;
-    private String birthday;
+    private long birthday;
     private int age;  // age in month
     private String sex;  // female, male, other
     private String guardian;
@@ -63,11 +63,11 @@ public class Person implements Serializable {
         this.surname = surname;
     }
 
-    public String getBirthday() {
+    public long getBirthday() {
         return birthday;
     }
 
-    public void setBirthday(String birthday) {
+    public void setBirthday(long birthday) {
         this.birthday = birthday;
     }
 

@@ -137,7 +137,10 @@ public class CreateDataActivity extends BaseActivity {
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeButtonEnabled(true);
-        actionBar.setTitle("ID: " + qrCode);
+        if (person != null)
+            actionBar.setTitle("ID: " + person.getQrNumber().getCode());
+        else
+            actionBar.setTitle("ID: " + qrCode);
     }
 
     private void initFragments() {

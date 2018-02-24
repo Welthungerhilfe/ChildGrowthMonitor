@@ -239,8 +239,13 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
                 break;
             case R.id.rytConsentDetail:
                 Intent intent = new Intent(getContext(), ImageDetailActivity.class);
-                intent.putExtra(AppConstants.EXTRA_QR_BITMAP, ((CreateDataActivity)getContext()).qrSource);
-                //startActivity(intent);
+                if (((CreateDataActivity)getContext()).person != null) {
+                    intent.putExtra(AppConstants.EXTRA_QR_URL, ((CreateDataActivity)getContext()).person.getQrNumber().getConsent());
+                } else {
+                    intent.putExtra(AppConstants.EXTRA_QR_BITMAP, ((CreateDataActivity)getContext()).qrSource);
+                }
+
+                startActivity(intent);
                 break;
             case R.id.txtBack:
                 getActivity().finish();

@@ -32,6 +32,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import com.bumptech.glide.Glide;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.welthungerhilfe.cgm.scanner.R;
@@ -57,10 +59,13 @@ public class ImageDetailActivity extends AppCompatActivity {
         setupToolbar();
 
         byte[] bytes = getIntent().getByteArrayExtra(AppConstants.EXTRA_QR_BITMAP);
+        String url = getIntent().getStringExtra(AppConstants.EXTRA_QR_URL);
         zoomView.setZoomEnable(true);
         if (bytes != null) {
             Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
             zoomView.setImageBitmap(bmp);
+        } else if (url != null && !url.equals("")) {
+            Glide.with(this).load(url).fitCenter().into(zoomView);
         }
     }
 

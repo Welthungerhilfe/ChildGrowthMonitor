@@ -40,6 +40,7 @@ public class AppConstants {
 
     public static final String EXTRA_QR = "extra_qr";
     public static final String EXTRA_QR_BITMAP = "extra_qr_bitmap";
+    public static final String EXTRA_QR_URL = "extra_qr_url";
     public static final String EXTRA_LOCATION = "extra_location";
     public static final String EXTRA_RADIUS = "extra_radius";
     public static final String EXTRA_PERSON_LIST = "extra_person_list";

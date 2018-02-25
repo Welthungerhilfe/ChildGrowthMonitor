@@ -37,6 +37,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -48,7 +49,11 @@ import com.appeaser.sublimepickerlibrary.datepicker.SelectedDate;
 import com.appeaser.sublimepickerlibrary.recurrencepicker.SublimeRecurrencePicker;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.orhanobut.dialogplus.DialogPlus;
 import com.orhanobut.dialogplus.OnClickListener;
@@ -56,6 +61,7 @@ import com.orhanobut.dialogplus.ViewHolder;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -68,7 +74,8 @@ import de.welthungerhilfe.cgm.scanner.helper.SessionManager;
 import de.welthungerhilfe.cgm.scanner.models.Person;
 import de.welthungerhilfe.cgm.scanner.helper.AppConstants;
 
-public class MainActivity extends BaseActivity implements RecyclerDataAdapter.OnPersonDetail, DateRangePickerDialog.Callback {
+public class MainActivity extends BaseActivity implements RecyclerDataAdapter.OnPersonDetail, DateRangePickerDialog.Callback, EventListener<QuerySnapshot> {
+    private final String TAG = MainActivity.class.getSimpleName();
     private final int REQUEST_LOCATION = 0x1000;
 
     private int sortType = 0;
@@ -191,9 +198,15 @@ public class MainActivity extends BaseActivity implements RecyclerDataAdapter.On
 
         initUI();
 
+        AppController.getInstance().firebaseFirestore.collection("persons")
+                //.orderBy("created", Query.Direction.DESCENDING)
+                .addSnapshotListener(this);
+
+        /*
         showProgressDialog();
 
         loadData();
+        */
     }
 
     private void initUI() {
@@ -364,5 +377,27 @@ public class MainActivity extends BaseActivity implements RecyclerDataAdapter.On
         txtSortCase.setText("Last Scans (" + Integer.toString(Math.abs(diffDays)) + " days)");
 
         adapterData.setDateFilter(start.getTimeInMillis(), end.getTimeInMillis());
+    }
+
+    @Override
+    public void onEvent(QuerySnapshot snapshot, FirebaseFirestoreException e) {
+        List<DocumentChange> documents = snapshot.getDocumentChanges();
+        for (DocumentChange change: documents) {
+            Person person = change.getDocument().toObject(Person.class);
+            if (change.getType().equals(DocumentChange.Type.ADDED)) {
+                adapterData.addPerson(person);
+            } else if (change.getType().equals(DocumentChange.Type.MODIFIED)) {
+                adapterData.updatePerson(person);
+            } else if (change.getType().equals(DocumentChange.Type.REMOVED)) {
+                adapterData.removePerson(person);
+            }
+            if (adapterData.getItemCount() == 0) {
+                recyclerData.setVisibility(View.GONE);
+                txtNoPerson.setVisibility(View.VISIBLE);
+            } else {
+                recyclerData.setVisibility(View.VISIBLE);
+                txtNoPerson.setVisibility(View.GONE);
+            }
+        }
     }
 }

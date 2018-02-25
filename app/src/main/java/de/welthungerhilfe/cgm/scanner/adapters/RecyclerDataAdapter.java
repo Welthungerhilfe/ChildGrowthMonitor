@@ -157,6 +157,35 @@ public class RecyclerDataAdapter extends RecyclerView.Adapter<RecyclerDataAdapte
         personList = new ArrayList<>();
     }
 
+    public void updatePerson(Person person) {
+        int index = -1;
+        for (int i = 0; i < personList.size(); i++) {
+            if (person.getId().equals(personList.get(i).getId())) {
+                index = i;
+                break;
+            }
+        }
+        if (index > -1) {
+            personList.remove(index);
+            personList.add(index, person);
+        }
+        getFilter().filter("");
+    }
+
+    public void removePerson(Person person) {
+        int index = -1;
+        for (int i = 0; i < personList.size(); i++) {
+            if (person.getId().equals(personList.get(i).getId())) {
+                index = i;
+                break;
+            }
+        }
+        if (index > -1) {
+            personList.remove(index);
+        }
+        getFilter().filter("");
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder {
         public RelativeLayout rytItem;
 

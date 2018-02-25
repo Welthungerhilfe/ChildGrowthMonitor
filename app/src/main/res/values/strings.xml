@@ -65,6 +65,7 @@
     <string name="repeat">Repeat</string>
     <string name="back">Back</string>
     <string name="next">Next</string>
+    <string name="no_location">Last scan is not available</string>
 
 
     <!-- drawer -->

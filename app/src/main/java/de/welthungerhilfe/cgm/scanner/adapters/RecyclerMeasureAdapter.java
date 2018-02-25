@@ -33,6 +33,7 @@ import android.widget.TextView;
 import java.util.List;
 
 import de.welthungerhilfe.cgm.scanner.R;
+import de.welthungerhilfe.cgm.scanner.helper.AppConstants;
 import de.welthungerhilfe.cgm.scanner.models.Measure;
 import de.welthungerhilfe.cgm.scanner.models.Person;
 import de.welthungerhilfe.cgm.scanner.utils.Utils;
@@ -50,7 +51,7 @@ public class RecyclerMeasureAdapter extends RecyclerView.Adapter<RecyclerMeasure
     @Override
     public int getItemViewType(int position) {
         Measure measure = measureList.get(position);
-        if (measure.getType().equals("manual"))
+        if (measure.getType().equals(AppConstants.VAL_MEASURE_MANUAL))
             return 0;
         else
             return 1;

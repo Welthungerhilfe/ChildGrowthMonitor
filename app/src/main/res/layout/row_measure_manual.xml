@@ -58,7 +58,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:singleLine="true"
-            android:inputType="number"
             android:editable="false"
             android:hint="01 Scan Date"/>
 
@@ -74,7 +73,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:singleLine="true"
-            android:inputType="number"
             android:editable="false"
             android:hint="02 Scan Location"/>
 
@@ -90,7 +88,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:singleLine="true"
-            android:inputType="number"
             android:editable="false"
             android:hint="03 Height"/>
 
@@ -106,7 +103,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:singleLine="true"
-            android:inputType="number"
             android:editable="false"
             android:hint="04 Weight"/>
 
@@ -122,7 +118,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:singleLine="true"
-            android:inputType="number"
             android:editable="false"
             android:hint="05 MUAC"/>
 

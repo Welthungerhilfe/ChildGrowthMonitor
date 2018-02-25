@@ -151,7 +151,6 @@ public class CreateDataActivity extends BaseActivity {
         if (growthFragment == null)
             growthFragment = new GrowthDataFragment();
     }
-
     private void initUI() {
         FragmentAdapter adapter = new FragmentAdapter(getSupportFragmentManager());
         adapter.addFragment(personalFragment, "PERSONAL");
@@ -196,7 +195,7 @@ public class CreateDataActivity extends BaseActivity {
         measure.setMuac(muac);
         measure.setArtifact(additional);
         measure.setLocation(location);
-        measure.setType("manual");
+        measure.setType(AppConstants.VAL_MEASURE_MANUAL);
 
         AppController.getInstance().firebaseFirestore.collection("persons")
                 .document(person.getId())

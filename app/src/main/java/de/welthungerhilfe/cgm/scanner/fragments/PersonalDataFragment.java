@@ -121,9 +121,6 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
             editGuardian.setText(((CreateDataActivity)getContext()).person.getGuardian());
             if (((CreateDataActivity)getContext()).person.getLastLocation() != null)
                 editLocation.setText(((CreateDataActivity)getContext()).person.getLastLocation().getAddress());
-            else {
-                editLocation.setText("Last scan is not available");
-            }
 
             if (((CreateDataActivity)getContext()).person.getSex().equals(AppConstants.VAL_SEX_FEMALE)) {
                 radioFemale.setChecked(true);

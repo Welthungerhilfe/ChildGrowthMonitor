@@ -32,6 +32,7 @@ import de.welthungerhilfe.cgm.scanner.fragments.BabyBack0Fragment;
 import de.welthungerhilfe.cgm.scanner.fragments.BabyBack1Fragment;
 import de.welthungerhilfe.cgm.scanner.fragments.BabyFront0Fragment;
 import de.welthungerhilfe.cgm.scanner.fragments.BabyFront1Fragment;
+import de.welthungerhilfe.cgm.scanner.helper.AppConstants;
 import de.welthungerhilfe.cgm.scanner.helper.events.MeasureResult;
 import de.welthungerhilfe.cgm.scanner.models.Measure;
 import de.welthungerhilfe.cgm.scanner.utils.Utils;
@@ -99,6 +100,7 @@ public class BabyScanActivity extends AppCompatActivity {
             ft.commit();
         } else {
             measure.setDate(System.currentTimeMillis());
+            measure.setType(AppConstants.VAL_MEASURE_AUTO);
             EventBus.getDefault().post(new MeasureResult(measure));
             finish();
         }

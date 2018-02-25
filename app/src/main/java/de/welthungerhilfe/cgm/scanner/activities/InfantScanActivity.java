@@ -31,6 +31,7 @@ import de.welthungerhilfe.cgm.scanner.R;
 import de.welthungerhilfe.cgm.scanner.fragments.InfantBackFragment;
 import de.welthungerhilfe.cgm.scanner.fragments.InfantFrontFragment;
 import de.welthungerhilfe.cgm.scanner.fragments.InfantTurnFragment;
+import de.welthungerhilfe.cgm.scanner.helper.AppConstants;
 import de.welthungerhilfe.cgm.scanner.helper.events.MeasureResult;
 import de.welthungerhilfe.cgm.scanner.models.Measure;
 import de.welthungerhilfe.cgm.scanner.utils.Utils;
@@ -92,6 +93,7 @@ public class InfantScanActivity extends AppCompatActivity {
             ft.commit();
         } else {
             measure.setDate(System.currentTimeMillis());
+            measure.setType(AppConstants.VAL_MEASURE_AUTO);
             EventBus.getDefault().post(new MeasureResult(measure));
             finish();
         }

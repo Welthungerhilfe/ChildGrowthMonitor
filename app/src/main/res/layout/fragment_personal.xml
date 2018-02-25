@@ -115,6 +115,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:editable="false"
+                android:text="@string/no_location"
                 android:singleLine="true"
                 android:hint="@string/location"/>
         </android.support.design.widget.TextInputLayout>

@@ -148,6 +148,18 @@ public class RecyclerDataAdapter extends RecyclerView.Adapter<RecyclerDataAdapte
         getFilter().filter("");
     }
 
+    public void clearFitlers() {
+        sortType = 0;
+
+        getFilter().filter("");
+    }
+
+    public void search(CharSequence query) {
+        sortType = 5;
+
+        getFilter().filter(query);
+    }
+
     @Override
     public Filter getFilter() {
         return personFilter;
@@ -229,30 +241,45 @@ public class RecyclerDataAdapter extends RecyclerView.Adapter<RecyclerDataAdapte
                     if (personList.get(i).getCreated() <= endDate && personList.get(i).getCreated() >= startDate)
                         tempList.add(personList.get(i));
                 } else if (sortType == 2) {
-                    if (Utils.distanceBetweenLocs(currentLoc, personList.get(i).getLastLocation()) < radius)
+                    if (currentLoc == null || personList.get(i).getLastLocation() == null) {
+
+                    } else if (Utils.distanceBetweenLocs(currentLoc, personList.get(i).getLastLocation()) < radius)
                         tempList.add(personList.get(i));
+                } else if (sortType == 5) {
+                    if (personList.get(i).getName().contains(charSequence) || personList.get(i).getSurname().contains(charSequence)) {
+                        tempList.add(personList.get(i));
+                    }
                 } else {
                     tempList.add(personList.get(i));
                 }
             }
 
-            Collections.sort(tempList, new Comparator<Person>() {
-                @Override
-                public int compare(Person person, Person t1) {
-                    if (sortType == 1) {   // Sort by created date
-                        return person.getCreated() > t1.getCreated() ? 1 : person.getCreated() < t1.getCreated() ? -1 : 0;
-                    } else if (sortType == 2) {   // Sort by distance from me
-                        if (currentLoc == null || person.getLastLocation() == null)
-                            return  0;
-                        return Utils.distanceBetweenLocs(currentLoc, person.getLastLocation()) > Utils.distanceBetweenLocs(currentLoc, t1.getLastLocation()) ? 1 : Utils.distanceBetweenLocs(currentLoc, person.getLastLocation()) < Utils.distanceBetweenLocs(currentLoc, t1.getLastLocation()) ? -1 : 0;
-                    } else if (sortType == 3) {   // Sort by wasting
-                        return person.getLastMeasure().getWeight() / person.getLastMeasure().getHeight() > t1.getLastMeasure().getWeight() / t1.getLastMeasure().getHeight() ? -1 : person.getLastMeasure().getWeight() / person.getLastMeasure().getHeight() < t1.getLastMeasure().getWeight() / t1.getLastMeasure().getHeight() ? 1 : 0;
-                    } else if (sortType == 4) {   // sort by stunting
-                        return person.getLastMeasure().getHeight() / person.getLastMeasure().getAge() > t1.getLastMeasure().getHeight() / t1.getLastMeasure().getAge() ? -1 : person.getLastMeasure().getHeight() / person.getLastMeasure().getAge() < t1.getLastMeasure().getHeight() / t1.getLastMeasure().getAge() ? 1 : 0;
+            if (sortType == 0 || sortType == 5) { // No filter
+
+            } else {
+                Collections.sort(tempList, new Comparator<Person>() {
+                    @Override
+                    public int compare(Person person, Person t1) {
+                        if (sortType == 1) {   // Sort by created date
+                            return person.getCreated() > t1.getCreated() ? 1 : person.getCreated() < t1.getCreated() ? -1 : 0;
+                        } else if (sortType == 2) {   // Sort by distance from me
+                            if (currentLoc == null || person.getLastLocation() == null)
+                                return  0;
+                            return Utils.distanceBetweenLocs(currentLoc, person.getLastLocation()) > Utils.distanceBetweenLocs(currentLoc, t1.getLastLocation()) ? 1 : Utils.distanceBetweenLocs(currentLoc, person.getLastLocation()) < Utils.distanceBetweenLocs(currentLoc, t1.getLastLocation()) ? -1 : 0;
+                        } else if (sortType == 3) {   // Sort by wasting
+                            if (person.getLastMeasure() == null)
+                                return 0;
+                            return person.getLastMeasure().getWeight() / person.getLastMeasure().getHeight() > t1.getLastMeasure().getWeight() / t1.getLastMeasure().getHeight() ? -1 : person.getLastMeasure().getWeight() / person.getLastMeasure().getHeight() < t1.getLastMeasure().getWeight() / t1.getLastMeasure().getHeight() ? 1 : 0;
+                        } else if (sortType == 4) {   // sort by stunting
+                            if (person.getLastMeasure() == null)
+                                return 0;
+
+                            return person.getLastMeasure().getHeight() / person.getLastMeasure().getAge() > t1.getLastMeasure().getHeight() / t1.getLastMeasure().getAge() ? -1 : person.getLastMeasure().getHeight() / person.getLastMeasure().getAge() < t1.getLastMeasure().getHeight() / t1.getLastMeasure().getAge() ? 1 : 0;
+                        }
+                        return 0;
                     }
-                    return 0;
-                }
-            });
+                });
+            }
 
             results.values = tempList;
             results.count = tempList.size();

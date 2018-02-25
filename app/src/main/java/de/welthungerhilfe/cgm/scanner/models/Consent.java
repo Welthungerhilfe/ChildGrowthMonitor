@@ -26,6 +26,7 @@ package de.welthungerhilfe.cgm.scanner.models;
 public class Consent {
     private long created;
     private String consent;
+    private String qrcode;
 
     public long getCreated() {
         return created;
@@ -41,5 +42,13 @@ public class Consent {
 
     public void setConsent(String consent) {
         this.consent = consent;
+    }
+
+    public String getQrcode() {
+        return qrcode;
+    }
+
+    public void setQrcode(String qrcode) {
+        this.qrcode = qrcode;
     }
 }

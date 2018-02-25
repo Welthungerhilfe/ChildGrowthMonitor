@@ -346,6 +346,10 @@ public class CreateDataActivity extends BaseActivity {
                     final Consent consent = new Consent();
                     consent.setCreated(System.currentTimeMillis());
                     consent.setConsent(qrPath);
+                    if (qrCode != null)
+                        consent.setQrcode(qrCode);
+                    else
+                        consent.setQrcode(person.getQrcode());
                     AppController.getInstance().firebaseFirestore.collection("persons")
                             .document(person.getId())
                             .collection("consents")

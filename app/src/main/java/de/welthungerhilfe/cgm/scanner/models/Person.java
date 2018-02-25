@@ -37,7 +37,6 @@ public class Person implements Serializable {
     private boolean isAgeEstimated;
     private Loc lastLocation;
     private String qrcode;
-    //private QRNumber qrNumber;
     private Measure lastMeasure;
 
     public String getId() {
@@ -104,15 +103,6 @@ public class Person implements Serializable {
         this.qrcode = qrcode;
     }
 
-    /*
-        public QRNumber getQrNumber() {
-            return qrNumber;
-        }
-
-        public void setQrNumber(QRNumber qrNumber) {
-            this.qrNumber = qrNumber;
-        }
-        */
     public Measure getLastMeasure() {
         return lastMeasure;
     }

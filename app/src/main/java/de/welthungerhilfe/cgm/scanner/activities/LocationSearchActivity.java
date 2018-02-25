@@ -182,6 +182,7 @@ public class LocationSearchActivity extends AppCompatActivity implements OnMapRe
     }
 
     private void searchNearbyPersons() {
+        /*
         personList = new ArrayList<>();
         AppController.getInstance().firebaseFirestore.collection("persons")
                 .get()
@@ -198,6 +199,7 @@ public class LocationSearchActivity extends AppCompatActivity implements OnMapRe
                         putMarkers();
                     }
                 });
+                */
     }
 
     @Override

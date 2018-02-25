@@ -20,7 +20,6 @@
 package de.welthungerhilfe.cgm.scanner.fragments;
 
 import android.content.Context;
-import android.graphics.DashPathEffect;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -39,11 +38,9 @@ import com.github.mikephil.charting.interfaces.datasets.IScatterDataSet;
 import com.jaredrummler.materialspinner.MaterialSpinner;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 
 import de.welthungerhilfe.cgm.scanner.R;
-import de.welthungerhilfe.cgm.scanner.activities.CreateDataActivity1;
+import de.welthungerhilfe.cgm.scanner.activities.CreateDataActivity;
 import de.welthungerhilfe.cgm.scanner.models.Measure;
 import de.welthungerhilfe.cgm.scanner.views.VerticalTextView;
 
@@ -78,8 +75,8 @@ public class GrowthDataFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_growth, container, false);
 
         txtLabel = view.findViewById(R.id.txtLabel);
-        if (((CreateDataActivity1)context).person != null) {
-            txtLabel.setText(((CreateDataActivity1)context).person.getSex());
+        if (((CreateDataActivity)context).person != null) {
+            txtLabel.setText(((CreateDataActivity)context).person.getSex());
         }
 
         txtYAxis = view.findViewById(R.id.txtYAxis);
@@ -106,20 +103,20 @@ public class GrowthDataFragment extends Fragment {
         if (chartType == 0 || context == null) {
             return;
         }
-        if (((CreateDataActivity1)context).measures == null || ((CreateDataActivity1)context).measures.size() == 0) {
+        if (((CreateDataActivity)context).measures == null || ((CreateDataActivity)context).measures.size() == 0) {
             return;
         }
         if (txtLabel == null) {
             return;
         }
 
-        if (((CreateDataActivity1)context).person != null) {
-            txtLabel.setText(((CreateDataActivity1)context).person.getSex());
+        if (((CreateDataActivity)context).person != null) {
+            txtLabel.setText(((CreateDataActivity)context).person.getSex());
         }
 
         ArrayList<Entry> yVals1 = new ArrayList<Entry>();
-        for (int i = 0; i < ((CreateDataActivity1)context).measures.size(); i++) {
-            Measure measure = ((CreateDataActivity1)context).measures.get(i);
+        for (int i = 0; i < ((CreateDataActivity)context).measures.size(); i++) {
+            Measure measure = ((CreateDataActivity)context).measures.get(i);
 
             if (chartType == 1) {
                 txtXAxis.setText("Age");

@@ -49,9 +49,6 @@
         <activity android:name=".activities.CreateDataActivity"
             android:screenOrientation="portrait"/>
 
-        <activity android:name=".activities.CreateDataActivity1"
-            android:screenOrientation="portrait"/>
-
         <activity android:name=".activities.LocationSearchActivity"
             android:screenOrientation="portrait" />
 

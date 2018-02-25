@@ -31,25 +31,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 //import com.codetroopers.betterpickers.calendardatepicker.CalendarDatePickerDialogFragment;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-
 import de.welthungerhilfe.cgm.scanner.R;
-import de.welthungerhilfe.cgm.scanner.activities.CreateDataActivity1;
+import de.welthungerhilfe.cgm.scanner.activities.CreateDataActivity;
 import de.welthungerhilfe.cgm.scanner.adapters.RecyclerMeasureAdapter;
 import de.welthungerhilfe.cgm.scanner.dialogs.ManulMeasureDialog;
 import de.welthungerhilfe.cgm.scanner.models.Loc;
 import de.welthungerhilfe.cgm.scanner.models.Measure;
-import de.welthungerhilfe.cgm.scanner.utils.Utils;
 
 /**
  * Created by Emerald on 2/19/2018.
@@ -82,7 +72,7 @@ public class MeasuresDataFragment extends Fragment implements View.OnClickListen
         View view = inflater.inflate(R.layout.fragment_measure, container, false);
         
         recyclerMeasure = view.findViewById(R.id.recyclerMeasure);
-        adapterMeasure = new RecyclerMeasureAdapter(context, ((CreateDataActivity1)context).measures);
+        adapterMeasure = new RecyclerMeasureAdapter(context, ((CreateDataActivity)context).measures);
         recyclerMeasure.setAdapter(adapterMeasure);
         recyclerMeasure.setLayoutManager(new LinearLayoutManager(context));
 
@@ -100,7 +90,7 @@ public class MeasuresDataFragment extends Fragment implements View.OnClickListen
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.fabCreate:
-                if (((CreateDataActivity1)context).person == null) {
+                if (((CreateDataActivity)context).person == null) {
                     Snackbar.make(fabCreate, "Please register person first", Snackbar.LENGTH_LONG).show();
                 } else {
                     ManulMeasureDialog dialog = new ManulMeasureDialog(context);
@@ -113,6 +103,6 @@ public class MeasuresDataFragment extends Fragment implements View.OnClickListen
 
     @Override
     public void onManualMeasure(float height, float weight, float muac, Loc location) {
-        ((CreateDataActivity1)context).setMeasureData(height, weight, muac, "No Additional Info", location);
+        ((CreateDataActivity)context).setMeasureData(height, weight, muac, "No Additional Info", location);
     }
 }

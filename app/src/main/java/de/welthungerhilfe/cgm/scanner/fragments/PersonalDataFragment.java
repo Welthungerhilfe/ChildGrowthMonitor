@@ -44,13 +44,12 @@ import com.bumptech.glide.Glide;
 import java.util.Date;
 
 import de.welthungerhilfe.cgm.scanner.R;
-import de.welthungerhilfe.cgm.scanner.activities.CreateDataActivity1;
+import de.welthungerhilfe.cgm.scanner.activities.CreateDataActivity;
 import de.welthungerhilfe.cgm.scanner.activities.ImageDetailActivity;
 import de.welthungerhilfe.cgm.scanner.activities.LocationDetectActivity;
 import de.welthungerhilfe.cgm.scanner.dialogs.DateRangePickerDialog;
 import de.welthungerhilfe.cgm.scanner.models.Loc;
 import de.welthungerhilfe.cgm.scanner.helper.AppConstants;
-import de.welthungerhilfe.cgm.scanner.models.Person;
 import de.welthungerhilfe.cgm.scanner.utils.Utils;
 
 /**
@@ -127,29 +126,29 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
     }
 
     public void initUI() {
-        if (((CreateDataActivity1)context).person != null) {
-            txtDate.setText(Utils.beautifyDate(((CreateDataActivity1)context).person.getCreated()));
+        if (((CreateDataActivity)context).person != null) {
+            txtDate.setText(Utils.beautifyDate(((CreateDataActivity)context).person.getCreated()));
 
-            editName.setText(((CreateDataActivity1)context).person.getName());
-            editPrename.setText(((CreateDataActivity1)context).person.getSurname());
-            editBirth.setText(Utils.beautifyDate(((CreateDataActivity1)context).person.getBirthday()));
-            editGuardian.setText(((CreateDataActivity1)context).person.getGuardian());
-            if (((CreateDataActivity1)context).person.getLastLocation() != null)
-                editLocation.setText(((CreateDataActivity1)context).person.getLastLocation().getAddress());
+            editName.setText(((CreateDataActivity)context).person.getName());
+            editPrename.setText(((CreateDataActivity)context).person.getSurname());
+            editBirth.setText(Utils.beautifyDate(((CreateDataActivity)context).person.getBirthday()));
+            editGuardian.setText(((CreateDataActivity)context).person.getGuardian());
+            if (((CreateDataActivity)context).person.getLastLocation() != null)
+                editLocation.setText(((CreateDataActivity)context).person.getLastLocation().getAddress());
 
-            if (((CreateDataActivity1)context).person.getSex().equals(AppConstants.VAL_SEX_FEMALE)) {
+            if (((CreateDataActivity)context).person.getSex().equals(AppConstants.VAL_SEX_FEMALE)) {
                 radioFemale.setChecked(true);
-            } else if (((CreateDataActivity1)context).person.getSex().equals(AppConstants.VAL_SEX_MALE)) {
+            } else if (((CreateDataActivity)context).person.getSex().equals(AppConstants.VAL_SEX_MALE)) {
                 radioMale.setChecked(true);
-            } else if (((CreateDataActivity1)context).person.getSex().equals(AppConstants.VAL_SEX_OTHER)) {
+            } else if (((CreateDataActivity)context).person.getSex().equals(AppConstants.VAL_SEX_OTHER)) {
                 radioFluid.setChecked(true);
             }
 
-            checkAge.setChecked(((CreateDataActivity1)context).person.isAgeEstimated());
+            checkAge.setChecked(((CreateDataActivity)context).person.isAgeEstimated());
         } else {
             txtDate.setText(Utils.beautifyDate(new Date()));
 
-            byte[] data = ((CreateDataActivity1)context).qrSource;
+            byte[] data = ((CreateDataActivity)context).qrSource;
             if (data != null) {
                 imgConsent.setImageBitmap(BitmapFactory.decodeByteArray(data, 0, data.length));
             }
@@ -252,7 +251,7 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
                     else if (radioFluid.isChecked())
                         sex = radioFluid.getText().toString();
 
-                    ((CreateDataActivity1)context).setPersonalData(
+                    ((CreateDataActivity)context).setPersonalData(
                             editName.getText().toString(),
                             editPrename.getText().toString(),
                             birthday,
@@ -263,10 +262,10 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
                 break;
             case R.id.rytConsentDetail:
                 Intent intent = new Intent(context, ImageDetailActivity.class);
-                if (((CreateDataActivity1)context).qrCode != null) {
-                    intent.putExtra(AppConstants.EXTRA_QR_BITMAP, ((CreateDataActivity1)context).qrSource);
-                } else if (((CreateDataActivity1)context).consents.size() > 0) {
-                    intent.putExtra(AppConstants.EXTRA_QR_URL, ((CreateDataActivity1)context).consents.get(0).getConsent());
+                if (((CreateDataActivity)context).qrCode != null) {
+                    intent.putExtra(AppConstants.EXTRA_QR_BITMAP, ((CreateDataActivity)context).qrSource);
+                } else if (((CreateDataActivity)context).consents.size() > 0) {
+                    intent.putExtra(AppConstants.EXTRA_QR_URL, ((CreateDataActivity)context).consents.get(0).getConsent());
                 }
 
                 startActivity(intent);
@@ -291,9 +290,9 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
     }
 
     public void showConsent() {
-        if (((CreateDataActivity1)context).qrCode != null) {
-            imgConsent.setImageBitmap(BitmapFactory.decodeByteArray(((CreateDataActivity1)context).qrSource, 0, ((CreateDataActivity1)context).qrSource.length));
-        } else if (((CreateDataActivity1)context).consents.size() > 0)
-            Glide.with(context).load(((CreateDataActivity1)context).consents.get(0).getConsent()).into(imgConsent);
+        if (((CreateDataActivity)context).qrCode != null) {
+            imgConsent.setImageBitmap(BitmapFactory.decodeByteArray(((CreateDataActivity)context).qrSource, 0, ((CreateDataActivity)context).qrSource.length));
+        } else if (((CreateDataActivity)context).consents.size() > 0)
+            Glide.with(context).load(((CreateDataActivity)context).consents.get(0).getConsent()).into(imgConsent);
     }
 }

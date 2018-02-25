@@ -242,6 +242,8 @@ public class RecyclerDataAdapter extends RecyclerView.Adapter<RecyclerDataAdapte
                     if (sortType == 1) {   // Sort by created date
                         return person.getCreated() > t1.getCreated() ? 1 : person.getCreated() < t1.getCreated() ? -1 : 0;
                     } else if (sortType == 2) {   // Sort by distance from me
+                        if (currentLoc == null || person.getLastLocation() == null)
+                            return  0;
                         return Utils.distanceBetweenLocs(currentLoc, person.getLastLocation()) > Utils.distanceBetweenLocs(currentLoc, t1.getLastLocation()) ? 1 : Utils.distanceBetweenLocs(currentLoc, person.getLastLocation()) < Utils.distanceBetweenLocs(currentLoc, t1.getLastLocation()) ? -1 : 0;
                     } else if (sortType == 3) {   // Sort by wasting
                         return person.getLastMeasure().getWeight() / person.getLastMeasure().getHeight() > t1.getLastMeasure().getWeight() / t1.getLastMeasure().getHeight() ? -1 : person.getLastMeasure().getWeight() / person.getLastMeasure().getHeight() < t1.getLastMeasure().getWeight() / t1.getLastMeasure().getHeight() ? 1 : 0;

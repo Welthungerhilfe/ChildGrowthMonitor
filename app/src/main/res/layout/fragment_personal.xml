@@ -106,19 +106,34 @@
 
         </android.support.design.widget.TextInputLayout>
 
-        <android.support.design.widget.TextInputLayout
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp">
 
-            <EditText
-                android:id="@+id/editLocation"
+            <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:editable="false"
-                android:text="@string/no_location"
-                android:singleLine="true"
-                android:hint="@string/location"/>
-        </android.support.design.widget.TextInputLayout>
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/editLocation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:editable="false"
+                    android:text="@string/no_location"
+                    android:singleLine="true"
+                    android:hint="@string/location"/>
+            </android.support.design.widget.TextInputLayout>
+
+            <ImageView
+                android:id="@+id/imgLocation"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
+                android:src="@drawable/location" />
+
+        </RelativeLayout>
 
         <RelativeLayout
             android:layout_width="match_parent"

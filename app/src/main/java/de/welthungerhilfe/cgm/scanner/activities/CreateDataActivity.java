@@ -361,4 +361,27 @@ public class CreateDataActivity extends BaseActivity {
         }
         return super.onOptionsItemSelected(menuItem);
     }
+
+    public void updateLocation(final Loc location) {
+        Map<String, Object> lastLocation = new HashMap<>();
+        lastLocation.put("lastLocation.address", location.getAddress());
+        lastLocation.put("lastLocation.latitude", location.getLatitude());
+        lastLocation.put("lastLocation.longitude", location.getLongitude());
+
+        AppController.getInstance().firebaseFirestore.collection("persons")
+                .document(person.getId())
+                .update(lastLocation)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        person.setLastLocation(location);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+
+                    }
+                });
+    }
 }

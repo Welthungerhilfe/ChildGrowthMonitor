@@ -78,7 +78,7 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
         View view = inflater.inflate(R.layout.fragment_personal, container, false);
 
         view.findViewById(R.id.rytConsentDetail).setOnClickListener(this);
-        //view.findViewById(R.id.imgLocation).setOnClickListener(this);
+        view.findViewById(R.id.imgLocation).setOnClickListener(this);
         imgBirth = view.findViewById(R.id.imgBirth);
         imgBirth.setOnClickListener(this);
         view.findViewById(R.id.txtBack).setOnClickListener(this);
@@ -117,7 +117,8 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
             editName.setText(((CreateDataActivity)getContext()).person.getName());
             editPrename.setText(((CreateDataActivity)getContext()).person.getSurname());
             editBirth.setText(Utils.beautifyDate(((CreateDataActivity)getContext()).person.getBirthday()));
-            editAge.setText(Integer.toString(((CreateDataActivity)getContext()).person.getAge()));
+            if (((CreateDataActivity)getContext()).person.getAge() != 0)
+                editAge.setText(Integer.toString(((CreateDataActivity)getContext()).person.getAge()));
             editGuardian.setText(((CreateDataActivity)getContext()).person.getGuardian());
             if (((CreateDataActivity)getContext()).person.getLastLocation() != null)
                 editLocation.setText(((CreateDataActivity)getContext()).person.getLastLocation().getAddress());
@@ -183,12 +184,14 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
             editBirth.setError(null);
         }
 
+        /*
         if (age.isEmpty()) {
             editAge.setError("Please input age");
             valid = false;
         } else {
             editName.setError(null);
         }
+        */
 
         if (guardian.isEmpty()) {
             editGuardian.setError("Please input guardian");
@@ -211,7 +214,7 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.imgLocation:
-                //startActivityForResult(new Intent(getContext(), LocationDetectActivity.class), REQUEST_LOCATION);
+                startActivityForResult(new Intent(getContext(), LocationDetectActivity.class), REQUEST_LOCATION);
                 break;
             case R.id.editBirth:
                 DateRangePickerDialog pickerDialog = new DateRangePickerDialog();
@@ -238,9 +241,13 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
                     else if (radioFluid.isChecked())
                         sex = radioFluid.getText().toString();
 
+                    int age = 0;
+                    if (!editAge.getText().toString().equals(""))
+                        age = Integer.parseInt(editAge.getText().toString());
+
                     ((CreateDataActivity)getContext()).setPersonalData(
                             editName.getText().toString(), editPrename.getText().toString(),
-                            birthday, Integer.parseInt(editAge.getText().toString()),
+                            birthday, age,
                             sex, location, editGuardian.getText().toString());
                 }
 
@@ -261,14 +268,14 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
         }
     }
 
-    /*
     public void onActivityResult(int reqCode, int resCode, Intent data) {
         if (reqCode == REQUEST_LOCATION && resCode == Activity.RESULT_OK) {
             location = (Loc)data.getSerializableExtra(AppConstants.EXTRA_LOCATION);
             editLocation.setText(location.getAddress());
+
+            ((CreateDataActivity)getContext()).updateLocation(location);
         }
     }
-    */
 
     @Override
     public void onDateTimeRecurrenceSet(SelectedDate selectedDate, int hourOfDay, int minute, SublimeRecurrencePicker.RecurrenceOption recurrenceOption, String recurrenceRule) {

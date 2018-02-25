@@ -325,6 +325,9 @@ public class CreateDataActivity extends BaseActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(MeasureResult event) {
         Measure measure = event.getMeasureResult();
+        long age = (System.currentTimeMillis() - person.getBirthday()) / 1000 / 60 / 60 / 24;
+        measure.setAge(age);
+        measure.setType(AppConstants.VAL_MEASURE_AUTO);
 
         personalFragment.initUI();
         measureFragment.addMeasure(measure);

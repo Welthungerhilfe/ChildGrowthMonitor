@@ -100,7 +100,6 @@ public class BabyScanActivity extends AppCompatActivity {
             ft.commit();
         } else {
             measure.setDate(System.currentTimeMillis());
-            measure.setType(AppConstants.VAL_MEASURE_AUTO);
             EventBus.getDefault().post(new MeasureResult(measure));
             finish();
         }

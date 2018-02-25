@@ -95,15 +95,15 @@ public class GrowthDataFragment extends Fragment {
     }
 
     public void setChartData() {
-        if (((CreateDataActivity)getContext()).person != null) {
-            txtLabel.setText(((CreateDataActivity)getContext()).person.getSex() + ", birth to " + ((CreateDataActivity)getContext()).person.getAge() + "month");
-        }
-
         if (chartType == 0 || getContext() == null) {
             return;
         }
         if (((CreateDataActivity)getContext()).measures == null || ((CreateDataActivity)getContext()).measures.size() == 0) {
             return;
+        }
+
+        if (((CreateDataActivity)getContext()).person != null) {
+            txtLabel.setText(((CreateDataActivity)getContext()).person.getSex() + ", birth to " + ((CreateDataActivity)getContext()).person.getAge() + "month");
         }
 
         ArrayList<Entry> yVals1 = new ArrayList<Entry>();

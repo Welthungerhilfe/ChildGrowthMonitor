@@ -147,8 +147,8 @@ public class GrowthDataFragment extends Fragment {
         YAxis yAxis = chartGrowth.getAxisLeft();
         yAxis.setDrawGridLines(true);
         yAxis.enableGridDashedLine(5f, 5f, 0f);
-        //yAxis.setAxisMinimum(0f);
-        //yAxis.setGranularity(1f);
+        yAxis.setAxisMinimum(0f);
+        yAxis.setGranularity(1f);
 
         chartGrowth.getAxisRight().setEnabled(false);
 
@@ -156,8 +156,8 @@ public class GrowthDataFragment extends Fragment {
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setDrawGridLines(true);
         xAxis.enableGridDashedLine(5f, 5f, 0f);
-        //xAxis.setAxisMinimum(0f);
-        //xAxis.setGranularity(1f);
+        xAxis.setAxisMinimum(0f);
+        xAxis.setGranularity(1f);
 
         chartGrowth.invalidate();
     }

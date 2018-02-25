@@ -103,8 +103,8 @@ public class RecyclerMeasureAdapter extends RecyclerView.Adapter<RecyclerMeasure
     }
 
     public void addMeasure(Measure measure) {
-        measureList.add(measure);
-        notifyItemInserted(measureList.size() - 1);
+        measureList.add(0, measure);
+        notifyItemInserted(0);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

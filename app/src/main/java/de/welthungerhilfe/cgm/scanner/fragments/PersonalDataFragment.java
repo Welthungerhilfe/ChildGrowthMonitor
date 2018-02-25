@@ -62,7 +62,7 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
 
     private LinearLayout lytCreate;
 
-    private ImageView imgConsent, imgBirth;
+    private ImageView imgConsent, imgBirth, imgLocation;
 
     private TextView txtDate;
 
@@ -78,9 +78,8 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
         View view = inflater.inflate(R.layout.fragment_personal, container, false);
 
         view.findViewById(R.id.rytConsentDetail).setOnClickListener(this);
-        view.findViewById(R.id.imgLocation).setOnClickListener(this);
         imgBirth = view.findViewById(R.id.imgBirth);
-        imgBirth.setOnClickListener(this);
+        imgLocation = view.findViewById(R.id.imgLocation);
         view.findViewById(R.id.txtBack).setOnClickListener(this);
         view.findViewById(R.id.btnNext).setOnClickListener(this);
 
@@ -108,6 +107,8 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
 
     public void initUI() {
         if (((CreateDataActivity)getContext()).person != null) {
+            imgLocation.setOnClickListener(this);
+
             lytCreate.setVisibility(View.GONE);
 
             Glide.with(getContext()).load(((CreateDataActivity)getContext()).person.getQrNumber().getConsent()).into(imgConsent);
@@ -134,6 +135,7 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
             imgBirth.setVisibility(View.GONE);
         } else {
             lytCreate.setVisibility(View.VISIBLE);
+            imgBirth.setOnClickListener(this);
 
             txtDate.setText(Utils.beautifyDate(new Date()));
 

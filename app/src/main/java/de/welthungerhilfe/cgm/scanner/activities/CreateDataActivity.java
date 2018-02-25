@@ -306,7 +306,7 @@ public class CreateDataActivity extends BaseActivity {
             AppController.getInstance().firebaseFirestore.collection("persons")
                     .document(person.getId())
                     .collection("measures")
-                    .orderBy("date", Query.Direction.ASCENDING)
+                    .orderBy("date", Query.Direction.DESCENDING)
                     .get()
                     .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                         @Override
@@ -326,16 +326,40 @@ public class CreateDataActivity extends BaseActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(MeasureResult event) {
-        Measure measure = event.getMeasureResult();
+        final Measure measure = event.getMeasureResult();
         long age = (System.currentTimeMillis() - person.getBirthday()) / 1000 / 60 / 60 / 24;
         measure.setAge(age);
         measure.setType(AppConstants.VAL_MEASURE_AUTO);
 
-        personalFragment.initUI();
-        measureFragment.addMeasure(measure);
-        growthFragment.setChartData();
+        AppController.getInstance().firebaseFirestore.collection("persons")
+                .document(person.getId())
+                .collection("measures")
+                .add(measure)
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        hideProgressDialog();
+                        Toast.makeText(CreateDataActivity.this, "Add measure data failed", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+                        personalFragment.initUI();
+                        measureFragment.addMeasure(measure);
+                        growthFragment.setChartData();
 
-        viewpager.setCurrentItem(1);
+                        HashMap<String, Measure> lastMeasure = new HashMap<>();
+                        lastMeasure.put("lastMeasure", measure);
+                        documentReference.getParent().getParent().set(lastMeasure, SetOptions.merge());
+                        HashMap<String, Loc> lastLocation = new HashMap<>();
+                        lastLocation.put("lastLocation", measure.getLocation());
+                        documentReference.getParent().getParent().set(lastLocation, SetOptions.merge());
+                        hideProgressDialog();
+
+                        viewpager.setCurrentItem(1);
+                    }
+                });
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {

@@ -27,6 +27,7 @@ import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.AppCompatRadioButton;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -43,12 +44,13 @@ import com.bumptech.glide.Glide;
 import java.util.Date;
 
 import de.welthungerhilfe.cgm.scanner.R;
-import de.welthungerhilfe.cgm.scanner.activities.CreateDataActivity;
+import de.welthungerhilfe.cgm.scanner.activities.CreateDataActivity1;
 import de.welthungerhilfe.cgm.scanner.activities.ImageDetailActivity;
 import de.welthungerhilfe.cgm.scanner.activities.LocationDetectActivity;
 import de.welthungerhilfe.cgm.scanner.dialogs.DateRangePickerDialog;
 import de.welthungerhilfe.cgm.scanner.models.Loc;
 import de.welthungerhilfe.cgm.scanner.helper.AppConstants;
+import de.welthungerhilfe.cgm.scanner.models.Person;
 import de.welthungerhilfe.cgm.scanner.utils.Utils;
 
 /**
@@ -66,20 +68,37 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
 
     private TextView txtDate;
 
-    private EditText editName, editPrename, editLocation, editBirth, editAge, editGuardian;
+    private AppCompatCheckBox checkAge;
+
+    private EditText editName, editPrename, editLocation, editBirth, editGuardian;
 
     private AppCompatRadioButton radioFemale, radioMale, radioFluid;
 
     private Loc location = null;
     private long birthday = 0;
+    
+    public static PersonalDataFragment newInstance(Context context) {
+        PersonalDataFragment fragment = new PersonalDataFragment();
+        fragment.context = context;
+        
+        return fragment;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_personal, container, false);
 
         view.findViewById(R.id.rytConsentDetail).setOnClickListener(this);
+        /*
         imgBirth = view.findViewById(R.id.imgBirth);
+        imgBirth.setOnClickListener(this);
+        */
+        view.findViewById(R.id.imgBirth).setOnClickListener(this);
+        /*
         imgLocation = view.findViewById(R.id.imgLocation);
+        imgLocation.setOnClickListener(this);
+        */
+        view.findViewById(R.id.imgLocation).setOnClickListener(this);
         view.findViewById(R.id.txtBack).setOnClickListener(this);
         view.findViewById(R.id.btnNext).setOnClickListener(this);
 
@@ -87,13 +106,14 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
 
         imgConsent = view.findViewById(R.id.imgConsent);
 
+        checkAge = view.findViewById(R.id.checkAge);
+
         txtDate = view.findViewById(R.id.txtDate);
         editName = view.findViewById(R.id.editName);
         editPrename = view.findViewById(R.id.editPrename);
         editLocation = view.findViewById(R.id.editLocation);
         editBirth = view.findViewById(R.id.editBirth);
         editBirth.setOnClickListener(this);
-        editAge = view.findViewById(R.id.editAge);
         editGuardian = view.findViewById(R.id.editGuardian);
 
         radioFemale = view.findViewById(R.id.radioFemale);
@@ -101,45 +121,35 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
         radioFluid = view.findViewById(R.id.radioFluid);
 
         initUI();
+        showConsent();
 
         return view;
     }
 
     public void initUI() {
-        if (((CreateDataActivity)getContext()).person != null) {
-            imgLocation.setOnClickListener(this);
+        if (((CreateDataActivity1)context).person != null) {
+            txtDate.setText(Utils.beautifyDate(((CreateDataActivity1)context).person.getCreated()));
 
-            lytCreate.setVisibility(View.GONE);
+            editName.setText(((CreateDataActivity1)context).person.getName());
+            editPrename.setText(((CreateDataActivity1)context).person.getSurname());
+            editBirth.setText(Utils.beautifyDate(((CreateDataActivity1)context).person.getBirthday()));
+            editGuardian.setText(((CreateDataActivity1)context).person.getGuardian());
+            if (((CreateDataActivity1)context).person.getLastLocation() != null)
+                editLocation.setText(((CreateDataActivity1)context).person.getLastLocation().getAddress());
 
-            Glide.with(getContext()).load(((CreateDataActivity)getContext()).person.getQrNumber().getConsent()).into(imgConsent);
-
-            txtDate.setText(Utils.beautifyDate(((CreateDataActivity)getContext()).person.getCreated()));
-
-            editName.setText(((CreateDataActivity)getContext()).person.getName());
-            editPrename.setText(((CreateDataActivity)getContext()).person.getSurname());
-            editBirth.setText(Utils.beautifyDate(((CreateDataActivity)getContext()).person.getBirthday()));
-            if (((CreateDataActivity)getContext()).person.getAge() != 0)
-                editAge.setText(Integer.toString(((CreateDataActivity)getContext()).person.getAge()));
-            editGuardian.setText(((CreateDataActivity)getContext()).person.getGuardian());
-            if (((CreateDataActivity)getContext()).person.getLastLocation() != null)
-                editLocation.setText(((CreateDataActivity)getContext()).person.getLastLocation().getAddress());
-
-            if (((CreateDataActivity)getContext()).person.getSex().equals(AppConstants.VAL_SEX_FEMALE)) {
+            if (((CreateDataActivity1)context).person.getSex().equals(AppConstants.VAL_SEX_FEMALE)) {
                 radioFemale.setChecked(true);
-            } else if (((CreateDataActivity)getContext()).person.getSex().equals(AppConstants.VAL_SEX_MALE)) {
+            } else if (((CreateDataActivity1)context).person.getSex().equals(AppConstants.VAL_SEX_MALE)) {
                 radioMale.setChecked(true);
-            } else if (((CreateDataActivity)getContext()).person.getSex().equals(AppConstants.VAL_SEX_OTHER)) {
+            } else if (((CreateDataActivity1)context).person.getSex().equals(AppConstants.VAL_SEX_OTHER)) {
                 radioFluid.setChecked(true);
             }
 
-            imgBirth.setVisibility(View.GONE);
+            checkAge.setChecked(((CreateDataActivity1)context).person.isAgeEstimated());
         } else {
-            lytCreate.setVisibility(View.VISIBLE);
-            imgBirth.setOnClickListener(this);
-
             txtDate.setText(Utils.beautifyDate(new Date()));
 
-            byte[] data = ((CreateDataActivity)getContext()).qrSource;
+            byte[] data = ((CreateDataActivity1)context).qrSource;
             if (data != null) {
                 imgConsent.setImageBitmap(BitmapFactory.decodeByteArray(data, 0, data.length));
             }
@@ -153,7 +163,6 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
         String prename = editPrename.getText().toString();
         String location = editLocation.getText().toString();
         String birth = editBirth.getText().toString();
-        String age = editAge.getText().toString();
         String guardian = editGuardian.getText().toString();
 
         if (name.isEmpty()) {
@@ -203,7 +212,7 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
         }
 
         if (radioFemale.isChecked() || radioMale.isChecked() || radioFluid.isChecked()) {
-            valid = true;
+
         } else {
             valid = false;
             Snackbar.make(radioFemale, "Please select sex", Snackbar.LENGTH_SHORT).show();
@@ -216,7 +225,7 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.imgLocation:
-                startActivityForResult(new Intent(getContext(), LocationDetectActivity.class), REQUEST_LOCATION);
+                startActivityForResult(new Intent(context, LocationDetectActivity.class), REQUEST_LOCATION);
                 break;
             case R.id.editBirth:
                 DateRangePickerDialog pickerDialog = new DateRangePickerDialog();
@@ -243,23 +252,21 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
                     else if (radioFluid.isChecked())
                         sex = radioFluid.getText().toString();
 
-                    int age = 0;
-                    if (!editAge.getText().toString().equals(""))
-                        age = Integer.parseInt(editAge.getText().toString());
-
-                    ((CreateDataActivity)getContext()).setPersonalData(
-                            editName.getText().toString(), editPrename.getText().toString(),
-                            birthday, age,
+                    ((CreateDataActivity1)context).setPersonalData(
+                            editName.getText().toString(),
+                            editPrename.getText().toString(),
+                            birthday,
+                            checkAge.isChecked(),
                             sex, location, editGuardian.getText().toString());
                 }
 
                 break;
             case R.id.rytConsentDetail:
-                Intent intent = new Intent(getContext(), ImageDetailActivity.class);
-                if (((CreateDataActivity)getContext()).person != null) {
-                    intent.putExtra(AppConstants.EXTRA_QR_URL, ((CreateDataActivity)getContext()).person.getQrNumber().getConsent());
-                } else {
-                    intent.putExtra(AppConstants.EXTRA_QR_BITMAP, ((CreateDataActivity)getContext()).qrSource);
+                Intent intent = new Intent(context, ImageDetailActivity.class);
+                if (((CreateDataActivity1)context).qrCode != null) {
+                    intent.putExtra(AppConstants.EXTRA_QR_BITMAP, ((CreateDataActivity1)context).qrSource);
+                } else if (((CreateDataActivity1)context).consents.size() > 0) {
+                    intent.putExtra(AppConstants.EXTRA_QR_URL, ((CreateDataActivity1)context).consents.get(0).getConsent());
                 }
 
                 startActivity(intent);
@@ -274,8 +281,6 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
         if (reqCode == REQUEST_LOCATION && resCode == Activity.RESULT_OK) {
             location = (Loc)data.getSerializableExtra(AppConstants.EXTRA_LOCATION);
             editLocation.setText(location.getAddress());
-
-            ((CreateDataActivity)getContext()).updateLocation(location);
         }
     }
 
@@ -283,5 +288,12 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
     public void onDateTimeRecurrenceSet(SelectedDate selectedDate, int hourOfDay, int minute, SublimeRecurrencePicker.RecurrenceOption recurrenceOption, String recurrenceRule) {
         birthday = selectedDate.getStartDate().getTimeInMillis();
         editBirth.setText(Utils.beautifyDate(selectedDate.getStartDate().getTimeInMillis()));
+    }
+
+    public void showConsent() {
+        if (((CreateDataActivity1)context).qrCode != null) {
+            imgConsent.setImageBitmap(BitmapFactory.decodeByteArray(((CreateDataActivity1)context).qrSource, 0, ((CreateDataActivity1)context).qrSource.length));
+        } else if (((CreateDataActivity1)context).consents.size() > 0)
+            Glide.with(context).load(((CreateDataActivity1)context).consents.get(0).getConsent()).into(imgConsent);
     }
 }

@@ -31,12 +31,13 @@ public class Person implements Serializable {
     private String name;
     private String surname;
     private long birthday;
-    private int age;  // age in month
     private String sex;  // female, male, other
     private String guardian;
     private long created;
+    private boolean isAgeEstimated;
     private Loc lastLocation;
-    private QRNumber qrNumber;
+    private String qrcode;
+    //private QRNumber qrNumber;
     private Measure lastMeasure;
 
     public String getId() {
@@ -71,14 +72,6 @@ public class Person implements Serializable {
         this.birthday = birthday;
     }
 
-    public int getAge() {
-        return age;
-    }
-
-    public void setAge(int age) {
-        this.age = age;
-    }
-
     public String getSex() {
         return sex;
     }
@@ -103,14 +96,23 @@ public class Person implements Serializable {
         this.created = created;
     }
 
-    public QRNumber getQrNumber() {
-        return qrNumber;
+    public String getQrcode() {
+        return qrcode;
     }
 
-    public void setQrNumber(QRNumber qrNumber) {
-        this.qrNumber = qrNumber;
+    public void setQrcode(String qrcode) {
+        this.qrcode = qrcode;
     }
 
+    /*
+        public QRNumber getQrNumber() {
+            return qrNumber;
+        }
+
+        public void setQrNumber(QRNumber qrNumber) {
+            this.qrNumber = qrNumber;
+        }
+        */
     public Measure getLastMeasure() {
         return lastMeasure;
     }
@@ -125,5 +127,13 @@ public class Person implements Serializable {
 
     public void setLastLocation(Loc lastLocation) {
         this.lastLocation = lastLocation;
+    }
+
+    public boolean isAgeEstimated() {
+        return isAgeEstimated;
+    }
+
+    public void setAgeEstimated(boolean ageEstimated) {
+        isAgeEstimated = ageEstimated;
     }
 }

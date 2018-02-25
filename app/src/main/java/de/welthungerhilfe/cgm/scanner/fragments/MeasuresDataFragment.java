@@ -44,7 +44,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import de.welthungerhilfe.cgm.scanner.R;
-import de.welthungerhilfe.cgm.scanner.activities.CreateDataActivity;
+import de.welthungerhilfe.cgm.scanner.activities.CreateDataActivity1;
 import de.welthungerhilfe.cgm.scanner.adapters.RecyclerMeasureAdapter;
 import de.welthungerhilfe.cgm.scanner.dialogs.ManulMeasureDialog;
 import de.welthungerhilfe.cgm.scanner.models.Loc;
@@ -56,10 +56,19 @@ import de.welthungerhilfe.cgm.scanner.utils.Utils;
  */
 
 public class MeasuresDataFragment extends Fragment implements View.OnClickListener, ManulMeasureDialog.OnManualMeasureListener {
+    private Context context;
+    
     private RecyclerView recyclerMeasure;
     private RecyclerMeasureAdapter adapterMeasure;
 
     private FloatingActionButton fabCreate;
+
+    public static MeasuresDataFragment newInstance(Context context) {
+        MeasuresDataFragment fragment = new MeasuresDataFragment();
+        fragment.context = context;
+
+        return fragment;
+    }
 
     public void onResume() {
         super.onResume();
@@ -71,15 +80,15 @@ public class MeasuresDataFragment extends Fragment implements View.OnClickListen
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_measure, container, false);
-
+        
         recyclerMeasure = view.findViewById(R.id.recyclerMeasure);
-        adapterMeasure = new RecyclerMeasureAdapter(getContext(), ((CreateDataActivity)getContext()).measures);
+        adapterMeasure = new RecyclerMeasureAdapter(context, ((CreateDataActivity1)context).measures);
         recyclerMeasure.setAdapter(adapterMeasure);
-        recyclerMeasure.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerMeasure.setLayoutManager(new LinearLayoutManager(context));
 
         fabCreate = view.findViewById(R.id.fabCreate);
         fabCreate.setOnClickListener(this);
-
+        
         return view;
     }
 
@@ -91,10 +100,10 @@ public class MeasuresDataFragment extends Fragment implements View.OnClickListen
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.fabCreate:
-                if (((CreateDataActivity)getContext()).person == null) {
+                if (((CreateDataActivity1)context).person == null) {
                     Snackbar.make(fabCreate, "Please register person first", Snackbar.LENGTH_LONG).show();
                 } else {
-                    ManulMeasureDialog dialog = new ManulMeasureDialog(getContext());
+                    ManulMeasureDialog dialog = new ManulMeasureDialog(context);
                     dialog.setManualMeasureListener(this);
                     dialog.show();
                 }
@@ -104,6 +113,6 @@ public class MeasuresDataFragment extends Fragment implements View.OnClickListen
 
     @Override
     public void onManualMeasure(float height, float weight, float muac, Loc location) {
-        ((CreateDataActivity)getContext()).setMeasureData(height, weight, muac, "No Additional Info", location);
+        ((CreateDataActivity1)context).setMeasureData(height, weight, muac, "No Additional Info", location);
     }
 }

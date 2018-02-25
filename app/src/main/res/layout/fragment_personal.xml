@@ -172,21 +172,6 @@
             android:layout_marginTop="10dp">
 
             <EditText
-                android:id="@+id/editAge"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="numberDecimal"
-                android:singleLine="true"
-                android:hint="@string/age"/>
-
-        </android.support.design.widget.TextInputLayout>
-
-        <android.support.design.widget.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp">
-
-            <EditText
                 android:id="@+id/editGuardian"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -194,6 +179,13 @@
                 android:hint="@string/guardian"/>
 
         </android.support.design.widget.TextInputLayout>
+
+        <android.support.v7.widget.AppCompatCheckBox
+            android:id="@+id/checkAge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="age is estimated"/>
 
         <RadioGroup
             android:layout_width="match_parent"
@@ -232,7 +224,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:visibility="gone"
             android:gravity="right|center_vertical"
             android:orientation="horizontal">
 

@@ -34,7 +34,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -43,7 +42,6 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
@@ -56,6 +54,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -69,6 +68,7 @@ import de.welthungerhilfe.cgm.scanner.fragments.MeasuresDataFragment;
 import de.welthungerhilfe.cgm.scanner.fragments.PersonalDataFragment;
 import de.welthungerhilfe.cgm.scanner.helper.AppConstants;
 import de.welthungerhilfe.cgm.scanner.helper.events.MeasureResult;
+import de.welthungerhilfe.cgm.scanner.models.Consent;
 import de.welthungerhilfe.cgm.scanner.models.Loc;
 import de.welthungerhilfe.cgm.scanner.models.Measure;
 import de.welthungerhilfe.cgm.scanner.models.Person;
@@ -79,12 +79,12 @@ import de.welthungerhilfe.cgm.scanner.utils.Utils;
  * Created by Emerald on 2/19/2018.
  */
 
-public class CreateDataActivity extends BaseActivity {
-
-    private final String TAG = CreateDataActivity.class.getSimpleName();
+public class CreateDataActivity1 extends BaseActivity {
+    private final String TAG = CreateDataActivity1.class.getSimpleName();
 
     public Person person;
     public ArrayList<Measure> measures;
+    public ArrayList<Consent> consents;
 
     public String qrCode;
     public byte[] qrSource;
@@ -107,8 +107,7 @@ public class CreateDataActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create);
-    }
-    /*
+
         ButterKnife.bind(this);
 
         EventBus.getDefault().register(this);
@@ -118,20 +117,22 @@ public class CreateDataActivity extends BaseActivity {
 
         person = (Person) getIntent().getSerializableExtra(AppConstants.EXTRA_PERSON);
         measures = new ArrayList<>();
+        consents = new ArrayList<>();
 
-        if (qrSource != null) {
-            uploadQR();
+
+
+        if (qrCode != null) {
+            checkQR();
         }
 
         if (person != null) {
             loadMeasures();
+            loadConsents();
         }
 
         setupActionBar();
         initFragments();
         initUI();
-
-        checkQR();
     }
 
     public void onDestroy() {
@@ -145,19 +146,20 @@ public class CreateDataActivity extends BaseActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeButtonEnabled(true);
         if (person != null)
-            actionBar.setTitle("ID: " + person.getQrNumber().getCode());
+            actionBar.setTitle("ID: " + person.getQrcode());
         else
             actionBar.setTitle("ID: " + qrCode);
     }
 
     private void initFragments() {
         if (personalFragment == null)
-            personalFragment = new  PersonalDataFragment();
+            personalFragment = PersonalDataFragment.newInstance(this);
         if (measureFragment == null)
-            measureFragment = new MeasuresDataFragment();
+            measureFragment = MeasuresDataFragment.newInstance(this);
         if (growthFragment == null)
-            growthFragment = new GrowthDataFragment();
+            growthFragment = GrowthDataFragment.newInstance(this);
     }
+
     private void initUI() {
         FragmentAdapter adapter = new FragmentAdapter(getSupportFragmentManager());
         adapter.addFragment(personalFragment, "PERSONAL");
@@ -169,38 +171,41 @@ public class CreateDataActivity extends BaseActivity {
     }
 
     public void setPersonalData(String name, String surName, long birthday, boolean age, String sex, Loc loc, String guardian) {
-        boolean isNew = true;
+        boolean isNew = false;
         if (person == null) {
+            /*
             if (qrPath == null) {
-                Toast.makeText(CreateDataActivity.this, "Still uploading QR code, please try after a while", Toast.LENGTH_SHORT).show();
+                Toast.makeText(CreateDataActivity1.this, "Still uploading QR code, please try after a while", Toast.LENGTH_SHORT).show();
                 return;
-            } else {
+            } else*/ {
+                isNew = true;
+
                 person = new Person();
+
+                QRNumber qrNumber = new QRNumber();
+                qrNumber.setCode(qrCode);
+                ArrayList<String> consents = new ArrayList<>();
+                consents.add(qrPath);
+                qrNumber.setConsents(consents);
+                person.setQrcode(qrCode);
             }
-        } else {
-            isNew = false;
         }
 
         person.setName(name);
         person.setSurname(surName);
-        person.setBirthday(birthday);
-        person.setSex(sex);
-        person.setGuardian(guardian);
-        person.setCreated(System.currentTimeMillis());
-        person.setAgeEstimated(age);
         person.setLastLocation(loc);
+        person.setBirthday(birthday);
+        person.setGuardian(guardian);
+        person.setSex(sex);
+        person.setAgeEstimated(age);
+        person.setCreated(System.currentTimeMillis());
 
-        QRNumber qrNumber = new QRNumber();
-        qrNumber.setCode(qrCode);
-        ArrayList<String> consents = new ArrayList<>();
-        consents.add(qrPath);
-        qrNumber.setConsents(consents);
-        person.setQrNumber(qrNumber);
-
-        if (!isNew)
+        if (isNew)
             createPerson();
         else
             updatePerson();
+
+        uploadQR();
     }
 
     public void setMeasureData(float height, float weight, float muac, String additional, Loc location) {
@@ -225,7 +230,7 @@ public class CreateDataActivity extends BaseActivity {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         hideProgressDialog();
-                        Toast.makeText(CreateDataActivity.this, "Add measure data failed", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(CreateDataActivity1.this, "Add measure data failed", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
@@ -241,6 +246,7 @@ public class CreateDataActivity extends BaseActivity {
                         HashMap<String, Loc> lastLocation = new HashMap<>();
                         lastLocation.put("lastLocation", measure.getLocation());
                         documentReference.getParent().getParent().set(lastLocation, SetOptions.merge());
+
                         hideProgressDialog();
                     }
                 });
@@ -255,7 +261,7 @@ public class CreateDataActivity extends BaseActivity {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         hideProgressDialog();
-                        Toast.makeText(CreateDataActivity.this, "Person create failed", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(CreateDataActivity1.this, "Person create failed", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
@@ -267,7 +273,7 @@ public class CreateDataActivity extends BaseActivity {
                         documentReference.update(personID);
 
                         // Start measuring
-                        startActivity(new Intent(CreateDataActivity.this, BodySelectActivity.class));
+                        startActivity(new Intent(CreateDataActivity1.this, BodySelectActivity.class));
                     }
                 });
     }
@@ -282,7 +288,7 @@ public class CreateDataActivity extends BaseActivity {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         hideProgressDialog();
-                        Toast.makeText(CreateDataActivity.this, "Person create failed", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(CreateDataActivity1.this, "Person create failed", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -295,7 +301,7 @@ public class CreateDataActivity extends BaseActivity {
 
     private void checkQR() {
         AppController.getInstance().firebaseFirestore.collection("persons")
-                .whereEqualTo("qrNumber.code", qrCode)
+                .whereEqualTo("qrcode", qrCode)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -306,6 +312,7 @@ public class CreateDataActivity extends BaseActivity {
                                 person = document.toObject(Person.class);
                                 exist = true;
                                 loadMeasures();
+                                loadConsents();
                                 break;
                             }
                         }
@@ -317,8 +324,10 @@ public class CreateDataActivity extends BaseActivity {
     }
 
     private void uploadQR() {
+        if (qrSource == null)
+            return;
         //String consentPath = AppConstants.STORAGE_CONSENT_URL.replace("{id}", person.getId()) + System.currentTimeMillis() + "_" + qrCode + ".png";
-        String consentPath = AppConstants.STORAGE_CONSENT_URL + System.currentTimeMillis() + "_" + qrCode + ".png";
+        final String consentPath = AppConstants.STORAGE_CONSENT_URL + System.currentTimeMillis() + "_" + qrCode + ".png";
         StorageReference consentRef = AppController.getInstance().storageRootRef.child(consentPath);
         UploadTask uploadTask = consentRef.putBytes(qrSource);
         uploadTask.addOnFailureListener(new OnFailureListener() {
@@ -326,7 +335,7 @@ public class CreateDataActivity extends BaseActivity {
             public void onFailure(@NonNull Exception e) {
                 hideProgressDialog();
 
-                Toast.makeText(CreateDataActivity.this, "Uploading Consent Failed", Toast.LENGTH_SHORT).show();
+                Toast.makeText(CreateDataActivity1.this, "Uploading Consent Failed", Toast.LENGTH_SHORT).show();
             }
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
@@ -335,6 +344,22 @@ public class CreateDataActivity extends BaseActivity {
 
                 Uri downloadUrl = taskSnapshot.getDownloadUrl();
                 qrPath = downloadUrl.toString();
+
+                if (person != null) {
+                    final Consent consent = new Consent();
+                    consent.setCreated(System.currentTimeMillis());
+                    consent.setConsent(qrPath);
+                    AppController.getInstance().firebaseFirestore.collection("persons")
+                            .document(person.getId())
+                            .collection("consents")
+                            .add(consent)
+                            .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                @Override
+                                public void onSuccess(DocumentReference documentReference) {
+                                    consents.add(0, consent);
+                                }
+                            });
+                }
             }
         });
     }
@@ -364,6 +389,32 @@ public class CreateDataActivity extends BaseActivity {
         }
     }
 
+    private void loadConsents() {
+        showProgressDialog();
+
+        if (person != null) {
+            AppController.getInstance().firebaseFirestore.collection("persons")
+                    .document(person.getId())
+                    .collection("consents")
+                    .orderBy("created", Query.Direction.DESCENDING)
+                    .get()
+                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            hideProgressDialog();
+                            if (task.isSuccessful()) {
+                                for (DocumentSnapshot document : task.getResult()) {
+                                    Consent consent = document.toObject(Consent.class);
+                                    consents.add(consent);
+                                }
+                                if (consents.size() > 0)
+                                    personalFragment.showConsent();
+                            }
+                        }
+                    });
+        }
+    }
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(MeasureResult event) {
         final Measure measure = event.getMeasureResult();
@@ -379,7 +430,7 @@ public class CreateDataActivity extends BaseActivity {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         hideProgressDialog();
-                        Toast.makeText(CreateDataActivity.this, "Add measure data failed", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(CreateDataActivity1.this, "Add measure data failed", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
@@ -407,14 +458,14 @@ public class CreateDataActivity extends BaseActivity {
         menuInflater.inflate(R.menu.menu_search, menu);
 
         MenuItem searchItem = menu.findItem(R.id.actionSearch);
-        SearchManager searchManager = (SearchManager) CreateDataActivity.this.getSystemService(Context.SEARCH_SERVICE);
+        SearchManager searchManager = (SearchManager) CreateDataActivity1.this.getSystemService(Context.SEARCH_SERVICE);
 
         SearchView searchView = null;
         if (searchItem != null) {
             searchView = (SearchView) searchItem.getActionView();
         }
         if (searchView != null) {
-            searchView.setSearchableInfo(searchManager.getSearchableInfo(CreateDataActivity.this.getComponentName()));
+            searchView.setSearchableInfo(searchManager.getSearchableInfo(CreateDataActivity1.this.getComponentName()));
         }
 
         return super.onCreateOptionsMenu(menu);
@@ -427,6 +478,4 @@ public class CreateDataActivity extends BaseActivity {
         }
         return super.onOptionsItemSelected(menuItem);
     }
-    */
 }
-

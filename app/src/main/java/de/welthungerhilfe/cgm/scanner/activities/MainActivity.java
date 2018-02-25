@@ -198,15 +198,15 @@ public class MainActivity extends BaseActivity implements RecyclerDataAdapter.On
 
         initUI();
 
+        /*
         AppController.getInstance().firebaseFirestore.collection("persons")
                 //.orderBy("created", Query.Direction.DESCENDING)
                 .addSnapshotListener(this);
+        */
 
-        /*
         showProgressDialog();
 
         loadData();
-        */
     }
 
     private void initUI() {
@@ -363,7 +363,7 @@ public class MainActivity extends BaseActivity implements RecyclerDataAdapter.On
 
     @Override
     public void onPersonDetail(Person person) {
-        Intent intent = new Intent(MainActivity.this, CreateDataActivity.class);
+        Intent intent = new Intent(MainActivity.this, CreateDataActivity1.class);
         intent.putExtra(AppConstants.EXTRA_PERSON, person);
         startActivity(intent);
     }

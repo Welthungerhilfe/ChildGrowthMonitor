@@ -43,11 +43,12 @@ import java.util.Collections;
 import java.util.Comparator;
 
 import de.welthungerhilfe.cgm.scanner.R;
-import de.welthungerhilfe.cgm.scanner.activities.CreateDataActivity;
+import de.welthungerhilfe.cgm.scanner.activities.CreateDataActivity1;
 import de.welthungerhilfe.cgm.scanner.models.Measure;
 import de.welthungerhilfe.cgm.scanner.views.VerticalTextView;
 
 public class GrowthDataFragment extends Fragment {
+    private Context context;
 
     private ScatterChart chartGrowth;
     private MaterialSpinner dropChart;
@@ -58,6 +59,13 @@ public class GrowthDataFragment extends Fragment {
     private TextView txtLabel;
 
     private int chartType = 1;
+
+    public static GrowthDataFragment newInstance(Context context) {
+        GrowthDataFragment fragment = new GrowthDataFragment();
+        fragment.context = context;
+
+        return fragment;
+    }
 
     public void onResume() {
         super.onResume();
@@ -70,8 +78,8 @@ public class GrowthDataFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_growth, container, false);
 
         txtLabel = view.findViewById(R.id.txtLabel);
-        if (((CreateDataActivity)getContext()).person != null) {
-            txtLabel.setText(((CreateDataActivity)getContext()).person.getSex() + ", birth to " + ((CreateDataActivity)getContext()).person.getAge() + "month");
+        if (((CreateDataActivity1)context).person != null) {
+            txtLabel.setText(((CreateDataActivity1)context).person.getSex());
         }
 
         txtYAxis = view.findViewById(R.id.txtYAxis);
@@ -95,20 +103,23 @@ public class GrowthDataFragment extends Fragment {
     }
 
     public void setChartData() {
-        if (chartType == 0 || getContext() == null) {
+        if (chartType == 0 || context == null) {
             return;
         }
-        if (((CreateDataActivity)getContext()).measures == null || ((CreateDataActivity)getContext()).measures.size() == 0) {
+        if (((CreateDataActivity1)context).measures == null || ((CreateDataActivity1)context).measures.size() == 0) {
+            return;
+        }
+        if (txtLabel == null) {
             return;
         }
 
-        if (((CreateDataActivity)getContext()).person != null) {
-            txtLabel.setText(((CreateDataActivity)getContext()).person.getSex() + ", birth to " + ((CreateDataActivity)getContext()).person.getAge() + "month");
+        if (((CreateDataActivity1)context).person != null) {
+            txtLabel.setText(((CreateDataActivity1)context).person.getSex());
         }
 
         ArrayList<Entry> yVals1 = new ArrayList<Entry>();
-        for (int i = 0; i < ((CreateDataActivity)getContext()).measures.size(); i++) {
-            Measure measure = ((CreateDataActivity)getContext()).measures.get(i);
+        for (int i = 0; i < ((CreateDataActivity1)context).measures.size(); i++) {
+            Measure measure = ((CreateDataActivity1)context).measures.get(i);
 
             if (chartType == 1) {
                 txtXAxis.setText("Age");

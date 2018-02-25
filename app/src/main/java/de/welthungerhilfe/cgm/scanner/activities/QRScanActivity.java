@@ -88,7 +88,7 @@ public class QRScanActivity extends AppCompatActivity implements ConfirmDialog.O
 
     @Override
     public void handleQRResult(String qrCode, byte[] bitmap) {
-        Intent intent = new Intent(QRScanActivity.this, CreateDataActivity.class);
+        Intent intent = new Intent(QRScanActivity.this, CreateDataActivity1.class);
         intent.putExtra(AppConstants.EXTRA_QR, qrCode);
         intent.putExtra(AppConstants.EXTRA_QR_BITMAP, BitmapUtils.getRotatedByte(bitmap, 90));
         startActivity(intent);

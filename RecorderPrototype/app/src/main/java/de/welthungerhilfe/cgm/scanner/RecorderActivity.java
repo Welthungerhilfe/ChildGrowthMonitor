@@ -331,7 +331,9 @@ public class RecorderActivity extends AppCompatActivity {
 
                 StringBuilder stringBuilder = new StringBuilder();
                 //stringBuilder.append("Point count: " + pointCloudData.numPoints);
-                stringBuilder.append("center depth (m): " + calculateAveragedDepth(pointCloudData.points, pointCloudData.numPoints));
+                float[] average = calculateAveragedDepth(pointCloudData.points, pointCloudData.numPoints);
+                stringBuilder.append("center depth (m): " + average[0]);
+                stringBuilder.append(" confidence: " + average[1]);
                 final String pointCloudString = stringBuilder.toString();
                 //Log.i(TAG, pointCloudString);
                 runOnUiThread(new Runnable() {
@@ -457,9 +459,11 @@ public class RecorderActivity extends AppCompatActivity {
     /**
      * Calculates the average depth at Center from a point cloud buffer.
      */
-    private float calculateAveragedDepth(FloatBuffer pointCloudBuffer, int numPoints) {
+    private float[] calculateAveragedDepth(FloatBuffer pointCloudBuffer, int numPoints) {
         float totalZ = 0;
         float averageZ = 0;
+        float totalC = 0;
+        float averageC = 0;
         float currentX;
         float currentY;
         int countingPoints = 0;
@@ -474,12 +478,19 @@ public class RecorderActivity extends AppCompatActivity {
                 if (currentX < 0.01 && currentX > -0.01 && currentY < 0.01 && currentY > -0.1) {
                     totalZ = totalZ + pointCloudBuffer.get(i);
                     countingPoints++;
+                    i++;
+                    totalC = totalC + pointCloudBuffer.get(i);
+                } else {
+                    i++;
                 }
-                i++;
             }
             averageZ = totalZ / countingPoints;
+            averageC = totalC / countingPoints;
         }
-        return averageZ;
+        float[] average = new float[2];
+        average[0] = averageZ;
+        average[1] = averageC;
+        return average;
     }
 
     @Override

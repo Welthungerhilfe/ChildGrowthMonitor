@@ -1,0 +1,74 @@
+<resources>
+    <string name="app_name">CGM Scanner</string>
+    <string name="app_name_long">Child Growth Monitor Scanner App</string>
+
+    <string name="google_maps_key">AIzaSyD8PSG_tlMC2agwHsTf4-jYt6D5zuswKPU</string>
+
+    <string name="title_predictions_list_name">Frames Predicted</string>
+    <string name="exception_tango_error">"Tango exception! Try again!"</string>
+    <string name="exception_tango_invalid">"Tango invalid exception! Try again!"</string>
+    <string name="exception_out_of_date">"Tango service outdated!"</string>
+    <string name="permission_camera">"Camera permission needed!"</string>
+    <string name="permission_motion_tracking">"Motion Tracking permission needed!"</string>
+    <string name="picture">Picture</string>
+    <string name="description_info">Info</string>
+    <string name="request_permission">This sample needs camera permission.</string>
+    <string name="camera_error">This device doesn\'t support Camera2 API.</string>
+    <string name="auth_failed">Authentication failed!</string>
+    <string name="desc_google_sign_in">Sign in with Google</string>
+    <string name="loading">loading...</string>
+    <string name="google_status_fmt">Google User: %s</string>
+    <string name="firebase_status_fmt">Firebase User: %s</string>
+    <string name="signed_out">Signed Out</string>
+    <string name="desc_firebase_lockup">Firebase logo and name</string>
+    <string name="google_title_text">Google Sign In</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="disconnect">Disconnect</string>
+    <string name="label_google_sign_in">Sign in with Google</string>
+    <string name="title_activity_scan_result">ScanResultActivity</string>
+    <string name="emailpassword_title_text">Email Login</string>
+    <string name="hint_email">email address</string>
+    <string name="hint_password">password</string>
+    <string name="sign_in">sign in</string>
+    <string name="create_account">create account</string>
+    <string name="verify_email">verify email address</string>
+    <string name="emailpassword_status_fmt">Email User: %1$s (verified: %2$b)</string>
+    <string name="desc_emailpassword">Sign in with Email</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="validate_user">Please input user name</string>
+    <string name="validate_password">Please input password</string>
+    
+    <string name="label_login">Please log-in:</string>
+    <string name="user">User</string>
+    <string name="password">Password</string>
+    <string name="name">name</string>
+    <string name="prename">prename</string>
+    <string name="location">location</string>
+    <string name="birth">birth</string>
+    <string name="age">age (in month)</string>
+    <string name="guardian">name of guardian</string>
+
+    <string name="sex_male">male</string>
+    <string name="sex_female">female</string>
+    <string name="sex_fluid">fluid</string>
+    
+    <string name="forgot"><u>Forgot password?</u></string>
+    <string name="ok">OK</string>
+    <string name="select">Select</string>
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
+    <string name="repeat">Repeat</string>
+    <string name="back">Back</string>
+    <string name="next">Next</string>
+    <string name="no_location">Last scan is not available</string>
+
+
+    <!-- drawer -->
+    <string name="drawer_open">Open</string>
+    <string name="drawer_close">Close</string>
+</resources>

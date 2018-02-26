@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "97145091378",
+    "firebase_url": "https://scanner-195716.firebaseio.com",
+    "project_id": "scanner-195716",
+    "storage_bucket": "scanner-195716.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:97145091378:android:739dcaee1e669c8b",
+        "android_client_info": {
+          "package_name": "de.welthungerhilfe.cgm.scanner"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "97145091378-kkgcghi68gfmtbfd1ol1fe93jbs2nb6h.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "de.welthungerhilfe.cgm.scanner",
+            "certificate_hash": "1637921c2d0b0d73091498f8df59775ffbaa2177"
+          }
+        },
+        {
+          "client_id": "97145091378-v2csb832ls5ohrbavr9kus7o0hj8hgam.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD8PSG_tlMC2agwHsTf4-jYt6D5zuswKPU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "97145091378-v2csb832ls5ohrbavr9kus7o0hj8hgam.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

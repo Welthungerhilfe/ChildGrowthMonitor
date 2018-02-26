@@ -240,9 +240,12 @@ public class CreateDataActivity extends BaseActivity {
                         HashMap<String, Measure> lastMeasure = new HashMap<>();
                         lastMeasure.put("lastMeasure", measure);
                         documentReference.getParent().getParent().set(lastMeasure, SetOptions.merge());
-                        HashMap<String, Loc> lastLocation = new HashMap<>();
-                        lastLocation.put("lastLocation", measure.getLocation());
-                        documentReference.getParent().getParent().set(lastLocation, SetOptions.merge());
+
+                        if (measure.getLocation() != null) {
+                            HashMap<String, Loc> lastLocation = new HashMap<>();
+                            lastLocation.put("lastLocation", measure.getLocation());
+                            documentReference.getParent().getParent().set(lastLocation, SetOptions.merge());
+                        }
 
                         hideProgressDialog();
                     }

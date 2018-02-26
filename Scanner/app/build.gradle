@@ -1,19 +1,11 @@
 apply plugin: 'com.android.application'
 
 android {
-    signingConfigs {
-        debug {
-            keyAlias 'android'
-            keyPassword 'android'
-            storeFile file('F:/AndroidStudio/Scanner2/app/keystore.jks')
-            storePassword 'android'
-        }
-    }
     compileSdkVersion 26
     defaultConfig {
         applicationId "de.welthungerhilfe.cgm.scanner"
         minSdkVersion 16
-        targetSdkVersion 22
+        targetSdkVersion 23
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"

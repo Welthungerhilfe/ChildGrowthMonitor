@@ -162,7 +162,7 @@ public class MainActivity extends BaseActivity implements RecyclerDataAdapter.On
         ImageView imgSortClear = sortDialog.getHolderView().findViewById(R.id.imgSortClear);
         switch (sortType) {
             case 0:
-                imgSortDate.setVisibility(View.VISIBLE);
+                imgSortClear.setVisibility(View.VISIBLE);
                 break;
             case 1:
                 imgSortDate.setVisibility(View.VISIBLE);

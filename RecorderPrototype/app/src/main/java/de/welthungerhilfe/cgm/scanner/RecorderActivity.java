@@ -63,6 +63,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -469,15 +471,7 @@ public class RecorderActivity extends AppCompatActivity {
                         * SECS_TO_MILLISECS;
                 mPointCloudPreviousTimeStamp = mCurrentTimeStamp;
                 mPointCloudCallbackCount++;
-                /*final byte[] buffer = new byte[pointCloudData.numPoints * 3 * 4];
-                FileInputStream fileStream = new FileInputStream(pointCloudData.points);
-                try {
-                    fileStream.read(buffer, pointCloudData.pointCloudParcelFileDescriptorOffset, buffer.length);
-                    fileStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-*/
+
                 // My writing to file function
 
 
@@ -758,13 +752,12 @@ public class RecorderActivity extends AppCompatActivity {
     private void writePointCloudToFile(TangoPointCloudData pointCloudData,
                                        ArrayList<TangoCoordinateFramePair> framePairs) {
 
-        /*
-        ByteBuffer myBuffer = ByteBuffer.allocate(pointCloudData.numPoints * 3 * 4);
+
+        ByteBuffer myBuffer = ByteBuffer.allocate(pointCloudData.numPoints * 4 * 4);
         myBuffer.order(ByteOrder.LITTLE_ENDIAN);
 
-        // TODO: 2nd argument: int offset
-        myBuffer.put(pointCloudData.points, pointCloudData.pointCloudParcelFileDescriptorOffset, myBuffer.capacity());
-*/
+        myBuffer.asFloatBuffer().put(pointCloudData.points);
+
 
         File mainDir = new File(mOutputFolder);
         if(!mainDir.exists()) {
@@ -792,6 +785,7 @@ public class RecorderActivity extends AppCompatActivity {
 
             DataOutputStream out = new DataOutputStream(new BufferedOutputStream(
                     new FileOutputStream(file)));
+            float confidence;
 
             out.write(("# vtk DataFile Version 3.0\n" +
                     "vtk output\n" +
@@ -800,18 +794,11 @@ public class RecorderActivity extends AppCompatActivity {
                     "POINTS " + pointCloudData.numPoints + " float\n").getBytes());
 
             for (int i = 0; i < pointCloudData.numPoints; i++) {
-/*
+
                 out.writeFloat(myBuffer.getFloat(4 * i * 4));
                 out.writeFloat(myBuffer.getFloat((4 * i + 1) * 4));
                 out.writeFloat(myBuffer.getFloat((4 * i + 2) * 4));
-                i++;*/
-                /* Point Clouds have 4*4 bytes now*/
-                out.writeFloat(pointCloudData.points.get(i));
-                i++;
-                out.writeFloat(pointCloudData.points.get(i));
-                i++;
-                out.writeFloat(pointCloudData.points.get(i));
-                i++;
+                confidence = myBuffer.getFloat((4 * i + 3) * 4);
             }
 
             out.write(("\nVERTICES 1 " + String.valueOf(pointCloudData.numPoints + 1) + "\n").getBytes());

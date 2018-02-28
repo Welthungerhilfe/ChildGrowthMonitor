@@ -2,3 +2,4 @@ public/
 firebase*
 firestore*
 **/node_modules/
+functions/lib/

@@ -1,0 +1,4 @@
+public/
+firebase*
+firestore*
+**/node_modules/

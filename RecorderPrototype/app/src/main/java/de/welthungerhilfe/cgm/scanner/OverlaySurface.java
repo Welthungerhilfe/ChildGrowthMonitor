@@ -4,9 +4,12 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
-import android.support.v4.content.ContextCompat;
+import android.graphics.PorterDuff;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Surface;
@@ -43,7 +46,14 @@ public class OverlaySurface extends SurfaceView
 
     SurfaceHolder holder;
 
+    volatile boolean running = false;
+
     Thread thread = null;
+
+    private float mConfidence = 1.0f;
+    private float mDistance = 1.0f;
+
+    Paint mPaint = new Paint();
 
     public OverlaySurface(Context context) {
         super(context);
@@ -78,6 +88,25 @@ public class OverlaySurface extends SurfaceView
         holder.setFormat(PixelFormat.TRANSLUCENT);
     }
 
+    public void onResumeOverlaySurfaceView(){
+        running = true;
+        thread = new Thread(this);
+        thread.start();
+    }
+
+    public void onPauseOverlaySurfaceView(){
+        boolean retry = true;
+        running = false;
+        while(retry){
+            try {
+                thread.join();
+                retry = false;
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
         int id = RecorderActivity.getSurfaceId(holder);
@@ -94,38 +123,14 @@ public class OverlaySurface extends SurfaceView
     /**
      * SurfaceHolder.Callback method
      * <p>
-     * Draws when the surface changes.  Since nothing else is touching the surface, and
-     * we're not animating, we just draw here and ignore it.
+     *     starts rendering thread when the surface changes
      */
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
         Log.d(TAG, "surfaceChanged fmt=" + format + " size=" + width + "x" + height +
                 " holder=" + holder);
 
-        int id = RecorderActivity.getSurfaceId(holder);
-        boolean portrait = height > width;
-        Surface surface = holder.getSurface();
-
-        switch (id) {
-            case 1:
-
-                break;
-            case 2:
-                drawOverlaySurface();
-                break;
-            case 3:
-                // top layer: alpha stripes
-                if (portrait) {
-                    int halfLine = width / 16 + 1;
-                    //drawRectSurface(surface, width/2 - halfLine, 0, halfLine*2, height);
-                } else {
-                    int halfLine = height / 16 + 1;
-                    //drawRectSurface(surface, 0, height/2 - halfLine, width, halfLine*2);
-                }
-                break;
-            default:
-                throw new RuntimeException("wha?");
-        }
+        onResumeOverlaySurfaceView();
     }
 
     @Override
@@ -133,44 +138,69 @@ public class OverlaySurface extends SurfaceView
         // ignore
         Log.d(TAG, "Surface destroyed holder=" + holder);
         isReadyToDraw = false;
-    }
-
-    @Override
-    protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-        drawOverlaySurface();
+        onPauseOverlaySurfaceView();
     }
 
     private void drawOverlaySurface() {
+
         Surface surface = holder.getSurface();
-        if (isReadyToDraw) {
-            Canvas canvas = surface.lockCanvas(null);
-            if (canvas != null) {
-                //canvas.drawColor(Color.BLACK);
-                canvas.drawBitmap(mOverlay, 150, 200, new Paint());
-                surface.unlockCanvasAndPost(canvas);
-            }
+        Canvas canvas = surface.lockCanvas(null);
+        if (canvas != null) {
+            // clear screen before redrawing
+            canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
 
+            // Source is the whole bitmap
+            Rect srcRect = new Rect(0, 0,mOverlay.getWidth(),mOverlay.getHeight());
 
+            // destination is the where to draw it
+            // will be drawn in the center and scaled by the distance
+            // because distance to take measurements should be around 1 meter
+            float left = ((canvas.getWidth() - mOverlay.getWidth() * mDistance) / 2);
+            float top = ((canvas.getHeight() - mOverlay.getHeight()*mDistance) / 2);
+            float right = (mOverlay.getWidth()+left) * mDistance;
+            float bottom = (mOverlay.getHeight()+top)*mDistance;
+            RectF dstRectF = new RectF(left,top,right,bottom);
+
+            canvas.drawBitmap(mOverlay, srcRect, dstRectF, mPaint);
+            surface.unlockCanvasAndPost(canvas);
         }
     }
 
+    private void drawCenter() {
+
+        Surface surface = holder.getSurface();
+        Canvas canvas = surface.lockCanvas(null);
+        if (canvas != null) {
+            // clear screen before redrawing
+            canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+
+            // Source is the whole bitmap
+            Rect srcRect = new Rect(0, 0,mOverlay.getWidth(),mOverlay.getHeight());
+            // destination is the where to draw it
+            int left = (canvas.getWidth()-mOverlay.getWidth()) / 2;
+            int top =  (canvas.getHeight()-mOverlay.getHeight()) / 2;
+            Rect dstRect = new Rect(left,top,mOverlay.getWidth()+left,mOverlay.getHeight()+top);
+
+            canvas.drawBitmap(mOverlay, srcRect, dstRect, mPaint);
+            surface.unlockCanvasAndPost(canvas);
+        }
+    }
+
+    public void setConfidence(float mConfidence) {
+        this.mConfidence = mConfidence;
+    }
+
+    public void setDistance(float mDistance) {
+        this.mDistance = mDistance;
+    }
 
     @Override
     public void run() {
-        drawOverlaySurface();
-    }
-
-    public void pause(){
-        isReadyToDraw = false;
-        while (true) {
-            try {
-                thread.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+        while (running ) {
+            if(isReadyToDraw) {
+                drawOverlaySurface();
+                //drawCenter();
             }
-            break;
         }
-        thread = null;
     }
 }

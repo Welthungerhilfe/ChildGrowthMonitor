@@ -416,6 +416,8 @@ public class RecorderActivity extends AppCompatActivity {
                         mDisplayTextView.setText(pointCloudString);
                     }
                 });
+                mOverlaySurfaceView.setDistance(average[0]);
+                mOverlaySurfaceView.setConfidence(average[1]);
 
 
                 // Get pose transforms for openGL to depth/color cameras.
@@ -1064,6 +1066,4 @@ public class RecorderActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-
-
 }

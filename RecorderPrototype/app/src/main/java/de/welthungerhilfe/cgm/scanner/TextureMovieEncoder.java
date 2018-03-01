@@ -80,7 +80,7 @@ package de.welthungerhilfe.cgm.scanner;
  */
 public class TextureMovieEncoder implements Runnable {
     private static final String TAG = MainActivity.TAG;
-    private static final boolean VERBOSE = false;
+    private static final boolean VERBOSE = true;
 
     private static final int MSG_START_RECORDING = 0;
     private static final int MSG_STOP_RECORDING = 1;
@@ -250,6 +250,7 @@ public class TextureMovieEncoder implements Runnable {
                 return;
             }
         }
+        Log.v(TAG,"TextureId set to "+id);
         mHandler.sendMessage(mHandler.obtainMessage(MSG_SET_TEXTURE_ID, id, 0, null));
     }
 
@@ -368,7 +369,7 @@ public class TextureMovieEncoder implements Runnable {
      * Sets the texture name that SurfaceTexture will use when frames are received.
      */
     private void handleSetTexture(int id) {
-        //Log.d(TAG, "handleSetTexture " + id);
+        Log.d(TAG, "handleSetTexture " + id);
         mTextureId = id;
     }
 

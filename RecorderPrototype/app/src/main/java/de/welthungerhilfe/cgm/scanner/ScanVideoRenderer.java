@@ -263,6 +263,7 @@ public class ScanVideoRenderer implements GLSurfaceView.Renderer {
                     Log.d(TAG, "START recording");
                     // start recording
                     // TODO: better config
+                    // TODO: make sure this is the same EGLContext from GLSurfaceView used by Tango
                     mVideoEncoder.startRecording(new TextureMovieEncoder.EncoderConfig(
                             mOutputFile, 640, 480, 1000000, EGL14.eglGetCurrentContext()));
                     mRecordingStatus = RECORDING_ON;
@@ -300,7 +301,7 @@ public class ScanVideoRenderer implements GLSurfaceView.Renderer {
         // we just do it here.
         //
         // TODO: be less lame.
-        mVideoEncoder.setTextureId(mTextureId);
+        //mVideoEncoder.setTextureId(mTextureId);
 
         // Tell the video encoder thread that a new frame is available.
         // This will be ignored if we're not actually recording.

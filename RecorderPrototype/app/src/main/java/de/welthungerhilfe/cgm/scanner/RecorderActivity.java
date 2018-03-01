@@ -168,9 +168,6 @@ public class RecorderActivity extends AppCompatActivity {
         mSaveDirAbsPath = getExternalFilesDir(Environment.getDataDirectory().getAbsolutePath()).getAbsolutePath()+"/Tango/PCLData/";
         mFilename = "";
 
-        // must be called after setting outputFile!
-        setupRenderer();
-
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_scan_result);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -228,6 +225,8 @@ public class RecorderActivity extends AppCompatActivity {
             }, null);
         }
         mRecordingEnabled = sVideoEncoder.isRecording();
+        // must be called after setting outputFile and sVideoEncoder was created!
+        setupRenderer();
     }
 
     // TODO: implement own code&documentation or attribute Apache License 2.0 Copyright Google
@@ -400,9 +399,6 @@ public class RecorderActivity extends AppCompatActivity {
 
             @Override
             public void onPointCloudAvailable(final TangoPointCloudData pointCloudData) {
-
-                // TODO: get PointCloud and Camera Data
-
                 StringBuilder stringBuilder = new StringBuilder();
                 //stringBuilder.append("Point count: " + pointCloudData.numPoints);
                 float[] average = calculateAveragedDepth(pointCloudData.points, pointCloudData.numPoints);
@@ -539,6 +535,9 @@ public class RecorderActivity extends AppCompatActivity {
                     mIsFrameAvailableTangoThread.set(true);
                     // Trigger an OpenGL render to update the OpenGL scene with the new RGB data.
                     mCameraSurfaceView.requestRender();
+                    // TODO: be less lame
+                    sVideoEncoder.setTextureId(mConnectedTextureIdGlThread);
+                    // we have no surfacetexture? sVideoEncoder.frameAvailable();
                 }
             }
         });
@@ -633,6 +632,7 @@ public class RecorderActivity extends AppCompatActivity {
     private void setupRenderer() {
         mCameraSurfaceView.setEGLContextClientVersion(2);
         mRenderer = new ScanVideoRenderer(getApplicationContext(), sVideoEncoder, outputFile, new ScanVideoRenderer.RenderCallback() {
+
             @Override
             public void preRender() {
                 //Log.d(TAG, "preRender");
@@ -644,6 +644,7 @@ public class RecorderActivity extends AppCompatActivity {
                     return;
                 }
 
+
                 try {
                     // Synchronize against concurrently disconnecting the service triggered from the
                     // UI thread.
@@ -654,8 +655,10 @@ public class RecorderActivity extends AppCompatActivity {
                         // service is connected.
                         if (mConnectedTextureIdGlThread == INVALID_TEXTURE_ID) {
                             mConnectedTextureIdGlThread = mRenderer.getTextureId();
+                            //sVideoEncoder.setTextureId(mConnectedTextureIdGlThread);
                             mTango.connectTextureId(TangoCameraIntrinsics.TANGO_CAMERA_COLOR,
-                                    mRenderer.getTextureId());
+                                    mConnectedTextureIdGlThread);
+
                             Log.d(TAG, "connected to texture id: " + mRenderer.getTextureId());
                         }
 

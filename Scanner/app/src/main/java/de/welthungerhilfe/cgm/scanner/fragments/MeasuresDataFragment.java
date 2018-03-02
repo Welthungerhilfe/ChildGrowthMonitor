@@ -40,8 +40,10 @@ import android.view.inputmethod.InputMethodManager;
 import de.welthungerhilfe.cgm.scanner.R;
 import de.welthungerhilfe.cgm.scanner.activities.BodySelectActivity;
 import de.welthungerhilfe.cgm.scanner.activities.CreateDataActivity;
+import de.welthungerhilfe.cgm.scanner.activities.RecorderActivity;
 import de.welthungerhilfe.cgm.scanner.adapters.RecyclerMeasureAdapter;
 import de.welthungerhilfe.cgm.scanner.dialogs.ManualMeasureDialog;
+import de.welthungerhilfe.cgm.scanner.helper.AppConstants;
 import de.welthungerhilfe.cgm.scanner.models.Loc;
 import de.welthungerhilfe.cgm.scanner.models.Measure;
 
@@ -73,6 +75,7 @@ public class MeasuresDataFragment extends Fragment implements View.OnClickListen
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        // TODO: when coming from automatic scan show ManualMeasureDialog before displaying auto
         View view = inflater.inflate(R.layout.fragment_measure, container, false);
         
         recyclerMeasure = view.findViewById(R.id.recyclerMeasure);
@@ -100,12 +103,13 @@ public class MeasuresDataFragment extends Fragment implements View.OnClickListen
             @Override
             public void onClick(DialogInterface d, int which) {
                 if (which == 0) {
-					// TODO: Refactor Manual
                     ManualMeasureDialog dialog = new ManualMeasureDialog(context);
                     dialog.setManualMeasureListener(MeasuresDataFragment.this);
                     dialog.show();
                 } else if (which == 1) {
-                    startActivity(new Intent(getContext(), BodySelectActivity.class));
+                    Intent intent = new Intent(getContext(), RecorderActivity.class);
+                    intent.putExtra(AppConstants.EXTRA_PERSON, ((CreateDataActivity)context).person);
+                    startActivity(intent);
                 }
             }
         });

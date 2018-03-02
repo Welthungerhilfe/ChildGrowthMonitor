@@ -126,6 +126,8 @@ public class CreateDataActivity extends BaseActivity {
         if (person != null) {
             loadMeasures();
             loadConsents();
+        } else {
+            Log.w(TAG,"person was null");
         }
 
         setupActionBar();
@@ -281,13 +283,14 @@ public class CreateDataActivity extends BaseActivity {
                         else
                             consent.setQrcode(person.getQrcode());
 
-
+                        // because we uploaded the consent to storage before there was a database
+                        // reference we need to recover the timestamp from the filename
+                        // in order to use the same timestamp later on to check for a thumbnail
                         String createdString = qrPath.split("_"+consent.getQrcode()+".png")[0].split("data%2Fperson%2F"+qrCode+"%2F")[1];
-
                         Log.v(TAG,"createdString: "+createdString);
                         Long created = Long.parseLong(createdString);
-
                         consent.setCreated(created);
+
                         consent.setConsent(qrPath);
 
                         documentReference.collection("consents")
@@ -300,7 +303,9 @@ public class CreateDataActivity extends BaseActivity {
                                 });
 
                         // Start measuring
-                        startActivity(new Intent(CreateDataActivity.this, BodySelectActivity.class));
+                        Intent intent = new Intent(CreateDataActivity.this, RecorderActivity.class);
+                        intent.putExtra(AppConstants.EXTRA_PERSON, person);
+                        startActivity(intent);
                     }
                 });
     }

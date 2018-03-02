@@ -5,11 +5,16 @@ android {
     compileSdkVersion 26
     defaultConfig {
         applicationId "de.welthungerhilfe.cgm.scanner"
-        minSdkVersion 16
+        minSdkVersion 23
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    allprojects {
+        repositories {
+            jcenter()
+        }
     }
     buildTypes {
         release {
@@ -52,5 +57,7 @@ dependencies {
         transitive = true
     }
     compile 'com.google.firebase:firebase-core:11.8.0'
+    compile 'com.google.tango:sdk-base:1.54'
+    compile 'com.google.tango:support-base:1.54'
 }
 apply plugin: 'com.google.gms.google-services'

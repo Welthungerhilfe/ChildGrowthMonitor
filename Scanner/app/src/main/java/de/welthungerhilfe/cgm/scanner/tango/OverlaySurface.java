@@ -159,8 +159,8 @@ public class OverlaySurface extends SurfaceView
             // destination is the where to draw it
             // will be drawn in the center and scaled by the distance
             // because distance to take measurements should be around 1 meter
-            float left = ((canvas.getWidth() - mOverlay.getWidth()) / 2) * mDistance;
-            float top = ((canvas.getHeight() - mOverlay.getHeight()) / 2)*mDistance;
+            float left = ((canvas.getWidth() - mOverlay.getWidth()* mDistance) / 2);
+            float top = ((canvas.getHeight() - mOverlay.getHeight()*mDistance) / 2);
             float right = (mOverlay.getWidth()+left) * mDistance;
             float bottom = (mOverlay.getHeight()+top)*mDistance;
             RectF dstRectF = new RectF(left,top,right,bottom);

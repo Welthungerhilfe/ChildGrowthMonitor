@@ -236,6 +236,7 @@ public class CameraSurfaceRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onSurfaceChanged(GL10 unused, int width, int height) {
         GLES20.glViewport(0, 0, width, height);
+        setCameraPreviewSize(width,height);
         Log.d(TAG, "onSurfaceChanged " + width + "x" + height);
     }
 

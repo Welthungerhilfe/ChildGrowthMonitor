@@ -351,6 +351,8 @@ public class RecorderActivity extends Activity {
                 }
             }
         });
+        mCameraSurfaceView.onResume();
+        Log.d(TAG, "onResume complete: " + this);
     }
 
     @Override

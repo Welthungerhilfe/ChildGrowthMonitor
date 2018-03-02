@@ -51,7 +51,7 @@ public class AppController extends Application {
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
         StrictMode.setVmPolicy(builder.build());
 
-        //Utils.overrideFont(getApplicationContext(), "SERIF", "roboto.ttf");
+        Utils.overrideFont(getApplicationContext(), "SERIF", "roboto.ttf");
 
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = firebaseAuth.getCurrentUser();

@@ -74,11 +74,12 @@
                         android:textSize="20sp"
                         android:textColor="@color/colorBlack"/>
                     <TextView
+                        android:id="@+id/txtSortDate"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:singleLine="true"
                         android:textSize="16sp"
-                        android:text="last 5 days"/>
+                        android:text="last 0 days"/>
                 </LinearLayout>
 
                 <ImageView
@@ -140,11 +141,12 @@
                         android:textSize="20sp"
                         android:textColor="@color/colorBlack"/>
                     <TextView
+                        android:id="@+id/txtSortLocation"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:singleLine="true"
                         android:textSize="16sp"
-                        android:text="Benson Street 34, Monrovia(5 KM circuit)"/>
+                        android:text="last location not available"/>
                 </LinearLayout>
 
                 <ImageView

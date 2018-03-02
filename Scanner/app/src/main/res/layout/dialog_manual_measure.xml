@@ -94,6 +94,21 @@
 
     </android.support.design.widget.TextInputLayout>
 
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp">
+
+        <EditText
+            android:id="@+id/editManualHead"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:inputType="numberDecimal"
+            android:hint="03 Head Circumference"/>
+
+    </android.support.design.widget.TextInputLayout>
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -149,7 +164,7 @@
             android:layout_width="match_parent"
             android:layout_height="38dp"
             android:background="@color/colorPink"
-            android:text="ALERT BUTTON"
+            android:text="Kwashiorkor"
             android:textSize="18sp"
             android:textColor="@color/colorWhite"/>
 

@@ -55,7 +55,7 @@
 
     <string name="sex_male">male</string>
     <string name="sex_female">female</string>
-    <string name="sex_fluid">fluid</string>
+    <string name="sex_fluid">other</string>
     
     <string name="forgot"><u>Forgot password?</u></string>
     <string name="ok">OK</string>
@@ -64,7 +64,7 @@
     <string name="cancel">Cancel</string>
     <string name="repeat">Repeat</string>
     <string name="back">Back</string>
-    <string name="next">Next</string>
+    <string name="next">Save</string>
     <string name="no_location">Last scan is not available</string>
 
 

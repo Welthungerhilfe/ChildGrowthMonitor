@@ -23,12 +23,15 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.AppCompatRadioButton;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,9 +43,17 @@ import android.widget.TextView;
 import com.appeaser.sublimepickerlibrary.datepicker.SelectedDate;
 import com.appeaser.sublimepickerlibrary.recurrencepicker.SublimeRecurrencePicker;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.util.Date;
 
+import de.welthungerhilfe.cgm.scanner.AppController;
 import de.welthungerhilfe.cgm.scanner.R;
 import de.welthungerhilfe.cgm.scanner.activities.CreateDataActivity;
 import de.welthungerhilfe.cgm.scanner.activities.ImageDetailActivity;
@@ -57,6 +68,9 @@ import de.welthungerhilfe.cgm.scanner.utils.Utils;
  */
 
 public class PersonalDataFragment extends Fragment implements View.OnClickListener, DateRangePickerDialog.Callback {
+
+    private String TAG = this.getClass().getSimpleName();
+
     private final int REQUEST_LOCATION = 0x1000;
 
     public Context context;
@@ -292,7 +306,59 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
     public void showConsent() {
         if (((CreateDataActivity)context).qrCode != null) {
             imgConsent.setImageBitmap(BitmapFactory.decodeByteArray(((CreateDataActivity)context).qrSource, 0, ((CreateDataActivity)context).qrSource.length));
-        } else if (((CreateDataActivity)context).consents.size() > 0)
-            Glide.with(context).load(((CreateDataActivity)context).consents.get(0).getConsent()).into(imgConsent);
+        } else if (((CreateDataActivity)context).consents.size() > 0) {
+            final String qrUrl = ((CreateDataActivity)context).consents.get(0).getConsent();
+
+            long created = ((CreateDataActivity)context).consents.get(0).getCreated();
+            String qrcode = ((CreateDataActivity)context).consents.get(0).getQrcode();
+            String thumbUrl = "/data/person/"+qrcode+"/"+created+"_"+qrcode+".png_thumb.png";
+            Log.v(TAG,"thumbUrl: "+thumbUrl);
+            StorageReference qrThumbRef = AppController.getInstance().firebaseStorage.getReference(thumbUrl);
+
+            qrThumbRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>()
+            {
+                @Override
+                public void onSuccess(Uri downloadUrl)
+                {
+                    Log.v(TAG,"found thumbnail at: "+downloadUrl.toString());
+                    Glide.with(context).load(downloadUrl.toString()).into(imgConsent);
+                    //do something with downloadurl
+                }
+
+
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.w(TAG,"error getting thumbnail");
+                    e.printStackTrace();
+                    Glide.with(context).load(qrUrl).into(imgConsent);
+                }
+            });
+/*
+            String[] arr = qrUrl.split(".png");
+			// TODO: replace .png_ to _ here and in Firebase Functions
+            String thumbUrlString = arr[0] + ".png_thumb.png";
+
+            // TODO: building the URL to thumbnail doesn't seem to work like this, probably need to get a new StorageReference
+            // TODO: Catch 404
+            StorageReference qrThumbRef = AppController.getInstance().firebaseStorage.getReferenceFromUrl(thumbUrlString);
+
+
+
+            Glide.with(context).load(qrThumbUrl).listener(new RequestListener<String, GlideDrawable>() {
+                @Override
+                public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
+                    Glide.with(context).load(qrUrl).into(imgConsent);
+                    Log.w(TAG, qrThumbUrl+" not found, loading full size consent image into preview. Are Firebase Functions for thumbnail creation configured?");
+
+                    return false;
+                }
+
+                @Override
+                public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                    return false;
+                }
+            }).into(imgConsent);*/
+        }
     }
 }

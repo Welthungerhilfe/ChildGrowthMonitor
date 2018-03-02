@@ -58,6 +58,7 @@ import com.orhanobut.dialogplus.ViewHolder;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import butterknife.BindView;
@@ -70,12 +71,14 @@ import de.welthungerhilfe.cgm.scanner.dialogs.DateRangePickerDialog;
 import de.welthungerhilfe.cgm.scanner.helper.SessionManager;
 import de.welthungerhilfe.cgm.scanner.models.Person;
 import de.welthungerhilfe.cgm.scanner.helper.AppConstants;
+import de.welthungerhilfe.cgm.scanner.utils.Utils;
 
 public class MainActivity extends BaseActivity implements RecyclerDataAdapter.OnPersonDetail, DateRangePickerDialog.Callback, EventListener<QuerySnapshot> {
     private final String TAG = MainActivity.class.getSimpleName();
     private final int REQUEST_LOCATION = 0x1000;
 
     private int sortType = 0;
+    private int diffDays = 0;
     private ArrayList<Person> personList = new ArrayList<>();
 
     @OnClick(R.id.fabCreate)
@@ -155,6 +158,16 @@ public class MainActivity extends BaseActivity implements RecyclerDataAdapter.On
                     }
                 })
                 .create();
+        TextView txtSortDate = sortDialog.getHolderView().findViewById(R.id.txtSortDate);
+        txtSortDate.setText("last " + Integer.toString(diffDays) + " days");
+
+        TextView txtSortLocation = sortDialog.getHolderView().findViewById(R.id.txtSortLocation);
+        if (session.getLocation().getAddress().equals("")) {
+            txtSortLocation.setText("last location not available");
+        } else {
+            txtSortLocation.setText(session.getLocation().getAddress());
+        }
+
         ImageView imgSortDate = sortDialog.getHolderView().findViewById(R.id.imgSortDate);
         ImageView imgSortLocation = sortDialog.getHolderView().findViewById(R.id.imgSortLocation);
         ImageView imgSortWasting = sortDialog.getHolderView().findViewById(R.id.imgSortWasting);
@@ -407,10 +420,19 @@ public class MainActivity extends BaseActivity implements RecyclerDataAdapter.On
         Calendar start = selectedDate.getStartDate();
         Calendar end = selectedDate.getEndDate();
 
-        int diffDays = (int) (end.getTimeInMillis() - start.getTimeInMillis()) / 1000 / 60 / 60 / 24;
-        txtSortCase.setText("Last Scans (" + Integer.toString(Math.abs(diffDays)) + " days)");
+        diffDays = (int) (end.getTimeInMillis() - start.getTimeInMillis()) / 1000 / 60 / 60 / 24;
+        long startDate = start.getTimeInMillis();
+        long endDate = end.getTimeInMillis();
+        if (start.getTimeInMillis() == end.getTimeInMillis()) {
+            diffDays = 1;
+            Date date = new Date(start.get(Calendar.YEAR) - 1900, start.get(Calendar.MONTH), start.get(Calendar.DAY_OF_MONTH), 0, 0, 0);
 
-        adapterData.setDateFilter(start.getTimeInMillis(), end.getTimeInMillis());
+            startDate = date.getTime();
+            endDate = startDate + (3600 * 24 - 1) * 1000;
+        }
+
+        txtSortCase.setText("Last Scans (" + Integer.toString(Math.abs(diffDays)) + " days)");
+        adapterData.setDateFilter(startDate, endDate);
     }
 
     @Override

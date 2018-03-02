@@ -123,4 +123,19 @@
 
     </android.support.design.widget.TextInputLayout>
 
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp">
+
+        <EditText
+            android:id="@+id/editHead"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:editable="false"
+            android:hint="06 Head Circumference"/>
+
+    </android.support.design.widget.TextInputLayout>
+
 </LinearLayout>

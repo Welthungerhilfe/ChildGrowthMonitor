@@ -32,6 +32,7 @@ public class Measure implements Serializable {
     private float height;
     private float weight;
     private float muac;
+    private float headCircumference;
     private Loc location;
     private String artifact;
     private boolean visible;
@@ -82,6 +83,14 @@ public class Measure implements Serializable {
 
     public void setMuac(float muac) {
         this.muac = muac;
+    }
+
+    public float getHeadCircumference() {
+        return headCircumference;
+    }
+
+    public void setHeadCircumference(float headCircumference) {
+        this.headCircumference = headCircumference;
     }
 
     public String getArtifact() {

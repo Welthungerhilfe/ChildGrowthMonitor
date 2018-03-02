@@ -52,7 +52,7 @@ import de.welthungerhilfe.cgm.scanner.models.Measure;
  * Created by Emerald on 2/23/2018.
  */
 
-public class ManulMeasureDialog extends Dialog {
+public class ManualMeasureDialog extends Dialog {
     private final int REQUEST_LOCATION = 0x1000;
 
     @BindView(R.id.editManualHeight)
@@ -61,6 +61,8 @@ public class ManulMeasureDialog extends Dialog {
     EditText editManualWeight;
     @BindView(R.id.editManualMuac)
     EditText editManualMuac;
+    @BindView(R.id.editManualHead)
+    EditText editManualHead;
     @BindView(R.id.editManualAddition)
     EditText editManualAddition;
     @BindView(R.id.editManualLocation)
@@ -84,10 +86,15 @@ public class ManulMeasureDialog extends Dialog {
     void OnConfirm(Button btnOK) {
         if (validate()) {
             if (measureListener != null) {
+                float head = 0f;
+                if (!editManualHead.getText().toString().isEmpty()) {
+                    head = Float.parseFloat(editManualHead.getText().toString());
+                }
                 measureListener.onManualMeasure(
                         Float.parseFloat(editManualHeight.getText().toString()),
                         Float.parseFloat(editManualWeight.getText().toString()),
                         Float.parseFloat(editManualMuac.getText().toString()),
+                        head,
                         location
                 );
             }
@@ -99,7 +106,7 @@ public class ManulMeasureDialog extends Dialog {
 
     private OnManualMeasureListener measureListener;
 
-    public ManulMeasureDialog(@NonNull Context context) {
+    public ManualMeasureDialog(@NonNull Context context) {
         super(context);
 
         this.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
@@ -164,6 +171,6 @@ public class ManulMeasureDialog extends Dialog {
     }
 
     public interface OnManualMeasureListener {
-        void onManualMeasure(float height, float weight, float muac, Loc location);
+        void onManualMeasure(float height, float weight, float muac, float headCircumference, Loc location);
     }
 }

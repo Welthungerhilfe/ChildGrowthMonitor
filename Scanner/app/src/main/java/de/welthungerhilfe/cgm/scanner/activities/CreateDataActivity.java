@@ -31,6 +31,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -130,6 +131,8 @@ public class CreateDataActivity extends BaseActivity {
         setupActionBar();
         initFragments();
         initUI();
+
+        uploadQR();
     }
 
     public void onDestroy() {
@@ -170,20 +173,20 @@ public class CreateDataActivity extends BaseActivity {
     public void setPersonalData(String name, String surName, long birthday, boolean age, String sex, Loc loc, String guardian) {
         boolean isNew = false;
         if (person == null) {
-            /*
             if (qrPath == null) {
                 Toast.makeText(CreateDataActivity.this, "Still uploading QR code, please try after a while", Toast.LENGTH_SHORT).show();
                 return;
-            } else*/ {
+            } else {
                 isNew = true;
 
                 person = new Person();
-
+                /*
                 QRNumber qrNumber = new QRNumber();
                 qrNumber.setCode(qrCode);
                 ArrayList<String> consents = new ArrayList<>();
                 consents.add(qrPath);
                 qrNumber.setConsents(consents);
+                */
                 person.setQrcode(qrCode);
             }
         }
@@ -201,11 +204,9 @@ public class CreateDataActivity extends BaseActivity {
             createPerson();
         else
             updatePerson();
-
-        uploadQR();
     }
 
-    public void setMeasureData(float height, float weight, float muac, String additional, Loc location) {
+    public void setMeasureData(float height, float weight, float muac, float headCircumference, String additional, Loc location) {
         showProgressDialog();
 
         final Measure measure = new Measure();
@@ -215,6 +216,7 @@ public class CreateDataActivity extends BaseActivity {
         measure.setHeight(height);
         measure.setWeight(weight);
         measure.setMuac(muac);
+        measure.setHeadCircumference(headCircumference);
         measure.setArtifact(additional);
         measure.setLocation(location);
         measure.setType(AppConstants.VAL_MEASURE_MANUAL);
@@ -272,6 +274,31 @@ public class CreateDataActivity extends BaseActivity {
                         personID.put("id", person.getId());
                         documentReference.update(personID);
 
+                        final Consent consent = new Consent();
+
+                        if (qrCode != null)
+                            consent.setQrcode(qrCode);
+                        else
+                            consent.setQrcode(person.getQrcode());
+
+
+                        String createdString = qrPath.split("_"+consent.getQrcode()+".png")[0].split("data%2Fperson%2F"+qrCode+"%2F")[1];
+
+                        Log.v(TAG,"createdString: "+createdString);
+                        Long created = Long.parseLong(createdString);
+
+                        consent.setCreated(created);
+                        consent.setConsent(qrPath);
+
+                        documentReference.collection("consents")
+                                .add(consent)
+                                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                    @Override
+                                    public void onSuccess(DocumentReference documentReference) {
+                                        consents.add(0, consent);
+                                    }
+                                });
+
                         // Start measuring
                         startActivity(new Intent(CreateDataActivity.this, BodySelectActivity.class));
                     }
@@ -327,7 +354,7 @@ public class CreateDataActivity extends BaseActivity {
         if (qrSource == null)
             return;
         //String consentPath = AppConstants.STORAGE_CONSENT_URL.replace("{id}", person.getId()) + System.currentTimeMillis() + "_" + qrCode + ".png";
-        final String consentPath = AppConstants.STORAGE_CONSENT_URL + System.currentTimeMillis() + "_" + qrCode + ".png";
+        final String consentPath = AppConstants.STORAGE_CONSENT_URL.replace("{qrcode}",  qrCode) + System.currentTimeMillis() + "_" + qrCode + ".png";
         StorageReference consentRef = AppController.getInstance().storageRootRef.child(consentPath);
         UploadTask uploadTask = consentRef.putBytes(qrSource);
         uploadTask.addOnFailureListener(new OnFailureListener() {
@@ -410,9 +437,11 @@ public class CreateDataActivity extends BaseActivity {
                                 for (DocumentSnapshot document : task.getResult()) {
                                     Consent consent = document.toObject(Consent.class);
                                     consents.add(consent);
+
                                 }
-                                if (consents.size() > 0)
+                                if (consents.size() > 0) {
                                     personalFragment.showConsent();
+                                }
                             }
                         }
                     });

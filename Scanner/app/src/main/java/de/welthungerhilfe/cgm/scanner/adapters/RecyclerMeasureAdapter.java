@@ -80,6 +80,7 @@ public class RecyclerMeasureAdapter extends RecyclerView.Adapter<RecyclerMeasure
         holder.editHeight.setText(Float.toString(measure.getHeight()));
         holder.editWeight.setText(Float.toString(measure.getWeight()));
         holder.editMuac.setText(Float.toString(measure.getMuac()));
+        holder.editHead.setText(Float.toString(measure.getHeadCircumference()));
 
         setAnimation(holder.itemView, position);
     }
@@ -113,6 +114,7 @@ public class RecyclerMeasureAdapter extends RecyclerView.Adapter<RecyclerMeasure
         public EditText editHeight;
         public EditText editWeight;
         public EditText editMuac;
+        public EditText editHead;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -122,6 +124,7 @@ public class RecyclerMeasureAdapter extends RecyclerView.Adapter<RecyclerMeasure
             editHeight = itemView.findViewById(R.id.editHeight);
             editWeight = itemView.findViewById(R.id.editWeight);
             editMuac = itemView.findViewById(R.id.editMuac);
+            editHead = itemView.findViewById(R.id.editHead);
         }
     }
 }

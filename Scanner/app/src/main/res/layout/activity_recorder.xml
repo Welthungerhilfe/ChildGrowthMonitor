@@ -25,11 +25,67 @@
     android:layout_height="match_parent"
     tools:context=".activities.RecorderActivity" >
 
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/body_select_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/colorPrimary"
+            android:padding="20dp"
+            android:layout_weight="1">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/baby_back"/>
+
+            <Button
+                android:id="@+id/btnBaby"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"
+                android:background="@color/colorWhite"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:text="@string/select"
+                android:textColor="@color/colorPrimary"/>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/colorWhite"
+            android:padding="20dp"
+            android:layout_weight="1">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/infant_front"/>
+
+            <Button
+                android:id="@+id/btnInfant"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"
+                android:background="@color/colorPrimary"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:text="@string/select"
+                android:textColor="@color/colorWhite"/>
+
+        </RelativeLayout>
+    </LinearLayout>
+
     <TextView
         android:id="@+id/display_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Starting..."
+        android:text=""
         android:textSize="30sp"
         android:shadowColor="@color/text_shadow_white"
         android:shadowDx="-2"
@@ -46,12 +102,14 @@
         <de.welthungerhilfe.cgm.scanner.tango.OverlaySurface
             android:id="@+id/overlaySurfaceView"
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent" />
+            android:layout_height="fill_parent"
+            android:visibility="invisible"/>
 
         <android.opengl.GLSurfaceView
             android:id="@+id/surfaceview"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:visibility="invisible"/>
 
 
         <android.support.design.widget.FloatingActionButton
@@ -65,7 +123,8 @@
             android:layout_marginEnd="16dp"
             android:layout_alignParentEnd="true"
             android:layout_marginRight="16dp"
-            android:layout_alignParentRight="true" />
+            android:layout_alignParentRight="true"
+            android:visibility="invisible"/>
 
         <!--android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"

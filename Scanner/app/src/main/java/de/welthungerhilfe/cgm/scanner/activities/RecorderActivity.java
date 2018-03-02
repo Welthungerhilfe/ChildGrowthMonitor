@@ -5,13 +5,15 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.hardware.display.DisplayManager;
+import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.SystemClock;
+import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -20,6 +22,8 @@ import android.view.Display;
 import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.View;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,6 +50,8 @@ import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import de.welthungerhilfe.cgm.scanner.R;
 import de.welthungerhilfe.cgm.scanner.helper.AppConstants;
 import de.welthungerhilfe.cgm.scanner.models.Person;
@@ -53,6 +59,7 @@ import de.welthungerhilfe.cgm.scanner.tango.CameraSurfaceRenderer;
 import de.welthungerhilfe.cgm.scanner.tango.ModelMatCalculator;
 import de.welthungerhilfe.cgm.scanner.tango.OverlaySurface;
 import de.welthungerhilfe.cgm.scanner.tango.TextureMovieEncoder;
+import de.welthungerhilfe.cgm.scanner.utils.ZipWriter;
 
 import static com.projecttango.tangosupport.TangoSupport.initialize;
 
@@ -81,6 +88,7 @@ public class RecorderActivity extends Activity {
 
     private TextView mDisplayTextView;
 
+    // this is static so it survives activity restarts
     private static TextureMovieEncoder sVideoEncoder = new TextureMovieEncoder();
     private CameraSurfaceRenderer mRenderer;
 
@@ -101,18 +109,15 @@ public class RecorderActivity extends Activity {
 
     private int mDisplayRotation = Surface.ROTATION_0;
 
-    private boolean mRecordingEnabled;      // controls button state
     private Semaphore mutex_on_mIsRecording;
-    private File outputFile;
-    private String mOutputFolder;
-    private String mSaveDirAbsPath;
-    private String mFilename;
+    private File mVideoOutputFile;
+
+    private String mPointCloudFilename;
     private int mNumberOfFilesWritten;
-    private String mNowTimeString;
     private ArrayList<float[]> mPosePositionBuffer;
     private ArrayList<float[]> mPoseOrientationBuffer;
     private ArrayList<Float> mPoseTimestampBuffer;
-    private ArrayList<String> mFilenameBuffer;
+    private ArrayList<String> mPointCloudFilenameBuffer;
     private float[] cam2dev_Transform;
     private int mNumPoseInSequence;
     private Boolean mTimeToTakeSnap;
@@ -129,18 +134,31 @@ public class RecorderActivity extends Activity {
     boolean mIsRecording;
 
     private Person person;
+    private LinearLayout mBodySelectLayout;
+    private FloatingActionButton fab;
+
+    private File mScanArtefactsOutputFolder;
+    private String mPointCloudSaveFolderPath;
+    private String mNowTimeString;
+    private String mQrCode;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         person = (Person) getIntent().getSerializableExtra(AppConstants.EXTRA_PERSON);
         if (person == null) Log.e(TAG,"person was null!");
         setContentView(R.layout.activity_recorder);
 
+        ButterKnife.bind(this);
+
         mCameraSurfaceView = findViewById(R.id.surfaceview);
         mOverlaySurfaceView = findViewById(R.id.overlaySurfaceView);
 
-        mDisplayTextView = (TextView) findViewById(R.id.display_textview);
+        mDisplayTextView = findViewById(R.id.display_textview);
+
+        mBodySelectLayout = findViewById(R.id.body_select_layout);
 
         int PERMISSION_ALL = 1;
         String[] PERMISSIONS = {Manifest.permission.CAMERA,
@@ -151,29 +169,14 @@ public class RecorderActivity extends Activity {
             ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
         }
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_scan_result);
+        fab = findViewById(R.id.fab_scan_result);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                /*Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();*/
 
                 Intent i = new Intent(getApplicationContext(), CreateDataActivity.class);
                 i.putExtra(AppConstants.EXTRA_PERSON, person);
                 startActivity(i);
-
-                /*
-                mIsRecording = !mIsRecording;
-                mRecordingTextView.setText("Rec: "+mIsRecording);
-                record_SwitchChanged();
-                mCameraSurfaceView.queueEvent(new Runnable() {
-                    @Override public void run() {
-                        // notify the renderer that we want to change the encoder's state
-                        mRenderer.changeRecordingState(mIsRecording);
-                    }
-                });
-                //updateControls();
-                */
             }
         });
 
@@ -197,23 +200,60 @@ public class RecorderActivity extends Activity {
             }, null);
         }
 
-        mRecordingEnabled = sVideoEncoder.isRecording();
-        mFilename = "";
+        mPointCloudFilename = "";
         mNumberOfFilesWritten = 0;
         mPosePositionBuffer = new ArrayList<float[]>();
         mPoseOrientationBuffer = new ArrayList<float[]>();
         mPoseTimestampBuffer = new ArrayList<Float>();
-        mFilenameBuffer = new ArrayList<String>();
+        mPointCloudFilenameBuffer = new ArrayList<String>();
         mNumPoseInSequence = 0;
         mPointCloudCallbackCount = 0;
         mutex_on_mIsRecording = new Semaphore(1,true);
         mIsRecording = false;
 
-        mRecordingEnabled = sVideoEncoder.isRecording();
-        // must be called after setting outputFile and sVideoEncoder was created!
+        mNowTimeString = String.valueOf(System.currentTimeMillis());//String.valueOf(person.getCreated());
+        mQrCode = person.getQrcode();
+        File extFileDir = getExternalFilesDir(Environment.getDataDirectory().getAbsolutePath());
+        File personalFilesDir = new File(extFileDir,mQrCode+"/");
+        if(!personalFilesDir.exists()) {
+            boolean created = personalFilesDir.mkdir();
+            if (created) {
+                Log.i(TAG, "Folder: \"" + personalFilesDir + "\" created\n");
+            } else {
+                Log.e(TAG,"Folder: \"" + personalFilesDir + "\" could not be created!\n");
+            }
+        }
+        mScanArtefactsOutputFolder  = new File(extFileDir,mQrCode+"/"+mNowTimeString+"/");
+        // TODO Create when needed!
+        if(!mScanArtefactsOutputFolder.exists()) {
+            boolean created = mScanArtefactsOutputFolder.mkdir();
+            if (created) {
+                Log.i(TAG, "Folder: \"" + mScanArtefactsOutputFolder + "\" created\n");
+            } else {
+                Log.e(TAG,"Folder: \"" + mScanArtefactsOutputFolder + "\" could not be created!\n");
+            }
+        }
+        mVideoOutputFile = new File(mScanArtefactsOutputFolder,mQrCode+".mp4");
+        mPointCloudSaveFolderPath = mScanArtefactsOutputFolder.getAbsolutePath()+"/pc/";
+        Log.v(TAG,"mPointCloudSaveFolderPath: "+mPointCloudSaveFolderPath);
+        // must be called after setting mVideoOutputFile and sVideoEncoder was created!
         setupRenderer();
     }
 
+    @OnClick(R.id.btnBaby)
+    void scanBaby(Button btnBaby) {
+        mBodySelectLayout.setVisibility(View.INVISIBLE);
+        mCameraSurfaceView.setVisibility(View.VISIBLE);
+        mOverlaySurfaceView.setVisibility(View.VISIBLE);
+        fab.setVisibility(View.VISIBLE);
+    }
+    @OnClick(R.id.btnInfant)
+    void scanInfant(Button btnInfant) {
+        mBodySelectLayout.setVisibility(View.INVISIBLE);
+        mCameraSurfaceView.setVisibility(View.VISIBLE);
+        mOverlaySurfaceView.setVisibility(View.VISIBLE);
+        fab.setVisibility(View.VISIBLE);
+    }
 
     public static boolean hasPermissions(Context context, String... permissions) {
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && context != null && permissions != null) {
@@ -229,7 +269,7 @@ public class RecorderActivity extends Activity {
     // TODO: setup own renderer for scanning process (or attribute Apache License 2.0 from Google)
     private void setupRenderer() {
         mCameraSurfaceView.setEGLContextClientVersion(2);
-        mRenderer = new CameraSurfaceRenderer(sVideoEncoder, outputFile, new CameraSurfaceRenderer.RenderCallback() {
+        mRenderer = new CameraSurfaceRenderer(sVideoEncoder, mVideoOutputFile, new CameraSurfaceRenderer.RenderCallback() {
 
             @Override
             public void preRender() {
@@ -430,45 +470,6 @@ public class RecorderActivity extends Activity {
                     mNumPoseInSequence++;
                 }
                 //End of My pose buffering
-
-                /*mRenderer.getModelMatCalculator().updateModelMatrix(
-                        pose.getTranslationAsFloats(),
-                        pose.getRotationAsFloats());
-                mRenderer.updateViewMatrix();
-                mGLView.requestRender();
-                */
-                // Update the UI with TangoPose information
-                /*runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        DecimalFormat threeDec = new DecimalFormat("0.000");
-                        String translationString = "["
-                                + threeDec.format(pose.translation[0]) + ", "
-                                + threeDec.format(pose.translation[1]) + ", "
-                                + threeDec.format(pose.translation[2]) + "] ";
-                        String quaternionString = "["
-                                + threeDec.format(pose.rotation[0]) + ", "
-                                + threeDec.format(pose.rotation[1]) + ", "
-                                + threeDec.format(pose.rotation[2]) + ", "
-                                + threeDec.format(pose.rotation[3]) + "] ";
-*/
-                // Display pose data on screen in TextViews
-                        /*mPoseTextView.setText(translationString);
-                        mQuatTextView.setText(quaternionString);
-                        mPoseCountTextView.setText(Integer.toString(mValidPoseCallbackCount));
-                        mDeltaTextView.setText(threeDec.format(mDeltaTime));
-                        if (pose.statusCode == TangoPoseData.POSE_VALID) {
-                            mPoseStatusTextView.setText(R.string.pose_valid);
-                        } else if (pose.statusCode == TangoPoseData.POSE_INVALID) {
-                            mPoseStatusTextView.setText(R.string.pose_invalid);
-                        } else if (pose.statusCode == TangoPoseData.POSE_INITIALIZING) {
-                            mPoseStatusTextView.setText(R.string.pose_initializing);
-                        } else if (pose.statusCode == TangoPoseData.POSE_UNKNOWN) {
-                            mPoseStatusTextView.setText(R.string.pose_unknown);
-                        }
-
-                    }
-                });*/
             }
 
             @Override
@@ -502,41 +503,6 @@ public class RecorderActivity extends Activity {
                     //Log.w(TAG, "Could not get depth camera transform at time "
                     //        + pointCloudData.timestamp);
                 }
-                /*
-                TangoPoseData oglTcolorPose = TangoSupport.getPoseAtTime(
-                        rgbTimestamp,
-                        TangoPoseData.COORDINATE_FRAME_AREA_DESCRIPTION,
-                        TangoPoseData.COORDINATE_FRAME_CAMERA_COLOR,
-                        TangoSupport.TANGO_SUPPORT_ENGINE_OPENGL,
-                        TangoSupport.TANGO_SUPPORT_ENGINE_TANGO,
-                        TangoSupport.ROTATION_IGNORED);
-                if (oglTcolorPose.statusCode != TangoPoseData.POSE_VALID) {
-                    //   Log.w(TAG, "Could not get color camera transform at time "
-                    //           + rgbTimestamp);
-                }*/
-
-                final long startTime = SystemClock.uptimeMillis();
-                final long timestamp = System.currentTimeMillis();
-/*
-                if (!scanningInProgress) {
-                    //Log.v(TAG, "User has not started");
-                    return;
-                }
-
-                // Scanning in progress...
-
-                if (mCurrentScanID == null) {
-                    mCurrentScanID = dbHelper.startScan(timestamp);
-                }*/
-                //Frameset frameset = new Frameset(timestamp, oglTdepthPose, oglTcolorPose, pointCloudData, imageBuffer);
-                //Log.v(TAG, "timestamp: " + timestamp + " with pointCloud timestamp " + pointCloudData.timestamp + " with " + pointCloudData.numPoints + " points.");
-                /*
-                Log.v(TAG, "Scan " + timestamp + " frame number: " + imageBuffer.frameNumber + " with timestamp: " + imageBuffer.timestamp +
-                        " and pointCloud timestamp " + pointCloudData.timestamp + " with " + pointCloudData.numPoints + " points.");
-                int[] pixels = convertYUV420_NV21toRGB8888(imageBuffer.data.array(), imageBuffer.width, imageBuffer.height);
-                Bitmap inputBitmap = Bitmap.createBitmap(pixels, imageBuffer.width, imageBuffer.height, Bitmap.Config.ARGB_8888);
-                */
-
 
                 mCurrentTimeStamp = (float) pointCloudData.timestamp;
                 final float frameDelta = (mCurrentTimeStamp - mPointCloudPreviousTimeStamp)
@@ -610,39 +576,11 @@ public class RecorderActivity extends Activity {
                     // Trigger an OpenGL render to update the OpenGL scene with the new RGB data.
                     mCameraSurfaceView.requestRender();
                     // TODO: be less lame
-                    sVideoEncoder.setTextureId(mConnectedTextureIdGlThread);
+                    //sVideoEncoder.setTextureId(mConnectedTextureIdGlThread);
                     // we have no surfacetexture? sVideoEncoder.frameAvailable();
                 }
             }
         });
-
-        /*
-        // needed for the actual image buffer to record video?
-        // alternative would be the C++ API of Tango that also provides image data
-        // or recording directly from GLSurfaceView
-        mTango.experimentalConnectOnFrameListener(TangoCameraIntrinsics.TANGO_CAMERA_COLOR,
-                new Tango.OnFrameAvailableListener() {
-                    @Override
-                    public  void onFrameAvailable(TangoImageBuffer tangoImageBuffer, int i) {
-                        if (!inferenceReady) {
-                            return;
-                        }
-
-                        mCurrentImageBuffer = copyImageBuffer(tangoImageBuffer);
-                    }
-
-                    TangoImageBuffer copyImageBuffer(TangoImageBuffer imageBuffer) {
-                        ByteBuffer clone = ByteBuffer.allocateDirect(imageBuffer.data.capacity());
-                        imageBuffer.data.rewind();
-                        clone.put(imageBuffer.data);
-                        imageBuffer.data.rewind();
-                        clone.flip();
-                        return new TangoImageBuffer(imageBuffer.width, imageBuffer.height,
-                                imageBuffer.stride, imageBuffer.frameNumber,
-                                imageBuffer.timestamp, imageBuffer.format, clone);
-                    }
-                });
-                */
     }
 
     /**
@@ -684,9 +622,19 @@ public class RecorderActivity extends Activity {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        //Intent i = new Intent(this, PredictionsList.class);
-        //startActivity(i);
-        //mIsRecording = !mIsRecording;
+        mIsRecording = !mIsRecording;
+        if (mIsRecording) {
+            fab.setBackgroundColor(Color.RED);
+        } else {
+            fab.setBackgroundColor(Color.GREEN);
+        }
+        record_SwitchChanged();
+        mCameraSurfaceView.queueEvent(new Runnable() {
+            @Override public void run() {
+                // notify the renderer that we want to change the encoder's state
+                mRenderer.changeRecordingState(mIsRecording);
+            }
+        });
         Toast.makeText(this.getApplicationContext(), "Recording: "+mIsRecording+"!! :)", Toast.LENGTH_SHORT).show();
         return true;
     }
@@ -805,27 +753,26 @@ public class RecorderActivity extends Activity {
 
         myBuffer.asFloatBuffer().put(pointCloudData.points);
 
-
-        File mainDir = new File(mOutputFolder);
-        if(!mainDir.exists()) {
-            boolean created = mainDir.mkdir();
+        if(!mScanArtefactsOutputFolder.exists()) {
+            boolean created = mScanArtefactsOutputFolder.mkdir();
             if (created) {
-                Log.i(TAG, "Folder: \"" + mOutputFolder + "\" created\n");
+                Log.i(TAG, "Folder: \"" + mScanArtefactsOutputFolder.getAbsolutePath() + "\" created\n");
             }
         }
 
-        File dir = new File(mSaveDirAbsPath);
+        File dir = new File(mPointCloudSaveFolderPath);
         if(!dir.exists()) {
             boolean created = dir.mkdir();
             if (created) {
-                Log.i(TAG, "Folder: \"" + mSaveDirAbsPath + "\" created\n");
+                Log.i(TAG, "Folder: \"" + mPointCloudSaveFolderPath + "\" created\n");
             }
         }
 
-        mFilename = "pc_" + mNowTimeString + "_" + String.format("%03d", mNumberOfFilesWritten) +
+        mPointCloudFilename = "pc_" +mQrCode+"_" + mNowTimeString + "_" + String.format("%03d", mNumberOfFilesWritten) +
                 ".vtk";
-        mFilenameBuffer.add(mSaveDirAbsPath + mFilename);
-        File file = new File(dir, mFilename);
+        mPointCloudFilenameBuffer.add(mPointCloudSaveFolderPath + mPointCloudFilename);
+        Log.v(TAG,"added pointcloud "+mPointCloudSaveFolderPath + mPointCloudFilename);
+        File file = new File(dir, mPointCloudFilename);
 
 
         try {
@@ -866,5 +813,159 @@ public class RecorderActivity extends Activity {
         }
     }
 
+
+    // This function is called when the Record Switch is changed
+    private void record_SwitchChanged() {
+        try {
+            mutex_on_mIsRecording.acquire();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        // Start Recording
+        Log.v(TAG,"record_SwitchChanged to "+mIsRecording);
+        if (mIsRecording) {
+            Log.v(TAG,"now: "+mNowTimeString);
+            mNumberOfFilesWritten = 0;
+        }
+        // Finish Recording
+        else {
+            // Disable snapshot button
+            //mTakeSnapButton.setEnabled(false);
+            // Display a waiting progress bar
+            //mWaitingTextView.setText(R.string.waitSavingScan);
+            //mWaitingLinearLayout.setVisibility(View.VISIBLE);
+            // Background task for writing poses to file
+            class SendCommandTask extends AsyncTask<Context, Void, Uri> {
+                /** The system calls this to perform work in a worker thread and
+                 * delivers it the parameters given to AsyncTask.execute() */
+                @Override
+                protected Uri doInBackground(Context... myAppContext) {
+
+                    // Stop the Pose Recording, and write them to a file.
+                    writePoseToFile(mNumPoseInSequence);
+                    // If a snap has been asked just before, but not saved, ignore it, otherwise,
+                    // it will be saved at the end dof this function, and the 2nd archive will override
+                    // the first.
+                    mTimeToTakeSnap = false;
+                    mNumPoseInSequence = 0;
+                    mPoseOrientationBuffer.clear();
+                    mPoseOrientationBuffer.clear();
+                    mPoseTimestampBuffer.clear();
+
+                    // Zip all the files from this sequence
+                    String zipFilename = mPointCloudSaveFolderPath + "/TangoData_" +mQrCode+"_"+ mNowTimeString +
+                            "_" + mPointCloudFilenameBuffer.size() + "files.zip";
+                    String[] fileList = mPointCloudFilenameBuffer.toArray(new String[mPointCloudFilenameBuffer.size()]);
+                    ZipWriter zipper = new ZipWriter(fileList, zipFilename);
+                    zipper.zip();
+
+                    // Delete the data files now that they are archived
+                    for (String s : mPointCloudFilenameBuffer) {
+                        File file = new File(s);
+                        boolean deleted = file.delete();
+                        if (!deleted) {
+                            Log.w(TAG, "File \"" + s + "\" not deleted\n");
+                        }
+                    }
+
+                    mPointCloudFilenameBuffer.clear();
+
+                    // Send the zip file to another app
+                    File myZipFile = new File(zipFilename);
+
+                    // was Uri instead of void
+                    //return FileProvider.getUriForFile(myAppContext[0], "com.kitware." +
+                    //        "tangoproject.paraviewtangorecorder.fileprovider", myZipFile);
+
+                    return Uri.fromFile(myZipFile);
+                }
+
+                /** The system calls this to perform work in the UI thread and delivers
+                 * the result from doInBackground() */
+/*
+                @Override
+                protected void onPostExecute(Uri fileURI) {
+
+                    Intent shareIntent = new Intent();
+                    shareIntent.setAction(Intent.ACTION_SEND);
+                    shareIntent.putExtra(Intent.EXTRA_STREAM, fileURI);
+                    shareIntent.setType("application/zip");
+                    startActivity(Intent.createChooser(shareIntent, "Send Scan To..."));
+                    mWaitingLinearLayout.setVisibility(View.GONE);
+                    //TODO: Upload to Firebase
+                }
+                  */
+
+            }
+            new SendCommandTask().execute(this);
+
+        }
+        mutex_on_mIsRecording.release();
+
+    }
+
+    // This function writes the pose data and timestamps to .vtk files in binary
+    private void writePoseToFile(int numPoints) {
+
+        File dir = new File(mPointCloudSaveFolderPath);
+        if(!dir.exists()) {
+            boolean created = dir.mkdir();
+            if (created) {
+                Log.i(TAG, "Folder: \"" + mPointCloudSaveFolderPath + "\" created\n");
+            }
+        }
+        String poseFileName = "pc_" +mQrCode+"_"+ mNowTimeString + "_poses.vtk";
+        mPointCloudFilenameBuffer.add(mPointCloudSaveFolderPath + poseFileName);
+        File file = new File(dir, poseFileName);
+
+        try {
+            DataOutputStream out = new DataOutputStream(new BufferedOutputStream(
+                    new FileOutputStream(file)));
+
+            out.write(("# vtk DataFile Version 3.0\n" +
+                    "vtk output\n" +
+                    "BINARY\n" +
+                    "DATASET POLYDATA\n" +
+                    "POINTS " + numPoints + " float\n").getBytes());
+
+            for (int i = 0; i < numPoints; i++) {
+                out.writeFloat(mPosePositionBuffer.get(i)[0]);
+                out.writeFloat(mPosePositionBuffer.get(i)[1]);
+                out.writeFloat(mPosePositionBuffer.get(i)[2]);
+            }
+
+            out.write(("\nLINES 1 " + String.valueOf(numPoints + 1) + "\n").getBytes());
+            out.writeInt(numPoints);
+            for (int i = 0; i < numPoints; i++) {
+                out.writeInt(i);
+            }
+
+            out.write(("\nFIELD FieldData 1\n" +
+                    "Cam2Dev_transform 16 1 float\n").getBytes());
+            for (int i = 0; i < cam2dev_Transform.length; i++) {
+                out.writeFloat(cam2dev_Transform[i]);
+            }
+
+            out.write(("\nPOINT_DATA " + String.valueOf(numPoints) + "\n" +
+                    "FIELD FieldData 2\n" +
+                    "orientation 4 " + String.valueOf(numPoints) + " float\n").getBytes());
+
+            for (int i = 0; i < numPoints; i++) {
+                out.writeFloat(mPoseOrientationBuffer.get(i)[0]);
+                out.writeFloat(mPoseOrientationBuffer.get(i)[1]);
+                out.writeFloat(mPoseOrientationBuffer.get(i)[2]);
+                out.writeFloat(mPoseOrientationBuffer.get(i)[3]);
+            }
+
+            out.write(("\ntimestamp 1 " + String.valueOf(numPoints) + " float\n").getBytes());
+            for (int i = 0; i < numPoints; i++) {
+                out.writeFloat(mPoseTimestampBuffer.get(i));
+            }
+
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
 }

@@ -177,6 +177,7 @@ public class TextureMovieEncoder implements Runnable {
      * has completed).
      */
     public void stopRecording() {
+        if (mHandler == null) return;
         mHandler.sendMessage(mHandler.obtainMessage(MSG_STOP_RECORDING));
         mHandler.sendMessage(mHandler.obtainMessage(MSG_QUIT));
         // We don't know when these will actually finish (or even start).  We don't want to
@@ -401,6 +402,7 @@ public class TextureMovieEncoder implements Runnable {
     private void prepareEncoder(EGLContext sharedContext, int width, int height, int bitRate,
                                 File outputFile) {
         try {
+
             mVideoEncoder = new VideoEncoderCore(width, height, bitRate, outputFile);
         } catch (IOException ioe) {
             throw new RuntimeException(ioe);

@@ -30,6 +30,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import de.welthungerhilfe.cgm.scanner.R;
+import de.welthungerhilfe.cgm.scanner.activities.RecorderActivity;
 
 /**
  * Created by Emerald on 2/20/2018.
@@ -62,7 +63,7 @@ public class BabyBack0Fragment extends Fragment implements View.OnClickListener 
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btnStartScan:
-                waitScanResult();
+                ((RecorderActivity)getActivity()).gotoNextStep();
                 break;
         }
     }

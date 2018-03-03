@@ -29,10 +29,10 @@
         android:id="@+id/txtTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="04. Back View"
+        android:text="01. Full Frontal View"
         android:textColor="@color/colorPrimary"
         android:textSize="22sp"
-        android:textStyle="bold" />
+        android:textStyle="bold"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -49,12 +49,6 @@
             android:layout_weight="1"
             android:src="@drawable/infant"/>
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:src="@drawable/updown"/>
-
     </LinearLayout>
 
     <LinearLayout
@@ -69,7 +63,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="Scan the back of the child from the head down to the feet and back up again."
+            android:text="Try placing the infant inside of the outlined child."
             android:textColor="@color/colorPrimary"
             android:textSize="20sp" />
 

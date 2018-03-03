@@ -21,7 +21,6 @@ package de.welthungerhilfe.cgm.scanner.fragments;
 
 import android.app.Fragment;
 import android.os.Bundle;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,14 +28,13 @@ import android.view.ViewGroup;
 import de.welthungerhilfe.cgm.scanner.R;
 import de.welthungerhilfe.cgm.scanner.activities.RecorderActivity;
 
-public class InfantTurnFragment extends Fragment implements View.OnClickListener {
+public class InfantFullFrontFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_infant_turn, container, false);
+        View view = inflater.inflate(R.layout.fragment_infant_full, container, false);
 
         view.findViewById(R.id.btnStartScan).setOnClickListener(this);
-
         return view;
     }
 
@@ -44,7 +42,7 @@ public class InfantTurnFragment extends Fragment implements View.OnClickListener
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btnStartScan:
-                ((RecorderActivity)getActivity()).gotoNextStep();
+                ((RecorderActivity)getContext()).gotoNextStep();
                 break;
         }
     }

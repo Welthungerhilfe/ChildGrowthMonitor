@@ -81,6 +81,10 @@ import de.welthungerhilfe.cgm.scanner.fragments.BabyBack0Fragment;
 import de.welthungerhilfe.cgm.scanner.fragments.BabyBack1Fragment;
 import de.welthungerhilfe.cgm.scanner.fragments.BabyFront0Fragment;
 import de.welthungerhilfe.cgm.scanner.fragments.BabyInfantChooserFragment;
+import de.welthungerhilfe.cgm.scanner.fragments.InfantBackFragment;
+import de.welthungerhilfe.cgm.scanner.fragments.InfantFrontFragment;
+import de.welthungerhilfe.cgm.scanner.fragments.InfantFullFrontFragment;
+import de.welthungerhilfe.cgm.scanner.fragments.InfantTurnFragment;
 import de.welthungerhilfe.cgm.scanner.helper.AppConstants;
 import de.welthungerhilfe.cgm.scanner.models.Measure;
 import de.welthungerhilfe.cgm.scanner.models.Person;
@@ -165,6 +169,16 @@ public class RecorderActivity extends Activity {
     private BabyBack0Fragment babyBack0Fragment;
     private BabyBack1Fragment babyBack1Fragment;
 
+    private final String INFANT_FULL_FRONT = "infant_full_front";
+    private final String INFANT_TURN = "infant_turn";
+    private final String INFANT_FRONT = "infant_front";
+    private final String INFANT_BACK = "infant_back";
+    private InfantFullFrontFragment infantFullFrontFragment;
+    private InfantTurnFragment infantTurnFragment;
+    private InfantFrontFragment infantFrontFragment;
+    private InfantBackFragment infantBackFragment;
+
+
     // TODO: make available in Settings
     private boolean onboarding = true;
 
@@ -186,6 +200,7 @@ public class RecorderActivity extends Activity {
         FragmentTransaction ft = getFragmentManager().beginTransaction();
 
         if (Verbose) Log.v("ScanningWorkflow","starting mScanningWorkflowStep: "+ mScanningWorkflowStep);
+
         if (mScanningWorkflowStep == AppConstants.CHOOSE_BABY_OR_INFANT) {
             measure = new Measure();
             measure.setDate(mNowTime);
@@ -200,10 +215,7 @@ public class RecorderActivity extends Activity {
             measure.setType("b_v1.0");
 
         } else if (mScanningWorkflowStep == AppConstants.BABY_FULL_BODY_FRONT_SCAN) {
-            mCameraSurfaceView.setVisibility(View.VISIBLE);
-            mOverlaySurfaceView.setVisibility(View.VISIBLE);
-            mDisplayTextView.setVisibility(View.VISIBLE);
-            fab.setVisibility(View.VISIBLE);
+            resumeScan();
             mDisplayTextView.setText(R.string.baby_full_body_front_scan_text);
 
         } else if (mScanningWorkflowStep == AppConstants.BABY_ONBOARDING_LEFT_RIGHT_SCAN) {
@@ -211,10 +223,12 @@ public class RecorderActivity extends Activity {
             babyBack0Fragment = new BabyBack0Fragment();
             ft.replace(R.id.container, babyBack0Fragment, BABY_BACK_0);
             ft.commit();
+            pauseScan();
 
 
         } else if (mScanningWorkflowStep == AppConstants.BABY_LEFT_RIGHT_SCAN) {
             mDisplayTextView.setText(R.string.baby_left_right_scan_text);
+            resumeScan();
 /*
             scanDialogViewHolder = new ViewHolder(R.layout.dialog_scan_result);
             scanResultDialog = DialogPlus.newDialog(getApplicationContext())
@@ -246,9 +260,11 @@ public class RecorderActivity extends Activity {
             babyBack1Fragment = new BabyBack1Fragment();
             ft.replace(R.id.container, babyBack1Fragment, BABY_BACK_1);
             ft.commit();
+            pauseScan();
 
         } else if (mScanningWorkflowStep == AppConstants.BABY_FULL_BODY_BACK_SCAN) {
             mDisplayTextView.setText(R.string.baby_full_body_back_scan_text);
+            resumeScan();
 
 /*
 
@@ -256,33 +272,48 @@ public class RecorderActivity extends Activity {
         // INFANT
         } else if (mScanningWorkflowStep == AppConstants.INFANT_ONBOARDING_FULL_BODY_FRONT_SCAN) {
             mDisplayTextView.setText(R.string.empty_string);
-            fab.setVisibility(View.VISIBLE);
+            infantFullFrontFragment = new InfantFullFrontFragment();
+            ft.replace(R.id.container, infantFullFrontFragment, INFANT_FULL_FRONT);
+            ft.commit();
+            pauseScan();
 
         } else if (mScanningWorkflowStep == AppConstants.INFANT_FULL_BODY_FRONT_SCAN) {
-            container.setVisibility(View.INVISIBLE);
-            mCameraSurfaceView.setVisibility(View.VISIBLE);
-            mOverlaySurfaceView.setVisibility(View.VISIBLE);
-            mDisplayTextView.setVisibility(View.VISIBLE);
-            fab.setVisibility(View.VISIBLE);
             mDisplayTextView.setText(R.string.infant_full_body_front_scan_text);
+            resumeScan();
 
         } else if (mScanningWorkflowStep == AppConstants.INFANT_ONBOARDING_360_TURN_SCAN) {
             mDisplayTextView.setText(R.string.empty_string);
+            infantTurnFragment = new InfantTurnFragment();
+            ft.replace(R.id.container, infantTurnFragment, INFANT_TURN);
+            ft.commit();
+            pauseScan();
 
         } else if (mScanningWorkflowStep == AppConstants.INFANT_360_TURN_SCAN) {
             mDisplayTextView.setText(R.string.infant_360_turn_scan_text);
+            resumeScan();
+
 
         } else if (mScanningWorkflowStep == AppConstants.INFANT_ONBOARDING_FRONT_UP_DOWN_SCAN) {
             mDisplayTextView.setText(R.string.empty_string);
+            infantFrontFragment = new InfantFrontFragment();
+            ft.replace(R.id.container, infantFrontFragment, INFANT_FRONT);
+            ft.commit();
+            pauseScan();
 
-        } else if (mScanningWorkflowStep == AppConstants.INFANT_ONBOARDING_FRONT_UP_DOWN_SCAN) {
+        } else if (mScanningWorkflowStep == AppConstants.INFANT_FRONT_UP_DOWN_SCAN) {
             mDisplayTextView.setText(R.string.infant_front_up_down_scan_text);
+            resumeScan();
 
         } else if (mScanningWorkflowStep == AppConstants.INFANT_ONBOARDING_BACK_UP_DOWN_SCAN) {
             mDisplayTextView.setText(R.string.empty_string);
+            infantBackFragment = new InfantBackFragment();
+            ft.replace(R.id.container, infantBackFragment, INFANT_BACK);
+            ft.commit();
+            pauseScan();
 
         } else if (mScanningWorkflowStep == AppConstants.INFANT_BACK_UP_DOWN_SCAN) {
             mDisplayTextView.setText(R.string.infant_back_up_down_scan_text);
+            resumeScan();
 
         } else {
             Log.v(TAG,"ScanningWorkflow finished for person "+person.getSurname());
@@ -322,6 +353,21 @@ public class RecorderActivity extends Activity {
         });
     }
 
+    private void pauseScan() {
+        container.setVisibility(View.VISIBLE);
+        mCameraSurfaceView.setVisibility(View.INVISIBLE);
+        mOverlaySurfaceView.setVisibility(View.INVISIBLE);
+        mDisplayTextView.setVisibility(View.INVISIBLE);
+        fab.setVisibility(View.INVISIBLE);
+    }
+
+    private void resumeScan() {
+        container.setVisibility(View.INVISIBLE);
+        mCameraSurfaceView.setVisibility(View.VISIBLE);
+        mOverlaySurfaceView.setVisibility(View.VISIBLE);
+        mDisplayTextView.setVisibility(View.VISIBLE);
+        fab.setVisibility(View.VISIBLE);
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -336,8 +382,8 @@ public class RecorderActivity extends Activity {
 
         mCameraSurfaceView = findViewById(R.id.surfaceview);
         mOverlaySurfaceView = findViewById(R.id.overlaySurfaceView);
-
         mDisplayTextView = findViewById(R.id.display_textview);
+        container = findViewById(R.id.container);
 
 
 

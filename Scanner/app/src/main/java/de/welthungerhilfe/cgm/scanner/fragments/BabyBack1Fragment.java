@@ -48,7 +48,7 @@ public class BabyBack1Fragment extends Fragment implements View.OnClickListener 
         View view = inflater.inflate(R.layout.fragment_baby_back1, container, false);
 
         view.findViewById(R.id.btnNext).setOnClickListener(this);
-        ((TextView)view.findViewById(R.id.txtHeight)).setText(Float.toString(height));
+        //((TextView)view.findViewById(R.id.txtHeight)).setText(Float.toString(height));
 
         return view;
     }

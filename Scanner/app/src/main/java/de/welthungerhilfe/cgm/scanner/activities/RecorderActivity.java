@@ -27,7 +27,6 @@ import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.hardware.display.DisplayManager;
 import android.net.Uri;
 import android.opengl.GLSurfaceView;
@@ -40,13 +39,11 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.View;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -74,7 +71,6 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
-import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Semaphore;
@@ -159,7 +155,7 @@ public class RecorderActivity extends Activity {
     private String mNowTimeString;
     private String mQrCode;
 
-    private int step = 0;
+    private int mScanningWorkflowStep = 0;
     // TODO Fragments?
     private final String BABY_FRONT_0 = "baby_front_0";
     private final String BABY_FRONT_1 = "baby_front_1";
@@ -176,49 +172,50 @@ public class RecorderActivity extends Activity {
 
     // Workflow
     public void gotoNextStep(int babyInfantChoice) {
-        step = babyInfantChoice+1;
+        mScanningWorkflowStep = babyInfantChoice+1;
 
         gotoNextStep();
     }
     public void gotoNextStep() {
-        // step 0 = choose between infant standing up and baby lying down
-        // step 100+ = baby
-        // step 200+ = infant
+        // mScanningWorkflowStep 0 = choose between infant standing up and baby lying down
+        // mScanningWorkflowStep 100+ = baby
+        // mScanningWorkflowStep 200+ = infant
         // onBoarding steps are odd, scanning process steps are even 0,2,4,6
         // TODO steps are done when a certain number of points with certain confidence have been collected
 
         FragmentTransaction ft = getFragmentManager().beginTransaction();
 
-        if (Verbose) Log.v("ScanningWorkflow","starting step: "+step);
-        if (step == AppConstants.CHOOSE_BABY_OR_INFANT) {
+        if (Verbose) Log.v("ScanningWorkflow","starting mScanningWorkflowStep: "+ mScanningWorkflowStep);
+        if (mScanningWorkflowStep == AppConstants.CHOOSE_BABY_OR_INFANT) {
             measure = new Measure();
             measure.setDate(mNowTime);
             BabyInfantChooserFragment babyInfantChooserFragment = new BabyInfantChooserFragment();
             ft.add(R.id.container, babyInfantChooserFragment);
             ft.commit();
 
-        } else if (step == AppConstants.BABY_ONBOARDING_FULL_BODY_FRONT_SCAN) {
+        } else if (mScanningWorkflowStep == AppConstants.BABY_ONBOARDING_FULL_BODY_FRONT_SCAN) {
             babyFront0Fragment = new BabyFront0Fragment();
             ft.replace(R.id.container, babyFront0Fragment, BABY_FRONT_0);
             ft.commit();
             measure.setType("b_v1.0");
 
-        } else if (step == AppConstants.BABY_FULL_BODY_FRONT_SCAN) {
+        } else if (mScanningWorkflowStep == AppConstants.BABY_FULL_BODY_FRONT_SCAN) {
             mCameraSurfaceView.setVisibility(View.VISIBLE);
             mOverlaySurfaceView.setVisibility(View.VISIBLE);
+            mDisplayTextView.setVisibility(View.VISIBLE);
             fab.setVisibility(View.VISIBLE);
             mDisplayTextView.setText(R.string.baby_full_body_front_scan_text);
 
-        } else if (step == AppConstants.BABY_ONBOARDING_LEFT_RIGHT_SCAN) {
+        } else if (mScanningWorkflowStep == AppConstants.BABY_ONBOARDING_LEFT_RIGHT_SCAN) {
             mDisplayTextView.setText(R.string.empty_string);
             babyBack0Fragment = new BabyBack0Fragment();
             ft.replace(R.id.container, babyBack0Fragment, BABY_BACK_0);
             ft.commit();
 
 
-        } else if (step == AppConstants.BABY_LEFT_RIGHT_SCAN) {
+        } else if (mScanningWorkflowStep == AppConstants.BABY_LEFT_RIGHT_SCAN) {
             mDisplayTextView.setText(R.string.baby_left_right_scan_text);
-
+/*
             scanDialogViewHolder = new ViewHolder(R.layout.dialog_scan_result);
             scanResultDialog = DialogPlus.newDialog(getApplicationContext())
                     .setContentHolder(scanDialogViewHolder)
@@ -231,7 +228,7 @@ public class RecorderActivity extends Activity {
                             switch (view.getId()) {
                                 case R.id.txtRepeat:
                                     dialog.dismiss();
-                                    step = AppConstants.BABY_ONBOARDING_LEFT_RIGHT_SCAN;
+                                    mScanningWorkflowStep = AppConstants.BABY_ONBOARDING_LEFT_RIGHT_SCAN;
 
                                     waitScanResult();
                                     break;
@@ -243,56 +240,59 @@ public class RecorderActivity extends Activity {
                         }
                     })
                     .create();
-
-        } else if (step == AppConstants.BABY_ONBOARDING_FULL_BODY_BACK_SCAN) {
+*/
+        } else if (mScanningWorkflowStep == AppConstants.BABY_ONBOARDING_FULL_BODY_BACK_SCAN) {
             mDisplayTextView.setText(R.string.empty_string);
             babyBack1Fragment = new BabyBack1Fragment();
             ft.replace(R.id.container, babyBack1Fragment, BABY_BACK_1);
             ft.commit();
 
-        } else if (step == AppConstants.BABY_FULL_BODY_BACK_SCAN) {
+        } else if (mScanningWorkflowStep == AppConstants.BABY_FULL_BODY_BACK_SCAN) {
             mDisplayTextView.setText(R.string.baby_full_body_back_scan_text);
 
 /*
 
  */
         // INFANT
-        } else if (step == AppConstants.INFANT_ONBOARDING_FULL_BODY_FRONT_SCAN) {
+        } else if (mScanningWorkflowStep == AppConstants.INFANT_ONBOARDING_FULL_BODY_FRONT_SCAN) {
             mDisplayTextView.setText(R.string.empty_string);
             fab.setVisibility(View.VISIBLE);
 
-        } else if (step == AppConstants.INFANT_FULL_BODY_FRONT_SCAN) {
+        } else if (mScanningWorkflowStep == AppConstants.INFANT_FULL_BODY_FRONT_SCAN) {
             container.setVisibility(View.INVISIBLE);
             mCameraSurfaceView.setVisibility(View.VISIBLE);
             mOverlaySurfaceView.setVisibility(View.VISIBLE);
+            mDisplayTextView.setVisibility(View.VISIBLE);
             fab.setVisibility(View.VISIBLE);
             mDisplayTextView.setText(R.string.infant_full_body_front_scan_text);
 
-        } else if (step == AppConstants.INFANT_ONBOARDING_360_TURN_SCAN) {
+        } else if (mScanningWorkflowStep == AppConstants.INFANT_ONBOARDING_360_TURN_SCAN) {
             mDisplayTextView.setText(R.string.empty_string);
 
-        } else if (step == AppConstants.INFANT_360_TURN_SCAN) {
+        } else if (mScanningWorkflowStep == AppConstants.INFANT_360_TURN_SCAN) {
             mDisplayTextView.setText(R.string.infant_360_turn_scan_text);
 
-        } else if (step == AppConstants.INFANT_ONBOARDING_FRONT_UP_DOWN_SCAN) {
+        } else if (mScanningWorkflowStep == AppConstants.INFANT_ONBOARDING_FRONT_UP_DOWN_SCAN) {
             mDisplayTextView.setText(R.string.empty_string);
 
-        } else if (step == AppConstants.INFANT_ONBOARDING_FRONT_UP_DOWN_SCAN) {
+        } else if (mScanningWorkflowStep == AppConstants.INFANT_ONBOARDING_FRONT_UP_DOWN_SCAN) {
             mDisplayTextView.setText(R.string.infant_front_up_down_scan_text);
 
-        } else if (step == AppConstants.INFANT_ONBOARDING_BACK_UP_DOWN_SCAN) {
+        } else if (mScanningWorkflowStep == AppConstants.INFANT_ONBOARDING_BACK_UP_DOWN_SCAN) {
             mDisplayTextView.setText(R.string.empty_string);
 
-        } else if (step == AppConstants.INFANT_BACK_UP_DOWN_SCAN) {
+        } else if (mScanningWorkflowStep == AppConstants.INFANT_BACK_UP_DOWN_SCAN) {
             mDisplayTextView.setText(R.string.infant_back_up_down_scan_text);
 
         } else {
+            Log.v(TAG,"ScanningWorkflow finished for person "+person.getSurname());
             Intent i = new Intent(getApplicationContext(), CreateDataActivity.class);
             i.putExtra(AppConstants.EXTRA_PERSON, person);
             startActivity(i);
         }
-        step ++;
-        if (Verbose) Log.v("ScanningWorkflow","next step: "+step);
+        mScanningWorkflowStep++;
+        if (!onboarding) mScanningWorkflowStep++;
+        if (Verbose) Log.v("ScanningWorkflow","next mScanningWorkflowStep: "+ mScanningWorkflowStep);
     }
 
     private ViewHolder scanDialogViewHolder;

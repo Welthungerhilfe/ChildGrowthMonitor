@@ -343,7 +343,7 @@ public class MainActivity extends BaseActivity implements RecyclerDataAdapter.On
         DateRangePickerDialog dateRangePicker = new DateRangePickerDialog();
         dateRangePicker.setCallback(this);
         dateRangePicker.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
-        dateRangePicker.show(getSupportFragmentManager(), "DATE_RANGE_PICKER");
+        dateRangePicker.show(getFragmentManager(), "DATE_RANGE_PICKER");
     }
 
     private void doSortByLocation() {

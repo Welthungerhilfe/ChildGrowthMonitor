@@ -29,35 +29,31 @@ dependencies {
     //noinspection GradleCompatible
     implementation 'com.android.support:appcompat-v7:26.1.0'
     implementation 'com.android.support:design:26.1.0'
-
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
-    compile 'com.balysv:material-ripple:1.0.2'
-    compile 'com.orhanobut:dialogplus:1.11@aar'
+    implementation 'com.balysv:material-ripple:1.0.2'
+    implementation 'com.orhanobut:dialogplus:1.11@aar'
     implementation 'com.github.PhilJay:MPAndroidChart:v3.0.3'
-    compile 'com.jakewharton:butterknife:8.8.1'
+    implementation 'com.jakewharton:butterknife:8.8.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
     implementation 'com.appeaser.sublimepickerlibrary:sublimepickerlibrary:2.1.1'
-
     implementation 'com.github.bumptech.glide:glide:3.7.0'
-
-    compile 'me.dm7.barcodescanner:zxing:1.9'
-
-    compile 'org.greenrobot:eventbus:3.1.1'
-
+    implementation 'me.dm7.barcodescanner:zxing:1.9'
+    implementation 'org.greenrobot:eventbus:3.1.1'
     implementation 'com.jaredrummler:material-spinner:1.2.4'
-
     implementation 'com.google.firebase:firebase-auth:11.8.0'
     implementation 'com.google.firebase:firebase-storage:11.8.0'
     implementation 'com.google.firebase:firebase-firestore:11.8.0'
     implementation 'com.google.android.gms:play-services-maps:11.8.0'
-    compile('com.crashlytics.sdk.android:crashlytics:2.9.0@aar') {
+    implementation('com.crashlytics.sdk.android:crashlytics:2.9.0@aar') {
         transitive = true
     }
-    compile 'com.google.firebase:firebase-core:11.8.0'
-    compile 'com.google.tango:sdk-base:1.54'
-    compile 'com.google.tango:support-base:1.54'
+    implementation 'com.google.firebase:firebase-core:11.8.0'
+    implementation 'com.google.tango:sdk-base:1.54'
+    implementation 'com.google.tango:support-base:1.54'
+    // for FragmentPagerAdapter
+    implementation 'com.android.support:support-v13:26.1.0'
 }
 apply plugin: 'com.google.gms.google-services'

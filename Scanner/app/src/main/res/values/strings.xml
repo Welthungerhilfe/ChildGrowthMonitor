@@ -46,8 +46,8 @@
     <string name="label_login">Please log-in:</string>
     <string name="user">User</string>
     <string name="password">Password</string>
-    <string name="name">name</string>
-    <string name="prename">prename</string>
+    <string name="name">last name</string>
+    <string name="prename">name</string>
     <string name="location">location</string>
     <string name="birth">birth</string>
     <string name="age">age (in month)</string>

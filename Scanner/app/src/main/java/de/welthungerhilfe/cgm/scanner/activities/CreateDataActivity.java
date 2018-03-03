@@ -163,7 +163,7 @@ public class CreateDataActivity extends BaseActivity {
     }
 
     private void initUI() {
-        FragmentAdapter adapter = new FragmentAdapter(getSupportFragmentManager());
+        FragmentAdapter adapter = new FragmentAdapter(getFragmentManager());
         adapter.addFragment(personalFragment, "PERSONAL");
         adapter.addFragment(measureFragment, "MEASURES");
         adapter.addFragment(growthFragment, "GROWTH");
@@ -303,7 +303,7 @@ public class CreateDataActivity extends BaseActivity {
                                 });
 
                         // Start measuring
-                        Intent intent = new Intent(CreateDataActivity.this, RecorderActivity.class);
+                        Intent intent =new Intent(CreateDataActivity.this, RecorderActivity.class);
                         intent.putExtra(AppConstants.EXTRA_PERSON, person);
                         startActivity(intent);
                     }

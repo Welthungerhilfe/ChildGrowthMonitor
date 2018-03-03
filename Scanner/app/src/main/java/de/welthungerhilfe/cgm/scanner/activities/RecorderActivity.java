@@ -369,13 +369,30 @@ public class RecorderActivity extends Activity {
         fab.setVisibility(View.VISIBLE);
     }
 
+    /**
+     * Overridable  method to get layout id.  Any provided layout needs to include
+     * the same views (or compatible) as active_play_movie_surface
+     *
+     */
+    protected int getContentViewId() {
+        return R.layout.activity_recorder;
+    }
+
+    /*
+     * get path to video output
+     */
+    protected File getVideoOutputFile ()
+    {
+        return mVideoOutputFile;
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         person = (Person) getIntent().getSerializableExtra(AppConstants.EXTRA_PERSON);
         if (person == null) Log.e(TAG,"person was null!");
-        setContentView(R.layout.activity_recorder);
+        setContentView(getContentViewId());
         gotoNextStep();
 
         //ButterKnife.bind(this);

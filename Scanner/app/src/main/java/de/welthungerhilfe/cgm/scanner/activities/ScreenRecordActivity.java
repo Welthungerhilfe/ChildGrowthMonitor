@@ -81,6 +81,16 @@ public class ScreenRecordActivity extends RecorderActivity {
     return R.layout.activity_recorder;
   }
 
+  @Override
+  protected void measurementFinished ()
+  {
+      if (recordingStarted)
+      {
+          stopRecording();
+          recordingStarted = false;
+      }
+  }
+
   @TargetApi(Build.VERSION_CODES.M)
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -178,7 +188,9 @@ public class ScreenRecordActivity extends RecorderActivity {
   protected void onDestroy ()
   {
     super.onDestroy();
-    stopRecording();
+    if(recordingStarted) {
+        stopRecording();
+    }
   }
 
   @Override

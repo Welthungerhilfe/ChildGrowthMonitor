@@ -324,6 +324,7 @@ public class RecorderActivity extends Activity {
 
             
         } else {
+            measurementFinished();
             Log.v(TAG,"ScanningWorkflow finished for person "+person.getSurname());
             Intent i = new Intent(getApplicationContext(), CreateDataActivity.class);
             i.putExtra(AppConstants.EXTRA_PERSON, person);
@@ -392,6 +393,11 @@ public class RecorderActivity extends Activity {
     protected File getVideoOutputFile ()
     {
         return mVideoOutputFile;
+    }
+
+    protected void measurementFinished ()
+    {
+
     }
 
     @Override

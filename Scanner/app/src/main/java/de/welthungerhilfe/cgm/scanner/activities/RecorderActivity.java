@@ -1,3 +1,23 @@
+
+/**
+ * Child Growth Monitor - quick and accurate data on malnutrition
+ * Copyright (c) 2018 Markus Matiaschek <mmatiaschek@gmail.com>
+ * Copyright (c) 2018 Welthungerhilfe Innovation
+ * <p>
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package de.welthungerhilfe.cgm.scanner.activities;
 
 import android.Manifest;
@@ -54,6 +74,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import de.welthungerhilfe.cgm.scanner.R;
 import de.welthungerhilfe.cgm.scanner.helper.AppConstants;
+import de.welthungerhilfe.cgm.scanner.models.Measure;
 import de.welthungerhilfe.cgm.scanner.models.Person;
 import de.welthungerhilfe.cgm.scanner.tango.CameraSurfaceRenderer;
 import de.welthungerhilfe.cgm.scanner.tango.ModelMatCalculator;
@@ -63,24 +84,6 @@ import de.welthungerhilfe.cgm.scanner.utils.ZipWriter;
 
 import static com.projecttango.tangosupport.TangoSupport.initialize;
 
-/**
- * Child Growth Monitor - quick and accurate data on malnutrition
- * Copyright (c) 2018 Markus Matiaschek <mmatiaschek@gmail.com>
- * Copyright (c) 2018 Welthungerhilfe Innovation
- * <p>
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * <p>
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * <p>
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
 public class RecorderActivity extends Activity {
 
     private static GLSurfaceView mCameraSurfaceView;
@@ -134,13 +137,96 @@ public class RecorderActivity extends Activity {
     boolean mIsRecording;
 
     private Person person;
+    private Measure measure;
     private LinearLayout mBodySelectLayout;
     private FloatingActionButton fab;
 
     private File mScanArtefactsOutputFolder;
     private String mPointCloudSaveFolderPath;
+    private long mNowTime;
     private String mNowTimeString;
     private String mQrCode;
+
+    private int step = 0;
+
+    // TODO: make available in Settings
+    private boolean onboarding = true;
+
+    // Workflow
+    public void gotoNextStep() {
+        // step 0 = choose between infant standing up and baby lying down
+        // step 100+ = baby
+        // step 200+ = infant
+        // onBoarding steps are odd, scanning process steps are even 0,2,4,6
+        // TODO steps are done when a certain number of points with certain confidence have been collected
+        Log.v("ScanningWorkflow","starting step: "+step);
+        if (step == AppConstants.CHOOSE_BABY_OR_INFANT) {
+            // starting configuration - choose scanning process
+            measure = new Measure();
+            measure.setDate(mNowTime);
+
+        } else if (step == AppConstants.BABY_ONBOARDING_FULL_BODY_FRONT_SCAN) {
+            measure.setType("b_v1.0");
+            fab.setVisibility(View.VISIBLE);
+            
+        } else if (step == AppConstants.BABY_FULL_BODY_FRONT_SCAN) {
+            mBodySelectLayout.setVisibility(View.INVISIBLE);
+            mCameraSurfaceView.setVisibility(View.VISIBLE);
+            mOverlaySurfaceView.setVisibility(View.VISIBLE);
+            fab.setVisibility(View.VISIBLE);
+            mDisplayTextView.setText(R.string.baby_full_body_front_scan_text);
+
+        } else if (step == AppConstants.BABY_ONBOARDING_LEFT_RIGHT_SCAN) {
+            mDisplayTextView.setText(R.string.empty_string);
+
+        } else if (step == AppConstants.BABY_LEFT_RIGHT_SCAN) {
+            mDisplayTextView.setText(R.string.baby_left_right_scan_text);
+
+        } else if (step == AppConstants.BABY_ONBOARDING_FULL_BODY_BACK_SCAN) {
+            mDisplayTextView.setText(R.string.empty_string);
+
+        } else if (step == AppConstants.BABY_FULL_BODY_BACK_SCAN) {
+            mDisplayTextView.setText(R.string.baby_full_body_back_scan_text);
+
+
+        // INFANT
+        } else if (step == AppConstants.INFANT_ONBOARDING_FULL_BODY_FRONT_SCAN) {
+            mDisplayTextView.setText(R.string.empty_string);
+            fab.setVisibility(View.VISIBLE);
+
+        } else if (step == AppConstants.INFANT_FULL_BODY_FRONT_SCAN) {
+            mBodySelectLayout.setVisibility(View.INVISIBLE);
+            mCameraSurfaceView.setVisibility(View.VISIBLE);
+            mOverlaySurfaceView.setVisibility(View.VISIBLE);
+            fab.setVisibility(View.VISIBLE);
+            mDisplayTextView.setText(R.string.infant_full_body_front_scan_text);
+
+        } else if (step == AppConstants.INFANT_ONBOARDING_360_TURN_SCAN) {
+            mDisplayTextView.setText(R.string.empty_string);
+
+        } else if (step == AppConstants.INFANT_360_TURN_SCAN) {
+            mDisplayTextView.setText(R.string.infant_360_turn_scan_text);
+
+        } else if (step == AppConstants.INFANT_ONBOARDING_FRONT_UP_DOWN_SCAN) {
+            mDisplayTextView.setText(R.string.empty_string);
+
+        } else if (step == AppConstants.INFANT_ONBOARDING_FRONT_UP_DOWN_SCAN) {
+            mDisplayTextView.setText(R.string.infant_front_up_down_scan_text);
+
+        } else if (step == AppConstants.INFANT_ONBOARDING_BACK_UP_DOWN_SCAN) {
+            mDisplayTextView.setText(R.string.empty_string);
+
+        } else if (step == AppConstants.INFANT_BACK_UP_DOWN_SCAN) {
+            mDisplayTextView.setText(R.string.infant_back_up_down_scan_text);
+
+        } else {
+            Intent i = new Intent(getApplicationContext(), CreateDataActivity.class);
+            i.putExtra(AppConstants.EXTRA_PERSON, person);
+            startActivity(i);
+        }
+        step ++;
+        Log.v("ScanningWorkflow","next step: "+step);
+    }
 
 
     @Override
@@ -150,6 +236,7 @@ public class RecorderActivity extends Activity {
         person = (Person) getIntent().getSerializableExtra(AppConstants.EXTRA_PERSON);
         if (person == null) Log.e(TAG,"person was null!");
         setContentView(R.layout.activity_recorder);
+        gotoNextStep();
 
         ButterKnife.bind(this);
 
@@ -173,10 +260,7 @@ public class RecorderActivity extends Activity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                Intent i = new Intent(getApplicationContext(), CreateDataActivity.class);
-                i.putExtra(AppConstants.EXTRA_PERSON, person);
-                startActivity(i);
+                gotoNextStep();
             }
         });
 
@@ -211,7 +295,8 @@ public class RecorderActivity extends Activity {
         mutex_on_mIsRecording = new Semaphore(1,true);
         mIsRecording = false;
 
-        mNowTimeString = String.valueOf(System.currentTimeMillis());//String.valueOf(person.getCreated());
+        mNowTime = System.currentTimeMillis();
+        mNowTimeString = String.valueOf(mNowTime);
         mQrCode = person.getQrcode();
         File extFileDir = getExternalFilesDir(Environment.getDataDirectory().getAbsolutePath());
         File personalFilesDir = new File(extFileDir,mQrCode+"/");
@@ -242,17 +327,13 @@ public class RecorderActivity extends Activity {
 
     @OnClick(R.id.btnBaby)
     void scanBaby(Button btnBaby) {
-        mBodySelectLayout.setVisibility(View.INVISIBLE);
-        mCameraSurfaceView.setVisibility(View.VISIBLE);
-        mOverlaySurfaceView.setVisibility(View.VISIBLE);
-        fab.setVisibility(View.VISIBLE);
+        step = AppConstants.LYING_BABY_SCAN+1;
+        gotoNextStep();
     }
     @OnClick(R.id.btnInfant)
     void scanInfant(Button btnInfant) {
-        mBodySelectLayout.setVisibility(View.INVISIBLE);
-        mCameraSurfaceView.setVisibility(View.VISIBLE);
-        mOverlaySurfaceView.setVisibility(View.VISIBLE);
-        fab.setVisibility(View.VISIBLE);
+        step = AppConstants.STANDING_INFANT_SCAN+1;
+        gotoNextStep();
     }
 
     public static boolean hasPermissions(Context context, String... permissions) {
@@ -481,12 +562,14 @@ public class RecorderActivity extends Activity {
                 stringBuilder.append(" confidence: " + average[1]);
                 final String pointCloudString = stringBuilder.toString();
                 //Log.i(TAG, pointCloudString);
+                /*
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         mDisplayTextView.setText(pointCloudString);
                     }
                 });
+                */
                 mOverlaySurfaceView.setDistance(average[0]);
                 mOverlaySurfaceView.setConfidence(average[1]);
 
@@ -622,11 +705,12 @@ public class RecorderActivity extends Activity {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        /*
         mIsRecording = !mIsRecording;
         if (mIsRecording) {
-            fab.setBackgroundColor(Color.RED);
+            fab.setColorFilter(Color.RED);
         } else {
-            fab.setBackgroundColor(Color.GREEN);
+            fab.setColorFilter(Color.GREEN);
         }
         record_SwitchChanged();
         mCameraSurfaceView.queueEvent(new Runnable() {
@@ -635,6 +719,7 @@ public class RecorderActivity extends Activity {
                 mRenderer.changeRecordingState(mIsRecording);
             }
         });
+        */
         Toast.makeText(this.getApplicationContext(), "Recording: "+mIsRecording+"!! :)", Toast.LENGTH_SHORT).show();
         return true;
     }
@@ -657,6 +742,7 @@ public class RecorderActivity extends Activity {
             }
         });
     }
+
 
     // TODO: attribute Apache License 2.0 from Google or remove
     /**

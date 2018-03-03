@@ -67,7 +67,14 @@
     <string name="next">Save</string>
     <string name="no_location">Last scan is not available</string>
 
-
+    <string name="baby_full_body_front_scan_text">1/3. Front</string>
+    <string name="baby_left_right_scan_text">2/3. Left-Right</string>
+    <string name="baby_full_body_back_scan_text">3/3. Back</string>
+    <string name="infant_full_body_front_scan_text">1/4. Front</string>
+    <string name="infant_360_turn_scan_text">2/4. Turn around</string>
+    <string name="infant_front_up_down_scan_text">3/4. Front Up-Down</string>
+    <string name="infant_back_up_down_scan_text">4/4. Back Up-Down</string>
+    <string name="empty_string"></string>
     <!-- drawer -->
     <string name="drawer_open">Open</string>
     <string name="drawer_close">Close</string>

@@ -46,4 +46,24 @@ public class AppConstants {
     public static final String EXTRA_RADIUS = "extra_radius";
     public static final String EXTRA_PERSON_LIST = "extra_person_list";
     public static final String EXTRA_PERSON = "extra_person";
+
+    // Workflow
+    public static final int CHOOSE_BABY_OR_INFANT = 0;
+    public static final int LYING_BABY_SCAN = 100;
+    public static final int BABY_ONBOARDING_FULL_BODY_FRONT_SCAN = 101;
+    public static final int BABY_FULL_BODY_FRONT_SCAN = 102;
+    public static final int BABY_ONBOARDING_LEFT_RIGHT_SCAN = 103;
+    public static final int BABY_LEFT_RIGHT_SCAN = 104;
+    public static final int BABY_ONBOARDING_FULL_BODY_BACK_SCAN = 105;
+    public static final int BABY_FULL_BODY_BACK_SCAN = 106;
+    public static final int STANDING_INFANT_SCAN = 200;
+    public static final int INFANT_ONBOARDING_FULL_BODY_FRONT_SCAN = 201;
+    public static final int INFANT_FULL_BODY_FRONT_SCAN = 202;
+    public static final int INFANT_ONBOARDING_360_TURN_SCAN = 203;
+    public static final int INFANT_360_TURN_SCAN = 204;
+    public static final int INFANT_ONBOARDING_FRONT_UP_DOWN_SCAN = 205;
+    public static final int INFANT_FRONT_UP_DOWN_SCAN = 206;
+    public static final int INFANT_ONBOARDING_BACK_UP_DOWN_SCAN = 207;
+    public static final int INFANT_BACK_UP_DOWN_SCAN = 208;
+
 }

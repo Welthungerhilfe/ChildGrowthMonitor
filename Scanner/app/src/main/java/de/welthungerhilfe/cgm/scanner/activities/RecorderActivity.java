@@ -209,6 +209,7 @@ public class RecorderActivity extends Activity {
             ft.commit();
 
         } else if (mScanningWorkflowStep == AppConstants.BABY_ONBOARDING_FULL_BODY_FRONT_SCAN) {
+            mOverlaySurfaceView.setMode(OverlaySurface.BABY_OVERLAY);
             babyFront0Fragment = new BabyFront0Fragment();
             ft.replace(R.id.container, babyFront0Fragment, BABY_FRONT_0);
             ft.commit();
@@ -271,6 +272,7 @@ public class RecorderActivity extends Activity {
  */
         // INFANT
         } else if (mScanningWorkflowStep == AppConstants.INFANT_ONBOARDING_FULL_BODY_FRONT_SCAN) {
+            mOverlaySurfaceView.setMode(OverlaySurface.INFANT_OVERLAY);
             mDisplayTextView.setText(R.string.empty_string);
             infantFullFrontFragment = new InfantFullFrontFragment();
             ft.replace(R.id.container, infantFullFrontFragment, INFANT_FULL_FRONT);

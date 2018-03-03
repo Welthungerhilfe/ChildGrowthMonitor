@@ -5,6 +5,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
@@ -40,6 +42,10 @@ public class OverlaySurface extends SurfaceView
         implements SurfaceHolder.Callback, Runnable {
 
 
+    public static final int NO_OVERLAY = 0;
+    public static final int FULL_BODY_OVERLAY = 1;
+    public static final int SCAN_BODY_OVERLAY = 1;
+
     private static final String TAG = OverlaySurface.class.getSimpleName();
     private Context mContext;
     private Bitmap mOverlay;
@@ -54,6 +60,8 @@ public class OverlaySurface extends SurfaceView
 
     private float mConfidence = 1.0f;
     private float mDistance = 1.0f;
+
+    private int mMode = NO_OVERLAY;
 
     Paint mPaint = new Paint();
 
@@ -90,6 +98,11 @@ public class OverlaySurface extends SurfaceView
         holder.setFormat(PixelFormat.TRANSLUCENT);
     }
 
+    public void setMode (int mode)
+    {
+        mMode = mode;
+    }
+
     public void onResumeOverlaySurfaceView(){
         running = true;
         thread = new Thread(this);
@@ -111,15 +124,7 @@ public class OverlaySurface extends SurfaceView
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        /*
-        int id = RecorderActivity.getSurfaceId(holder);
-        if (id < 0) {
-            Log.w(TAG, "surfaceCreated UNKNOWN holder=" + holder);
-        } else {
-            Log.d(TAG, "surfaceCreated #" + id + " holder=" + holder);
 
-        }
-        */
         mOverlay = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.scan_outline_dots);
         isReadyToDraw = true;
     }
@@ -145,7 +150,7 @@ public class OverlaySurface extends SurfaceView
         onPauseOverlaySurfaceView();
     }
 
-    private void drawFullBodyScan() {
+    private void drawOverlay() {
 
         Surface surface = holder.getSurface();
         Canvas canvas = surface.lockCanvas(null);
@@ -159,15 +164,58 @@ public class OverlaySurface extends SurfaceView
             // destination is the where to draw it
             // will be drawn in the center and scaled by the distance
             // because distance to take measurements should be around 1 meter
-            float left = ((canvas.getWidth() - mOverlay.getWidth()* mDistance) / 2);
-            float top = ((canvas.getHeight() - mOverlay.getHeight()*mDistance) / 2);
-            float right = (mOverlay.getWidth()+left) * mDistance;
-            float bottom = (mOverlay.getHeight()+top)*mDistance;
+            float left = ((canvas.getWidth() - mOverlay.getWidth()* mDistance) / 2.0f);
+            float top = ((canvas.getHeight() - mOverlay.getHeight()*mDistance) / 2.0f);
+            float right = (mOverlay.getWidth() * mDistance )+left;
+            float bottom = (mOverlay.getHeight()*mDistance) +top;
             RectF dstRectF = new RectF(left,top,right,bottom);
+
+            setConfidenceColor();
 
             canvas.drawBitmap(mOverlay, srcRect, dstRectF, mPaint);
             surface.unlockCanvasAndPost(canvas);
         }
+    }
+
+
+
+    private void setConfidenceColor() {
+        float[] redColorTransform = {
+                0, 1f, 0, 0, 0,
+                0, 0, 0f, 0, 0,
+                0, 0, 0, 0f, 0,
+                0, 0, 0, 1f, 0};
+
+        float[] greenColorTransform = {
+                0, 0, 0, 0, 0,
+                0, 1f, 0f, 0, 0,
+                0, 0, 0, 0f, 0,
+                0, 0, 0, 1f, 0};
+
+        float[] yellowColorTransform = {
+                0, 1f, 0, 0, 0,
+                0, 1f, 0f, 0, 0,
+                0, 0, 0, 0f, 0,
+                0, 0, 0, 1f, 0};
+
+        ColorMatrix colorMatrix = new ColorMatrix();
+        colorMatrix.setSaturation(0f); //Remove Colour
+
+        if (mConfidence < 0.8 || mDistance <0.6f || mDistance > 1.5f) {
+            colorMatrix.set(redColorTransform); //Apply the Red
+        }
+        else if (mConfidence < 0.95 || mDistance < 0.8f || mDistance > 1.2f)
+        {
+            colorMatrix.set(yellowColorTransform);
+        }
+        else
+        {
+            colorMatrix.set(greenColorTransform);
+        }
+
+        ColorMatrixColorFilter colorFilter = new ColorMatrixColorFilter(colorMatrix);
+
+        mPaint.setColorFilter(colorFilter);
     }
 
     private void drawCenter() {
@@ -190,19 +238,24 @@ public class OverlaySurface extends SurfaceView
         }
     }
 
-    public void setConfidence(float mConfidence) {
-        this.mConfidence = mConfidence;
+    public void setConfidence(float confidence) {
+        this.mConfidence = confidence;
     }
 
-    public void setDistance(float mDistance) {
-        this.mDistance = mDistance;
+    public void setDistance(float distance) {
+        if (distance < 0.5f || Float.isNaN(distance))
+            distance = 0.5f;
+        else if(distance > 2.0f || Float.isInfinite(distance))
+            distance = 2.0f;
+
+        this.mDistance = distance;
     }
 
     @Override
     public void run() {
         while (running ) {
             if(isReadyToDraw) {
-                drawFullBodyScan();
+                drawOverlay ();
                 //drawCenter();
             }
         }

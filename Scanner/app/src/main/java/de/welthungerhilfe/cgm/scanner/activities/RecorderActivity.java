@@ -22,6 +22,8 @@ package de.welthungerhilfe.cgm.scanner.activities;
 
 import android.Manifest;
 import android.app.Activity;
+
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -36,7 +38,9 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
@@ -56,6 +60,9 @@ import com.google.atap.tangoservice.TangoInvalidException;
 import com.google.atap.tangoservice.TangoOutOfDateException;
 import com.google.atap.tangoservice.TangoPointCloudData;
 import com.google.atap.tangoservice.TangoPoseData;
+import com.orhanobut.dialogplus.DialogPlus;
+import com.orhanobut.dialogplus.OnClickListener;
+import com.orhanobut.dialogplus.ViewHolder;
 import com.projecttango.tangosupport.TangoSupport;
 
 import java.io.BufferedOutputStream;
@@ -67,12 +74,17 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
+import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 import de.welthungerhilfe.cgm.scanner.R;
+import de.welthungerhilfe.cgm.scanner.fragments.BabyBack0Fragment;
+import de.welthungerhilfe.cgm.scanner.fragments.BabyBack1Fragment;
+import de.welthungerhilfe.cgm.scanner.fragments.BabyFront0Fragment;
+import de.welthungerhilfe.cgm.scanner.fragments.BabyInfantChooserFragment;
 import de.welthungerhilfe.cgm.scanner.helper.AppConstants;
 import de.welthungerhilfe.cgm.scanner.models.Measure;
 import de.welthungerhilfe.cgm.scanner.models.Person;
@@ -138,7 +150,7 @@ public class RecorderActivity extends Activity {
 
     private Person person;
     private Measure measure;
-    private LinearLayout mBodySelectLayout;
+    private LinearLayout container;
     private FloatingActionButton fab;
 
     private File mScanArtefactsOutputFolder;
@@ -148,29 +160,50 @@ public class RecorderActivity extends Activity {
     private String mQrCode;
 
     private int step = 0;
+    // TODO Fragments?
+    private final String BABY_FRONT_0 = "baby_front_0";
+    private final String BABY_FRONT_1 = "baby_front_1";
+    private final String BABY_BACK_0 = "baby_back_0";
+    private final String BABY_BACK_1 = "baby_back_1";
+    private BabyFront0Fragment babyFront0Fragment;
+    private BabyBack0Fragment babyBack0Fragment;
+    private BabyBack1Fragment babyBack1Fragment;
 
     // TODO: make available in Settings
     private boolean onboarding = true;
 
+    private boolean Verbose = true;
+
     // Workflow
+    public void gotoNextStep(int babyInfantChoice) {
+        step = babyInfantChoice+1;
+
+        gotoNextStep();
+    }
     public void gotoNextStep() {
         // step 0 = choose between infant standing up and baby lying down
         // step 100+ = baby
         // step 200+ = infant
         // onBoarding steps are odd, scanning process steps are even 0,2,4,6
         // TODO steps are done when a certain number of points with certain confidence have been collected
-        Log.v("ScanningWorkflow","starting step: "+step);
+
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+
+        if (Verbose) Log.v("ScanningWorkflow","starting step: "+step);
         if (step == AppConstants.CHOOSE_BABY_OR_INFANT) {
-            // starting configuration - choose scanning process
             measure = new Measure();
             measure.setDate(mNowTime);
+            BabyInfantChooserFragment babyInfantChooserFragment = new BabyInfantChooserFragment();
+            ft.add(R.id.container, babyInfantChooserFragment);
+            ft.commit();
 
         } else if (step == AppConstants.BABY_ONBOARDING_FULL_BODY_FRONT_SCAN) {
+            babyFront0Fragment = new BabyFront0Fragment();
+            ft.replace(R.id.container, babyFront0Fragment, BABY_FRONT_0);
+            ft.commit();
             measure.setType("b_v1.0");
-            fab.setVisibility(View.VISIBLE);
-            
+
         } else if (step == AppConstants.BABY_FULL_BODY_FRONT_SCAN) {
-            mBodySelectLayout.setVisibility(View.INVISIBLE);
             mCameraSurfaceView.setVisibility(View.VISIBLE);
             mOverlaySurfaceView.setVisibility(View.VISIBLE);
             fab.setVisibility(View.VISIBLE);
@@ -178,24 +211,58 @@ public class RecorderActivity extends Activity {
 
         } else if (step == AppConstants.BABY_ONBOARDING_LEFT_RIGHT_SCAN) {
             mDisplayTextView.setText(R.string.empty_string);
+            babyBack0Fragment = new BabyBack0Fragment();
+            ft.replace(R.id.container, babyBack0Fragment, BABY_BACK_0);
+            ft.commit();
+
 
         } else if (step == AppConstants.BABY_LEFT_RIGHT_SCAN) {
             mDisplayTextView.setText(R.string.baby_left_right_scan_text);
 
+            scanDialogViewHolder = new ViewHolder(R.layout.dialog_scan_result);
+            scanResultDialog = DialogPlus.newDialog(getApplicationContext())
+                    .setContentHolder(scanDialogViewHolder)
+                    .setCancelable(false)
+                    .setInAnimation(R.anim.abc_fade_in)
+                    .setOutAnimation(R.anim.abc_fade_out)
+                    .setOnClickListener(new OnClickListener() {
+                        @Override
+                        public void onClick(DialogPlus dialog, View view) {
+                            switch (view.getId()) {
+                                case R.id.txtRepeat:
+                                    dialog.dismiss();
+                                    step = AppConstants.BABY_ONBOARDING_LEFT_RIGHT_SCAN;
+
+                                    waitScanResult();
+                                    break;
+                                case R.id.btnNext:
+                                    dialog.dismiss();
+
+                                    break;
+                            }
+                        }
+                    })
+                    .create();
+
         } else if (step == AppConstants.BABY_ONBOARDING_FULL_BODY_BACK_SCAN) {
             mDisplayTextView.setText(R.string.empty_string);
+            babyBack1Fragment = new BabyBack1Fragment();
+            ft.replace(R.id.container, babyBack1Fragment, BABY_BACK_1);
+            ft.commit();
 
         } else if (step == AppConstants.BABY_FULL_BODY_BACK_SCAN) {
             mDisplayTextView.setText(R.string.baby_full_body_back_scan_text);
 
+/*
 
+ */
         // INFANT
         } else if (step == AppConstants.INFANT_ONBOARDING_FULL_BODY_FRONT_SCAN) {
             mDisplayTextView.setText(R.string.empty_string);
             fab.setVisibility(View.VISIBLE);
 
         } else if (step == AppConstants.INFANT_FULL_BODY_FRONT_SCAN) {
-            mBodySelectLayout.setVisibility(View.INVISIBLE);
+            container.setVisibility(View.INVISIBLE);
             mCameraSurfaceView.setVisibility(View.VISIBLE);
             mOverlaySurfaceView.setVisibility(View.VISIBLE);
             fab.setVisibility(View.VISIBLE);
@@ -225,7 +292,34 @@ public class RecorderActivity extends Activity {
             startActivity(i);
         }
         step ++;
-        Log.v("ScanningWorkflow","next step: "+step);
+        if (Verbose) Log.v("ScanningWorkflow","next step: "+step);
+    }
+
+    private ViewHolder scanDialogViewHolder;
+    private DialogPlus scanResultDialog;
+
+    private void waitScanResult() {
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                showScanResultDialog();
+            }
+        };
+
+        new Timer().schedule(task, 3000);
+    }
+
+    private void showScanResultDialog() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                TextView txtHeight = scanResultDialog.getHolderView().findViewById(R.id.txtHeight);
+
+                txtHeight.setText(Integer.toString(24));
+
+                scanResultDialog.show();
+            }
+        });
     }
 
 
@@ -238,14 +332,14 @@ public class RecorderActivity extends Activity {
         setContentView(R.layout.activity_recorder);
         gotoNextStep();
 
-        ButterKnife.bind(this);
+        //ButterKnife.bind(this);
 
         mCameraSurfaceView = findViewById(R.id.surfaceview);
         mOverlaySurfaceView = findViewById(R.id.overlaySurfaceView);
 
         mDisplayTextView = findViewById(R.id.display_textview);
 
-        mBodySelectLayout = findViewById(R.id.body_select_layout);
+
 
         int PERMISSION_ALL = 1;
         String[] PERMISSIONS = {Manifest.permission.CAMERA,
@@ -254,6 +348,7 @@ public class RecorderActivity extends Activity {
         };
         if(!hasPermissions(this, PERMISSIONS)){
             ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
+            //Activity.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
         }
 
         fab = findViewById(R.id.fab_scan_result);
@@ -323,17 +418,6 @@ public class RecorderActivity extends Activity {
         Log.v(TAG,"mPointCloudSaveFolderPath: "+mPointCloudSaveFolderPath);
         // must be called after setting mVideoOutputFile and sVideoEncoder was created!
         setupRenderer();
-    }
-
-    @OnClick(R.id.btnBaby)
-    void scanBaby(Button btnBaby) {
-        step = AppConstants.LYING_BABY_SCAN+1;
-        gotoNextStep();
-    }
-    @OnClick(R.id.btnInfant)
-    void scanInfant(Button btnInfant) {
-        step = AppConstants.STANDING_INFANT_SCAN+1;
-        gotoNextStep();
     }
 
     public static boolean hasPermissions(Context context, String... permissions) {

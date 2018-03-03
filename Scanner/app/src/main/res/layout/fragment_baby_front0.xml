@@ -49,26 +49,20 @@
             android:layout_weight="1"
             android:src="@drawable/baby"/>
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:src="@drawable/updown"
-            android:tint="@color/colorWhite"/>
-        
     </LinearLayout>
-    
+
     <TextView
         android:id="@+id/txtMessage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/btnStartScan"
         android:layout_marginBottom="30dp"
+        android:gravity="center"
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
-        android:gravity="center"
-        android:text="Start scanning the front side of the baby from top to bottom and back again"
+        android:text="Try to place the child inside of the outline."
         android:textColor="@color/colorWhite"
-        android:textSize="20sp"/>
+        android:textSize="20sp" />
 
     <Button
         android:id="@+id/btnStartScan"

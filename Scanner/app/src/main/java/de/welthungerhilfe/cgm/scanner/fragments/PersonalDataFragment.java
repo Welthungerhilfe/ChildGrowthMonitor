@@ -20,6 +20,8 @@
 package de.welthungerhilfe.cgm.scanner.fragments;
 
 import android.app.Activity;
+import android.app.DialogFragment;
+import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
@@ -27,8 +29,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.AppCompatRadioButton;
 import android.util.Log;
@@ -244,14 +244,14 @@ public class PersonalDataFragment extends Fragment implements View.OnClickListen
                 DateRangePickerDialog pickerDialog = new DateRangePickerDialog();
                 pickerDialog.setCallback(this);
                 pickerDialog.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
-                pickerDialog.show(getActivity().getSupportFragmentManager(), "DATE_RANGE_PICKER");
+                pickerDialog.show(getActivity().getFragmentManager(), "DATE_RANGE_PICKER");
 
                 break;
             case R.id.imgBirth:
                 DateRangePickerDialog dateRangePicker = new DateRangePickerDialog();
                 dateRangePicker.setCallback(this);
                 dateRangePicker.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
-                dateRangePicker.show(getActivity().getSupportFragmentManager(), "DATE_RANGE_PICKER");
+                dateRangePicker.show(getActivity().getFragmentManager(), "DATE_RANGE_PICKER");
 
                 break;
             case R.id.btnNext:

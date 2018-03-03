@@ -19,8 +19,9 @@
 
 package de.welthungerhilfe.cgm.scanner.activities;
 
+import android.app.FragmentTransaction;
 import android.os.Bundle;
-import android.support.v4.app.FragmentTransaction;
+
 import android.support.v7.app.AppCompatActivity;
 
 import org.greenrobot.eventbus.EventBus;
@@ -60,7 +61,7 @@ public class InfantScanActivity extends AppCompatActivity {
         measure = new Measure();
 
         infantFrontFragment = new InfantFrontFragment();
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.add(R.id.container, infantFrontFragment, INFANT_FRONT);
         ft.commit();
     }
@@ -76,7 +77,7 @@ public class InfantScanActivity extends AppCompatActivity {
     }
 
     public void gotoNextStep() {
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
 
         step ++;
 

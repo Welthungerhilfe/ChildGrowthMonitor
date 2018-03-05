@@ -21,10 +21,6 @@ package de.welthungerhilfe.cgm.scanner.helper.events;
 
 import de.welthungerhilfe.cgm.scanner.models.Measure;
 
-/**
- * Created by Emerald on 2/20/2018.
- */
-
 public class MeasureResult {
     private Measure measure;
 

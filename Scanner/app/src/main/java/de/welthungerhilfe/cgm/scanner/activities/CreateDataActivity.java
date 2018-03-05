@@ -177,8 +177,10 @@ public class CreateDataActivity extends BaseActivity {
         if (person == null) {
             if (qrPath == null) {
                 Toast.makeText(CreateDataActivity.this, "Still uploading QR code, please try after a while", Toast.LENGTH_SHORT).show();
+                qrPath="offline";
                 return;
             } else {
+                if (qrPath == "offline") Toast.makeText(CreateDataActivity.this, "Did not upload consent scan because you are offline!", Toast.LENGTH_SHORT).show();
                 isNew = true;
 
                 person = new Person();

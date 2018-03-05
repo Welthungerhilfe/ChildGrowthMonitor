@@ -64,6 +64,8 @@ import com.orhanobut.dialogplus.DialogPlus;
 import com.orhanobut.dialogplus.ViewHolder;
 import com.projecttango.tangosupport.TangoSupport;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -88,6 +90,7 @@ import de.welthungerhilfe.cgm.scanner.fragments.InfantFrontFragment;
 import de.welthungerhilfe.cgm.scanner.fragments.InfantFullFrontFragment;
 import de.welthungerhilfe.cgm.scanner.fragments.InfantTurnFragment;
 import de.welthungerhilfe.cgm.scanner.helper.AppConstants;
+import de.welthungerhilfe.cgm.scanner.helper.events.MeasureResult;
 import de.welthungerhilfe.cgm.scanner.models.Measure;
 import de.welthungerhilfe.cgm.scanner.models.Person;
 import de.welthungerhilfe.cgm.scanner.tango.CameraSurfaceRenderer;
@@ -206,30 +209,39 @@ public class RecorderActivity extends Activity {
 
         if (Verbose) Log.v("ScanningWorkflow","starting mScanningWorkflowStep: "+ mScanningWorkflowStep);
 
-        if (mScanningWorkflowStep == AppConstants.CHOOSE_BABY_OR_INFANT) {
+        if (mScanningWorkflowStep ==            AppConstants.CHOOSE_BABY_OR_INFANT)
+        {
             measure = new Measure();
             measure.setDate(mNowTime);
             BabyInfantChooserFragment babyInfantChooserFragment = new BabyInfantChooserFragment();
             ft.add(R.id.container, babyInfantChooserFragment);
             ft.commit();
+        }
 
-        } else if (mScanningWorkflowStep == AppConstants.BABY_FULL_BODY_FRONT_ONBOARDING) {
+        // BABY
+        else if (mScanningWorkflowStep ==     AppConstants.BABY_FULL_BODY_FRONT_ONBOARDING)
+        {
             mOverlaySurfaceView.setMode(OverlaySurface.BABY_OVERLAY);
             babyFront0Fragment = new BabyFront0Fragment();
             ft.replace(R.id.container, babyFront0Fragment, BABY_FRONT_0);
             ft.commit();
             measure.setType("b_v1.0");
 
-        } else if (mScanningWorkflowStep == AppConstants.BABY_FULL_BODY_FRONT_SCAN) {
+        }
+        else if (mScanningWorkflowStep ==     AppConstants.BABY_FULL_BODY_FRONT_SCAN)
+        {
             mDisplayTextView.setText(R.string.baby_full_body_front_scan_text);
-            //TODO:mOverlaySurfaceView.setIsOverlayScanningProcess(true);
             resumeScan();
 
-        } else if (mScanningWorkflowStep == AppConstants.BABY_FULL_BODY_FRONT_RECORDING) {
+        }
+        else if (mScanningWorkflowStep ==     AppConstants.BABY_FULL_BODY_FRONT_RECORDING)
+        {
             fab.setBackgroundTintList(ColorStateList.valueOf(getColor(R.color.colorPink)));
             mIsRecording = true;
 
-        } else if (mScanningWorkflowStep == AppConstants.BABY_LEFT_RIGHT_ONBOARDING) {
+        }
+        else if (mScanningWorkflowStep ==     AppConstants.BABY_LEFT_RIGHT_ONBOARDING)
+        {
             mDisplayTextView.setText(R.string.empty_string);
             fab.setBackgroundTintList(ColorStateList.valueOf(getColor(R.color.colorGreen)));
             babyBack0Fragment = new BabyBack0Fragment();
@@ -237,16 +249,21 @@ public class RecorderActivity extends Activity {
             ft.commit();
             pauseScan();
 
-
-        } else if (mScanningWorkflowStep == AppConstants.BABY_LEFT_RIGHT_SCAN) {
+        }
+        else if (mScanningWorkflowStep ==     AppConstants.BABY_LEFT_RIGHT_SCAN)
+        {
             mDisplayTextView.setText(R.string.baby_left_right_scan_text);
             resumeScan();
 
-        } else if (mScanningWorkflowStep == AppConstants.BABY_LEFT_RIGHT_RECORDING) {
+        }
+        else if (mScanningWorkflowStep ==     AppConstants.BABY_LEFT_RIGHT_RECORDING)
+        {
             fab.setBackgroundTintList(ColorStateList.valueOf(getColor(R.color.colorPink)));
             mIsRecording = true;
 
-        } else if (mScanningWorkflowStep == AppConstants.BABY_FULL_BODY_BACK_ONBOARDING) {
+        }
+        else if (mScanningWorkflowStep ==     AppConstants.BABY_FULL_BODY_BACK_ONBOARDING)
+        {
             mDisplayTextView.setText(R.string.empty_string);
             fab.setBackgroundTintList(ColorStateList.valueOf(getColor(R.color.colorGreen)));
             babyBack1Fragment = new BabyBack1Fragment();
@@ -254,19 +271,22 @@ public class RecorderActivity extends Activity {
             ft.commit();
             pauseScan();
 
-        } else if (mScanningWorkflowStep == AppConstants.BABY_FULL_BODY_BACK_SCAN) {
+        }
+        else if (mScanningWorkflowStep ==     AppConstants.BABY_FULL_BODY_BACK_SCAN)
+        {
             mDisplayTextView.setText(R.string.baby_full_body_back_scan_text);
             resumeScan();
 
-        } else if (mScanningWorkflowStep == AppConstants.BABY_FULL_BODY_BACK_RECORDING) {
+        }
+        else if (mScanningWorkflowStep ==     AppConstants.BABY_FULL_BODY_BACK_RECORDING)
+        {
             fab.setBackgroundTintList(ColorStateList.valueOf(getColor(R.color.colorPink)));
             mIsRecording = true;
 
-/*
-
- */
         // INFANT
-        } else if (mScanningWorkflowStep == AppConstants.INFANT_FULL_BODY_FRONT_ONBOARDING) {
+        }
+        else if (mScanningWorkflowStep ==     AppConstants.INFANT_FULL_BODY_FRONT_ONBOARDING)
+        {
             mOverlaySurfaceView.setMode(OverlaySurface.INFANT_OVERLAY);
             mDisplayTextView.setText(R.string.empty_string);
             infantFullFrontFragment = new InfantFullFrontFragment();
@@ -274,15 +294,21 @@ public class RecorderActivity extends Activity {
             ft.commit();
             pauseScan();
 
-        } else if (mScanningWorkflowStep == AppConstants.INFANT_FULL_BODY_FRONT_SCAN) {
+        }
+        else if (mScanningWorkflowStep ==     AppConstants.INFANT_FULL_BODY_FRONT_SCAN)
+        {
             mDisplayTextView.setText(R.string.infant_full_body_front_scan_text);
             resumeScan();
 
-        } else if (mScanningWorkflowStep == AppConstants.INFANT_FULL_BODY_FRONT_RECORDING) {
+        }
+        else if (mScanningWorkflowStep ==     AppConstants.INFANT_FULL_BODY_FRONT_RECORDING)
+        {
             fab.setBackgroundTintList(ColorStateList.valueOf(getColor(R.color.colorPink)));
             mIsRecording = true;
 
-        } else if (mScanningWorkflowStep == AppConstants.INFANT_360_TURN_ONBOARDING) {
+        }
+        else if (mScanningWorkflowStep ==     AppConstants.INFANT_360_TURN_ONBOARDING)
+        {
             mDisplayTextView.setText(R.string.empty_string);
             fab.setBackgroundTintList(ColorStateList.valueOf(getColor(R.color.colorGreen)));
             infantTurnFragment = new InfantTurnFragment();
@@ -290,16 +316,22 @@ public class RecorderActivity extends Activity {
             ft.commit();
             pauseScan();
 
-        } else if (mScanningWorkflowStep == AppConstants.INFANT_360_TURN_SCAN) {
+        }
+        else if (mScanningWorkflowStep ==     AppConstants.INFANT_360_TURN_SCAN)
+        {
             mDisplayTextView.setText(R.string.infant_360_turn_scan_text);
             resumeScan();
             mOverlaySurfaceView.setMode(OverlaySurface.INFANT_CLOSE_DOWN_UP_OVERLAY);
 
-        } else if (mScanningWorkflowStep == AppConstants.INFANT_360_TURN_RECORDING) {
+        }
+        else if (mScanningWorkflowStep ==     AppConstants.INFANT_360_TURN_RECORDING)
+        {
             fab.setBackgroundTintList(ColorStateList.valueOf(getColor(R.color.colorPink)));
             mIsRecording = true;
 
-        } else if (mScanningWorkflowStep == AppConstants.INFANT_FRONT_UP_DOWN_ONBOARDING) {
+        }
+        else if (mScanningWorkflowStep ==     AppConstants.INFANT_FRONT_UP_DOWN_ONBOARDING)
+        {
             mDisplayTextView.setText(R.string.empty_string);
             fab.setBackgroundTintList(ColorStateList.valueOf(getColor(R.color.colorGreen)));
             infantFrontFragment = new InfantFrontFragment();
@@ -307,17 +339,23 @@ public class RecorderActivity extends Activity {
             ft.commit();
             pauseScan();
 
-        } else if (mScanningWorkflowStep == AppConstants.INFANT_FRONT_UP_DOWN_SCAN) {
+        }
+        else if (mScanningWorkflowStep ==     AppConstants.INFANT_FRONT_UP_DOWN_SCAN)
+        {
             mDisplayTextView.setText(R.string.infant_front_up_down_scan_text);
             mOverlaySurfaceView.setMode(OverlaySurface.INFANT_CLOSE_DOWN_UP_OVERLAY);
             resumeScan();
 
-        } else if (mScanningWorkflowStep == AppConstants.INFANT_FRONT_UP_DOWN_RECORDING) {
+        }
+        else if (mScanningWorkflowStep ==     AppConstants.INFANT_FRONT_UP_DOWN_RECORDING)
+        {
             fab.setBackgroundTintList(ColorStateList.valueOf(getColor(R.color.colorPink)));
             mOverlaySurfaceView.setMode(OverlaySurface.NO_OVERLAY);
             mIsRecording = true;
 
-        } else if (mScanningWorkflowStep == AppConstants.INFANT_BACK_UP_DOWN_ONBOARDING) {
+        }
+        else if (mScanningWorkflowStep ==     AppConstants.INFANT_BACK_UP_DOWN_ONBOARDING)
+        {
             mDisplayTextView.setText(R.string.empty_string);
             fab.setBackgroundTintList(ColorStateList.valueOf(getColor(R.color.colorGreen)));
             infantBackFragment = new InfantBackFragment();
@@ -325,23 +363,38 @@ public class RecorderActivity extends Activity {
             ft.commit();
             pauseScan();
 
-        } else if (mScanningWorkflowStep == AppConstants.INFANT_BACK_UP_DOWN_SCAN) {
+        }
+        else if (mScanningWorkflowStep ==     AppConstants.INFANT_BACK_UP_DOWN_SCAN)
+        {
             mDisplayTextView.setText(R.string.infant_back_up_down_scan_text);
             mOverlaySurfaceView.setMode(OverlaySurface.INFANT_CLOSE_DOWN_UP_OVERLAY);
             resumeScan();
 
-        } else if (mScanningWorkflowStep == AppConstants.INFANT_BACK_UP_DOWN_RECORDING) {
+        }
+        else if (mScanningWorkflowStep ==     AppConstants.INFANT_BACK_UP_DOWN_RECORDING)
+        {
             fab.setBackgroundTintList(ColorStateList.valueOf(getColor(R.color.colorPink)));
             mOverlaySurfaceView.setMode(OverlaySurface.NO_OVERLAY);
             mIsRecording=true;
 
             
         } else {
+            // TODO: Now needed for screen recording during Pre-Test
+            // TODO: remove when video recording for ML is implemented
             measurementFinished();
+
             Log.v(TAG,"ScanningWorkflow finished for person "+person.getSurname());
-            Intent i = new Intent(getApplicationContext(), CreateDataActivity.class);
-            i.putExtra(AppConstants.EXTRA_PERSON, person);
-            startActivity(i);
+
+            //TODO: set data and location async
+            // location: https://developer.android.com/training/location/retrieve-current.html
+            measure.setDate(System.currentTimeMillis());
+            measure.setType("v0.1");
+            measure.setWeight(0.0f);
+            measure.setHeight(0.0f);
+            measure.setHeadCircumference(0.0f);
+            measure.setMuac(0.0f);
+            EventBus.getDefault().post(new MeasureResult(measure));
+            finish();
         }
         mScanningWorkflowStep++;
         if (!onboarding) mScanningWorkflowStep++;

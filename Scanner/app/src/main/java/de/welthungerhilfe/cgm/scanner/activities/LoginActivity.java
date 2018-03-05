@@ -29,6 +29,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -154,6 +155,7 @@ public class LoginActivity extends BaseActivity {
         if (validate()) {
             String email = editUser.getText().toString();
             String password = editPassword.getText().toString();
+            Crashlytics.setUserIdentifier(email);
 
             showProgressDialog();
 

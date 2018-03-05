@@ -45,6 +45,7 @@ public class OverlaySurface extends SurfaceView
     public static final int NO_OVERLAY = 0;
     public static final int BABY_OVERLAY = 1;
     public static final int INFANT_OVERLAY = 2;
+    public static final int INFANT_CLOSE_DOWN_UP_OVERLAY = 3;
 
     private static final String TAG = OverlaySurface.class.getSimpleName();
     private Context mContext;
@@ -220,6 +221,35 @@ public class OverlaySurface extends SurfaceView
         mPaint.setColorFilter(colorFilter);
     }
 
+    private void drawInfantCloseDownUpOverlay() {
+        //TODO
+        Surface surface = holder.getSurface();
+        Canvas canvas = surface.lockCanvas(null);
+        if (canvas != null) {
+            // clear screen before redrawing
+            canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+
+            int srcWidth = mInfantOverlay.getWidth();
+            int srcHeight = mInfantOverlay.getHeight();
+            Rect srcRect = new Rect(0, 0, srcWidth, srcHeight);
+
+            // destination is the where to draw it
+            // will be drawn in the center and scaled by the distance
+            // because distance to take measurements should be around 1 meter
+            float left = ((canvas.getWidth() - srcWidth* mDistance) / 2.0f);
+            float top = 200;
+            float right = (srcWidth * mDistance )+left;
+            float bottom = ((srcHeight*mDistance) +top)*4;
+            RectF dstRectF = new RectF(left,top,right,bottom);
+
+            setConfidenceColor();
+
+            canvas.drawBitmap(mInfantOverlay, srcRect, dstRectF, mPaint);
+            surface.unlockCanvasAndPost(canvas);
+        }
+
+    }
+
     private void drawInfantOverlay() {
 
         Surface surface = holder.getSurface();
@@ -270,6 +300,9 @@ public class OverlaySurface extends SurfaceView
                 }
                 else if (mMode == INFANT_OVERLAY) {
                     drawInfantOverlay();
+                }
+                else if (mMode== INFANT_CLOSE_DOWN_UP_OVERLAY) {
+                    drawInfantCloseDownUpOverlay();
                 }
             }
         }

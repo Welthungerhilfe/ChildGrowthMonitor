@@ -38,6 +38,8 @@ import android.view.inputmethod.InputMethodManager;
 
 //import com.codetroopers.betterpickers.calendardatepicker.CalendarDatePickerDialogFragment;
 
+import com.crashlytics.android.Crashlytics;
+
 import de.welthungerhilfe.cgm.scanner.R;
 
 import de.welthungerhilfe.cgm.scanner.activities.CreateDataActivity;
@@ -49,13 +51,10 @@ import de.welthungerhilfe.cgm.scanner.helper.AppConstants;
 import de.welthungerhilfe.cgm.scanner.models.Loc;
 import de.welthungerhilfe.cgm.scanner.models.Measure;
 
-/**
- * Created by Emerald on 2/19/2018.
- */
-
 public class MeasuresDataFragment extends Fragment implements View.OnClickListener, ManualMeasureDialog.OnManualMeasureListener {
     private Context context;
-    
+
+
     private RecyclerView recyclerMeasure;
     private RecyclerMeasureAdapter adapterMeasure;
 
@@ -122,6 +121,7 @@ public class MeasuresDataFragment extends Fragment implements View.OnClickListen
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.fabCreate:
+                Crashlytics.log("Add Measure to person");
                 if (((CreateDataActivity)context).person == null) {
                     Snackbar.make(fabCreate, "Please register person first", Snackbar.LENGTH_LONG).show();
                 } else {

@@ -10,6 +10,58 @@
       "client_info": {
         "mobilesdk_app_id": "1:798468686123:android:4bf695689d7e105e",
         "android_client_info": {
+          "package_name": "com.cgm.scanner"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "798468686123-fhhm3jdmhfd9jp885jgd0m4goakt0dkt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.cgm.scanner",
+            "certificate_hash": "a803179d1f772c540bd907ecbdf38d44a019e558"
+          }
+        },
+        {
+          "client_id": "798468686123-masgicqh4crksfmipg5qg725n0213pa2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.cgm.scanner",
+            "certificate_hash": "9bd7c24f2c50d9f327e7562e75504b4a9bfd93fe"
+          }
+        },
+        {
+          "client_id": "798468686123-vlmgvnkp9f2tbvbfq2pgito689a70ghv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD--lzWCAZn8Q9fn7J7Ao6Zw-QPYbUWTqU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "798468686123-vlmgvnkp9f2tbvbfq2pgito689a70ghv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:798468686123:android:739dcaee1e669c8b",
+        "android_client_info": {
           "package_name": "de.welthungerhilfe.cgm.scanner"
         }
       },

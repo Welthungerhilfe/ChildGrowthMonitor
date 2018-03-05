@@ -45,6 +45,7 @@ import android.widget.TextView;
 
 import com.appeaser.sublimepickerlibrary.datepicker.SelectedDate;
 import com.appeaser.sublimepickerlibrary.recurrencepicker.SublimeRecurrencePicker;
+import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentChange;
@@ -83,6 +84,7 @@ public class MainActivity extends BaseActivity implements RecyclerDataAdapter.On
 
     @OnClick(R.id.fabCreate)
     void createData(FloatingActionButton fabCreate) {
+        Crashlytics.log("Add person by QR");
         startActivity(new Intent(MainActivity.this, QRScanActivity.class));
     }
 

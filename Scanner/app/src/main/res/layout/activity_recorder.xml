@@ -26,19 +26,6 @@
     tools:context=".activities.RecorderActivity" >
 
 
-    <TextView
-        android:id="@+id/display_textview"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:shadowColor="@color/text_shadow_white"
-        android:shadowDx="-2"
-        android:shadowDy="-2"
-        android:shadowRadius="1"
-        android:text="Starting..."
-        android:textColor="@color/colorGreen"
-        android:textSize="30sp"
-        android:visibility="visible" />
-
     <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/container"
@@ -67,7 +54,20 @@
             android:visibility="invisible"/>
 
 
-        <android.support.design.widget.FloatingActionButton
+    <TextView
+        android:id="@+id/display_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:shadowColor="@color/text_shadow_white"
+        android:shadowDx="-2"
+        android:shadowDy="-2"
+        android:shadowRadius="1"
+        android:text="Starting..."
+        android:textColor="@color/colorGreen"
+        android:textSize="30sp"
+        android:visibility="visible" />
+
+    <android.support.design.widget.FloatingActionButton
             android:id="@+id/fab_scan_result"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -75,11 +75,14 @@
             android:layout_gravity="bottom|end"
             android:layout_marginBottom="17dp"
             app:srcCompat="@android:drawable/ic_dialog_email"
+            app:backgroundTint="@color/colorGreen"
+            app:rippleColor="@color/colorPink"
             android:layout_marginEnd="16dp"
             android:layout_alignParentEnd="true"
             android:layout_marginRight="16dp"
             android:layout_alignParentRight="true"
-            android:visibility="invisible"/>
+            android:visibility="invisible"
+        />
 
         <!--android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"

@@ -297,7 +297,6 @@ public class RecorderActivity extends Activity {
 
         } else if (mScanningWorkflowStep == AppConstants.INFANT_360_TURN_RECORDING) {
             fab.setBackgroundTintList(ColorStateList.valueOf(getColor(R.color.colorPink)));
-            mOverlaySurfaceView.setMode(OverlaySurface.NO_OVERLAY);
             mIsRecording = true;
 
         } else if (mScanningWorkflowStep == AppConstants.INFANT_FRONT_UP_DOWN_ONBOARDING) {

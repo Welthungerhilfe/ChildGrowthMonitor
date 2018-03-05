@@ -231,6 +231,7 @@ public class RecorderActivity extends Activity {
 
         } else if (mScanningWorkflowStep == AppConstants.BABY_LEFT_RIGHT_ONBOARDING) {
             mDisplayTextView.setText(R.string.empty_string);
+            fab.setBackgroundTintList(ColorStateList.valueOf(getColor(R.color.colorGreen)));
             babyBack0Fragment = new BabyBack0Fragment();
             ft.replace(R.id.container, babyBack0Fragment, BABY_BACK_0);
             ft.commit();
@@ -247,6 +248,7 @@ public class RecorderActivity extends Activity {
 
         } else if (mScanningWorkflowStep == AppConstants.BABY_FULL_BODY_BACK_ONBOARDING) {
             mDisplayTextView.setText(R.string.empty_string);
+            fab.setBackgroundTintList(ColorStateList.valueOf(getColor(R.color.colorGreen)));
             babyBack1Fragment = new BabyBack1Fragment();
             ft.replace(R.id.container, babyBack1Fragment, BABY_BACK_1);
             ft.commit();
@@ -282,6 +284,7 @@ public class RecorderActivity extends Activity {
 
         } else if (mScanningWorkflowStep == AppConstants.INFANT_360_TURN_ONBOARDING) {
             mDisplayTextView.setText(R.string.empty_string);
+            fab.setBackgroundTintList(ColorStateList.valueOf(getColor(R.color.colorGreen)));
             infantTurnFragment = new InfantTurnFragment();
             ft.replace(R.id.container, infantTurnFragment, INFANT_TURN);
             ft.commit();
@@ -294,10 +297,12 @@ public class RecorderActivity extends Activity {
 
         } else if (mScanningWorkflowStep == AppConstants.INFANT_360_TURN_RECORDING) {
             fab.setBackgroundTintList(ColorStateList.valueOf(getColor(R.color.colorPink)));
+            mOverlaySurfaceView.setMode(OverlaySurface.NO_OVERLAY);
             mIsRecording = true;
 
         } else if (mScanningWorkflowStep == AppConstants.INFANT_FRONT_UP_DOWN_ONBOARDING) {
             mDisplayTextView.setText(R.string.empty_string);
+            fab.setBackgroundTintList(ColorStateList.valueOf(getColor(R.color.colorGreen)));
             infantFrontFragment = new InfantFrontFragment();
             ft.replace(R.id.container, infantFrontFragment, INFANT_FRONT);
             ft.commit();
@@ -305,6 +310,7 @@ public class RecorderActivity extends Activity {
 
         } else if (mScanningWorkflowStep == AppConstants.INFANT_FRONT_UP_DOWN_SCAN) {
             mDisplayTextView.setText(R.string.infant_front_up_down_scan_text);
+            mOverlaySurfaceView.setMode(OverlaySurface.INFANT_CLOSE_DOWN_UP_OVERLAY);
             resumeScan();
 
         } else if (mScanningWorkflowStep == AppConstants.INFANT_FRONT_UP_DOWN_RECORDING) {
@@ -314,6 +320,7 @@ public class RecorderActivity extends Activity {
 
         } else if (mScanningWorkflowStep == AppConstants.INFANT_BACK_UP_DOWN_ONBOARDING) {
             mDisplayTextView.setText(R.string.empty_string);
+            fab.setBackgroundTintList(ColorStateList.valueOf(getColor(R.color.colorGreen)));
             infantBackFragment = new InfantBackFragment();
             ft.replace(R.id.container, infantBackFragment, INFANT_BACK);
             ft.commit();

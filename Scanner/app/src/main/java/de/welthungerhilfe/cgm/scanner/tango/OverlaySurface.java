@@ -236,10 +236,10 @@ public class OverlaySurface extends SurfaceView
             // destination is the where to draw it
             // will be drawn in the center and scaled by the distance
             // because distance to take measurements should be around 1 meter
-            float left = ((canvas.getWidth() - srcWidth* mDistance) / 2.0f);
+            float left = ((canvas.getWidth() - srcWidth* mDistance) / 8.0f);
             float top = 200;
-            float right = (srcWidth * mDistance )+left;
-            float bottom = ((srcHeight*mDistance) +top)*4;
+            float right = ((srcWidth * mDistance )+left)*2;
+            float bottom = ((srcHeight*mDistance) +top)*2;
             RectF dstRectF = new RectF(left,top,right,bottom);
 
             setConfidenceColor();
@@ -278,6 +278,18 @@ public class OverlaySurface extends SurfaceView
         }
     }
 
+    private void drawNoOverlay() {
+
+        Surface surface = holder.getSurface();
+        Canvas canvas = surface.lockCanvas(null);
+        if (canvas != null) {
+            // clear screen before redrawing
+            canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+            surface.unlockCanvasAndPost(canvas);
+
+        }
+    }
+
     public void setConfidence(float confidence) {
         this.mConfidence = confidence;
     }
@@ -298,11 +310,16 @@ public class OverlaySurface extends SurfaceView
                 if(mMode == BABY_OVERLAY) {
                     drawBabyOverlay();
                 }
+                else if (mMode == NO_OVERLAY ) {
+                    drawNoOverlay();
+                }
                 else if (mMode == INFANT_OVERLAY) {
                     drawInfantOverlay();
                 }
                 else if (mMode== INFANT_CLOSE_DOWN_UP_OVERLAY) {
                     drawInfantCloseDownUpOverlay();
+                } else {
+                    drawNoOverlay();
                 }
             }
         }

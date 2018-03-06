@@ -37,7 +37,7 @@ public class AppConstants {
     public static final String VAL_SEX_OTHER = "fluid";
 
     public static final String VAL_MEASURE_MANUAL = "manual";
-    public static final String VAL_MEASURE_AUTO = "v1";
+    public static final String VAL_MEASURE_AUTO = "v0.1";
 
     public static final String EXTRA_QR = "extra_qr";
     public static final String EXTRA_QR_BITMAP = "extra_qr_bitmap";

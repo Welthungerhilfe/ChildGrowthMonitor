@@ -388,7 +388,9 @@ public class RecorderActivity extends Activity {
             //TODO: set data and location async
             // location: https://developer.android.com/training/location/retrieve-current.html
             measure.setDate(System.currentTimeMillis());
-            measure.setType("v0.1");
+            long age = (System.currentTimeMillis() - person.getBirthday()) / 1000 / 60 / 60 / 24;
+            measure.setAge(age);
+            measure.setType(AppConstants.VAL_MEASURE_AUTO);
             measure.setWeight(0.0f);
             measure.setHeight(0.0f);
             measure.setHeadCircumference(0.0f);
@@ -404,17 +406,8 @@ public class RecorderActivity extends Activity {
     private ViewHolder scanDialogViewHolder;
     private DialogPlus scanResultDialog;
 
-    private void waitScanResult() {
-        TimerTask task = new TimerTask() {
-            @Override
-            public void run() {
-                showScanResultDialog();
-            }
-        };
-
-        new Timer().schedule(task, 3000);
-    }
-
+    // TODO: show repeat/next dialog after each scan - especially when onboarding=false
+    // TODO: make the user see the gathered point clouds
     private void showScanResultDialog() {
         runOnUiThread(new Runnable() {
             @Override
@@ -473,9 +466,9 @@ public class RecorderActivity extends Activity {
         person = (Person) getIntent().getSerializableExtra(AppConstants.EXTRA_PERSON);
         if (person == null) Log.e(TAG,"person was null!");
         setContentView(getContentViewId());
-        gotoNextStep();
 
-        //ButterKnife.bind(this);
+        // start Workflow
+        gotoNextStep();
 
         mCameraSurfaceView = findViewById(R.id.surfaceview);
         mOverlaySurfaceView = findViewById(R.id.overlaySurfaceView);
@@ -586,7 +579,7 @@ public class RecorderActivity extends Activity {
 
             @Override
             public void preRender() {
-                //Log.d(TAG, "preRender");
+
                 // This is the work that you would do on your main OpenGL render thread.
 
                 // We need to be careful to not run any Tango-dependent code in the OpenGL
@@ -628,19 +621,6 @@ public class RecorderActivity extends Activity {
                             // refer to java_augmented_reality_example and/or
                             // java_augmented_reality_opengl_example projects.
 
-                            // Log and display timestamp for informational purposes.
-                            //Log.d(TAG, "Frame updated. Timestamp: " + rgbTimestamp);
-
-                            // Updating the UI needs to be in a separate thread. Do it through a
-                            // final local variable to avoid concurrency issues.
-                            final String timestampText = String.format(sTimestampFormat,
-                                    rgbTimestamp);
-                            /*runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    mDisplayTextView.setText(timestampText);
-                                }
-                            });*/
                         }
                     }
                 } catch (TangoErrorException e) {
@@ -683,12 +663,7 @@ public class RecorderActivity extends Activity {
                         startupTango();
                         initialize(mTango);
                         mIsConnected = true;
-//                        runOnUiThread(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                mDisplayTextView.setText("scanning...");
-//                            }
-//                        });
+
                         setDisplayRotation();
                     } catch (TangoOutOfDateException e) {
                         Log.e(TAG, getString(R.string.exception_out_of_date), e);
@@ -790,18 +765,7 @@ public class RecorderActivity extends Activity {
                 StringBuilder stringBuilder = new StringBuilder();
                 //stringBuilder.append("Point count: " + pointCloudData.numPoints);
                 float[] average = calculateAveragedDepth(pointCloudData.points, pointCloudData.numPoints);
-                stringBuilder.append("center depth (m): " + average[0]);
-                stringBuilder.append(" confidence: " + average[1]);
-                final String pointCloudString = stringBuilder.toString();
-                //Log.i(TAG, pointCloudString);
-                /*
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mDisplayTextView.setText(pointCloudString);
-                    }
-                });
-                */
+
                 mOverlaySurfaceView.setDistance(average[0]);
                 mOverlaySurfaceView.setConfidence(average[1]);
 
@@ -937,22 +901,6 @@ public class RecorderActivity extends Activity {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        /*
-        mIsRecording = !mIsRecording;
-        if (mIsRecording) {
-            fab.setColorFilter(Color.RED);
-        } else {
-            fab.setColorFilter(Color.GREEN);
-        }
-        record_SwitchChanged();
-        mCameraSurfaceView.queueEvent(new Runnable() {
-            @Override public void run() {
-                // notify the renderer that we want to change the encoder's state
-                mRenderer.changeRecordingState(mIsRecording);
-            }
-        });
-        */
-        Toast.makeText(this.getApplicationContext(), "Recording: "+mIsRecording+"!! :)", Toast.LENGTH_SHORT).show();
         return true;
     }
 

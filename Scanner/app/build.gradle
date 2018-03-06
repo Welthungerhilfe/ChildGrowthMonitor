@@ -53,6 +53,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-core:11.8.0'
     implementation 'com.google.tango:sdk-base:1.54'
     implementation 'com.google.tango:support-base:1.54'
+    implementation 'com.google.firebase:firebase-config:11.8.0'
     // for FragmentPagerAdapter
     implementation 'com.android.support:support-v13:26.1.0'
 }

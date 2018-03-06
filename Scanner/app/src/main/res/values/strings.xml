@@ -46,12 +46,12 @@
     <string name="label_login">Please log-in:</string>
     <string name="user">User</string>
     <string name="password">Password</string>
-    <string name="name">last name</string>
-    <string name="prename">name</string>
-    <string name="location">location</string>
+    <string name="name">family name</string>
+    <string name="guardian">name of guardian</string>
+    <string name="prename">name of child</string>
+    <string name="location">last scan location</string>
     <string name="birth">birth</string>
     <string name="age">age (in month)</string>
-    <string name="guardian">name of guardian</string>
 
     <string name="sex_male">male</string>
     <string name="sex_female">female</string>

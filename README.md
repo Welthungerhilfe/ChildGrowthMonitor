@@ -10,8 +10,7 @@ Contributing to Zero Hunger through quick, accurate data on malnutrition.
 	- [Mobile App](#mobile-app)
 	- [Backend](#backend)
 	- [Machine Learning v1.0](#machine-learning-v10)
-	- [Current Machine Learning solution](#current-machine-learning-solution)
-	- [Machine Learning Dev Process](#machine-learning-dev-process)
+	- [Machine Learning pipeline](#machine-learning-pipeline)
 - [Data](#data)
 - [Scanning Process](#scanning-process)
 	- [Top-Down approach front](#top-down-approach-front)
@@ -95,7 +94,6 @@ Firebase Database is used for structured data.
 Storage is used for large objects such as rgb video and maybe point clouds.
 
 
-
 ### Machine Learning v1.0
 
 There are many possibilties for developing useful neural networks.
@@ -108,7 +106,8 @@ To reconstruct a 3d model of a child or of the skeleton is a non-trivial task us
 
 A promising approach is to input the point clouds, the device pose for camera position and rgb video into different neural networks, to do preprocessing or get the result.
 
-Helpful research has been done in
+Helpful research should be commented here https://github.com/Welthungerhilfe/ChildGrowthMonitor/issues/47
+i.e.:
 - 3d point cloud segmentation through labeling the points
 - building a spatio-temporal graph for human pose detection
 - ... 
@@ -122,82 +121,9 @@ Predicting the weight of a person is the secondary goal to do "traditional" stan
 A promising approach could be to build a classifier to identify health issues.
 Downside to this is that without traditional measurements it is not possible to verify the decisions done by the classifier. 
 
-### Current Machine Learning solution
+### Machine Learning pipeline
 
-#### Human Pose Detection
-
-Video Sequence ->
-1. Body Part Detection
-2. Spatio-Temporal Graph
-3. Inference
--> Pose Tracks
-
-
-#### Person Detection
-
-Bottom Up:
-
-1. fully convolutional Resnet-101 [He et al. 2016]
--> Part Propability Scoremaps (heatmaps)
-aka. where are Shoulders, Knees, Wrists, Feet, ...
-
-2. Discretize Scoremaps with non-maximum suppression (NMS)
-
-TODO: Advantages of Top-Down approach?
-
-#### Pose Estimation
-
-The current resnet with 101 layers detects 12 joints + forehead and chin of a Person
-
-Spatio-Temporal Graph G = (D, E)
-- Part Detections D
-- Spatial edges Es within one Frame
-- Temporal edges Et across frames
-	- Provides Distance Features aka euclidean distance between body parts
-
---> Bottom Up Sparse Part Connectivity
---> Euclidean Distance beetween Body Parts?
-
-#### People Tracking
-
-- ResNet-101
-
-
-### Machine Learning Dev Process
-
-#### Gather data
-
-Gathering the data is done via the mobile app.
-
-#### Data Preparation
-
-*   mix Data
-*   Visualize to find correlations and imbalances between underweight and not...
-*   Split in Training and Evaluation Data
-
-#### Choosing a Model
-
-#### Training
-
-y = m * x + b
-
-output = slope * input + y-intercept
-
-Training m and b
-
-m als Matrix = weights
-b als Matrix = biases
-
-#### Evaluation
-
-80% Training Data
-20% Evaluation Data
-
-#### Parameter Tuning
-
-hyperparameter
-tune initial parameters, training cycles etc.
-when is the result good enough?
+https://github.com/Welthungerhilfe/ChildGrowthMonitor/issues/47
 
 #### Prediction
 

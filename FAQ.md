@@ -39,6 +39,10 @@ We think it is very important that decisions that are supported by artificial in
 
 Currently we are funded by donations, mostly of large companies. Additionally Microsoft provides cloud services and experts. Eventually we want to build this into a sustainable non-profit social business.
 
+## Isn't this contributing to overpopulation?
+
+All scientific evidence points to a simple outcome: If parents have healthy children, they also have less children. By making sure that all children are healthy we contribute to a solution of overpopulation. Also only children who are healthy and can reach their full potential can come up with new solutions to the problems that come with overpopulation, climate change, plastic pollution, etc.
+
 ## Where can i get more information?
 
 - Website: https://childgrowthmonitor.org

@@ -5,7 +5,7 @@ Contributing to Zero Hunger through quick, accurate data on malnutrition.
 
 ## Links
 
-- [Donate!](https://www.welthungerhilfe.org/child-growth-monitor/)
+- [Donate!](https://welthungerhilfe.de/child-growth-monitor-donation)
 - [Frequently Asked Questions](https://github.com/Welthungerhilfe/ChildGrowthMonitor/blob/master/FAQ.md)
 - [Website](https://ChildGrowthMonitor.org)
 - [Web Demo](https://projects.invisionapp.com/share/YPNXXRNVFCK#/)

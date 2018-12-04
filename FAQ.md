@@ -45,6 +45,8 @@ Also we are accepting your donation: https://www.welthungerhilfe.org/child-growt
 
 All scientific evidence points to a simple outcome: If parents have healthy children, they also have less children. By making sure that all children are healthy we contribute to a solution of overpopulation. Also only children who are healthy and can reach their full potential can come up with new solutions to the problems that come with overpopulation, climate change, plastic pollution, etc.
 
+Also see https://www.youtube.com/watch?v=obRG-2jurz0
+
 ## Where can i get more information?
 
 - Website: https://childgrowthmonitor.org

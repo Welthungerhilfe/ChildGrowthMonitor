@@ -25,7 +25,7 @@ Before any data is collected or accessed a informed consent sheet, signed by the
 
 ## How can i contribute?
 
-You could donate time in our GitHub Projects or money for the development and pilot projects. Get in touch through info@childgrowthmonitor.org or simply donate at https://www.welthungerhilfe.org/child-growth-monitor/
+You could donate time in our GitHub Projects or money for the development and pilot projects. Get in touch through info@childgrowthmonitor.org or simply donate at https://welthungerhilfe.de/child-growth-monitor-donation
 
 ## Are the decisions that are being taken with the app correct?
 

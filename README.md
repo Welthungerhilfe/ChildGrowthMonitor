@@ -3,6 +3,13 @@
 
 Contributing to Zero Hunger through quick, accurate data on malnutrition.
 
+- [Donate!](https://www.welthungerhilfe.org/child-growth-monitor/)
+- [Website](https://ChildGrowthMonitor.org)
+- [Web Demo](https://projects.invisionapp.com/share/YPNXXRNVFCK#/)
+- [App repository](https://github.com/Welthungerhilfe/cgm-scanner)
+- [Machine learning repository](https://github.com/Welthungerhilfe/cgm-ml)
+
+## Table of Contents
 <!-- TOC depthFrom:1 depthTo:3 withLinks:1 updateOnSave:1 orderedList:0 -->
 
 - [Problem](#problem)
@@ -59,7 +66,7 @@ Users can authenticate themselves via username and password. This enables access
 
 ![Image of User Flow](res/CGM_User_Flow.png)
 
-Also see this first [UX Prototype](https://childgrowthmonitor.org/protoio-CGM-html/frame.html)
+Also see this [UX Prototype](https://projects.invisionapp.com/share/YPNXXRNVFCK#/)
 
 **User eXperience (UX)**
 

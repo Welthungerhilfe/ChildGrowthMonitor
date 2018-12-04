@@ -8,8 +8,8 @@ Contributing to Zero Hunger through quick, accurate data on malnutrition.
 - [Problem](#problem)
 - [Solution](#solution)
 	- [Mobile App](#mobile-app)
-	- [Backend](#backend)
-	- [Machine Learning v1.0](#machine-learning-v10)
+	- [App Backend](#app-backend)
+	- [Machine Learning Backend](#machine-learning-backend)
 	- [Machine Learning pipeline](#machine-learning-pipeline)
 - [Data](#data)
 - [Scanning Process](#scanning-process)
@@ -35,7 +35,11 @@ We are providing a game changing solution to detect malnutrition of children and
 
 ### Mobile App
 
-The mobile app provides authenticated users an interface to scan children in 3D with consent of the parents and upload all collected data to the secure backend.
+https://github.com/Welthungerhilfe/cgm-scanner
+
+The mobile app provides authenticated users an interface to scan children in 3D with consent of the parents and upload all collected data to the secure backend. 
+
+Because of the limitations of mobile connectivity in rural areas and in slums with tin roofs **offline first** is a major goal of the project. While the app already works fine in offline environments, results from the scans are currently produced in the cloud. Providing predictions directly on the device is the next big step we are taking, as it would also improve **privacy** by not having to upload every scan.
 
 Currently the App works through person detection and pose estimation and overlaying the this information of the position of 14 points on the body of the child with the 3D point cloud from the Tango API.
 
@@ -48,7 +52,7 @@ The next iteration for the Pilot will guide the user to scan the child in a way 
 
 #### Authentication
 
-Users can authenticate themselves via username and password or Google OAuth. This enables access to download the latest neural network and upload data to Firebase Storage and Database.
+Users can authenticate themselves via username and password. This enables access to download the latest neural network and upload data to Firebase Storage and Database.
 
 
 #### User Flow
@@ -64,13 +68,13 @@ Also see this first [UX Prototype](https://childgrowthmonitor.org/protoio-CGM-ht
 - for the prototype the results of the scanning process will be shown only after input of the traditional measurements and only if more or less accurate
 
 
-### Backend
+### App Backend
 
 Backend is implemented in Google Firebase using Authentication, Database, Storage and Hosting for the Website. 
 
 #### Authentication
 
-Authentication is done via Email-address and password or Google OAuth. 
+Authentication is done via Email-address and password. 
 
 #### Usermanagement
 
@@ -94,9 +98,9 @@ Firebase Database is used for structured data.
 Storage is used for large objects such as rgb video and maybe point clouds.
 
 
-### Machine Learning v1.0
+### Machine Learning Backend
 
-There are many possibilties for developing useful neural networks.
+Development of the machine learning backend is outsourced to https://github.com/Welthungerhilfe/cgm-ml
 
 #### Predict height of a person
 

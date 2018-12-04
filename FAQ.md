@@ -29,9 +29,15 @@ You could donate time in our GitHub Projects or money for the development and pi
 
 ## Are the decisions that are being taken with the app correct?
 
+Currently we are not generating a diagnosis. As we are following a collaborative approach, we want to reuse source code or integrate existing applications from the development sector for that. The roll-out process also involves that we are not only predicting results like height, weight and arm circumference (muac), but that we also provide the information of how good our predictions are for the given scan data.
+
 ## Is the decision-making process transparent?
 
+We think it is very important that decisions that are supported by artificial intelligence are especially transparent. This is one of the reasons why we are licensing all our code under GPLv3. Also our algorithms provides results (height,weight,arm- and head-circumference) that can be manually measured and therefore verified (and improved) by humans. Feedback on scan quality and therefore reliability of the predicted results is also very important.
+
 ## Where do you get the money to build a product like this?
+
+Currently we are funded by donations, mostly of large companies. Additionally Microsoft provides cloud services and experts. Eventually we want to build this into a sustainable non-profit social business.
 
 ## Where can i get more information?
 

@@ -5,7 +5,7 @@ Frequently asked questions
 
 Every child has the right to be healthy! We need to accellerate the fight against hunger with innovations in order to have a chance to reach Zero Hunger by 2030.
 
-## Anyone can see with the naked eye if a child is malnourished!
+## Why do you need to measure? Anyone can see if a child is malnourished!
 
 That is a common misconception. Many people think of starving children with water belly when thinking of hunger. But this is just the most extreme expression of hunger.
 

@@ -9,8 +9,8 @@ Contributing to Zero Hunger through quick, accurate data on malnutrition.
 - [Frequently Asked Questions](https://github.com/Welthungerhilfe/ChildGrowthMonitor/blob/master/FAQ.md)
 - [Website](https://ChildGrowthMonitor.org)
 - [Web Demo](https://projects.invisionapp.com/share/YPNXXRNVFCK#/)
-- [App repository](https://github.com/Welthungerhilfe/cgm-scanner)
-- [Machine learning repository](https://github.com/Welthungerhilfe/cgm-ml)
+- [Tools for developers](https://github.com/Welthungerhilfe/ChildGrowthMonitor/blob/master/Tools.md)
+
 
 ## Table of Contents
 <!-- TOC depthFrom:1 depthTo:3 withLinks:1 updateOnSave:1 orderedList:0 -->

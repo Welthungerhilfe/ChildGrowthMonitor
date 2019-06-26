@@ -145,25 +145,7 @@ Prediction should work offline in the mobile device as well as in the cloud base
 
 ## Data
 
-- Person Node
-	- Id : Person id (Firebase ID)
-	- Name (String)
-	- Surname (String)
-	- Birthday (date)
-	- Age in Month (int)
-	- Sex (String {"female","male","other"})
-	- Qr numbers (sub-collection)
-		- Qr code releated with this child node (String)
-		- Consent of Parent : consent image path (Firebase Storage /data/person/`id`/consent/`timestamp`_`qrcodeid`.png)
-	- Measures (sub-collection)
-		- date of measure (datetime)
-		- type of measure (String {"manual","v1.0"})
-		- Location (gps)
-		- age in days (int)
-		- Height (float)
-		- Weight (float)
-		- MUAC (float)
-		- path of Storage for binary artefacts (Firebase Storage /data/person/`id`/measures/`datetime`/)
+Please refer to our [data description](https://github.com/Welthungerhilfe/ChildGrowthMonitor/blob/master/DataDescription.md)
 
 ## Scanning Process
 

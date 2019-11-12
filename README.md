@@ -59,10 +59,11 @@ The next iteration for the Pilot will guide the user to scan the child in a way 
 
 - Currently Google Project Tango devices only
 - In the future probably all devices with ARkit/ARcore capabilities (iPhone 6s and newer, 100 million Android devices)
+- We are investigating Honor and Huawei devices with ToF sensors and ARengine
 
 #### Authentication
 
-Users can authenticate themselves via username and password. This enables access to download the latest neural network and upload data to Firebase Storage and Database.
+Users can authenticate themselves via username and password. This enables access to download the latest neural network and upload data to Storage and Database.
 
 
 #### User Flow
@@ -80,7 +81,13 @@ Also see this [UX Prototype](https://projects.invisionapp.com/share/YPNXXRNVFCK#
 
 ### App Backend
 
-Backend is implemented in Google Firebase using Authentication, Database, Storage and Hosting for the Website. 
+Backend is implemented in Azure and uses
+
+- Appcenter Authentication with B2C Tenant
+- Appcenter Diagnostics and other features
+- Storage Accounts are used with Queues and Blobs for structured data and scan artifacts
+- PostgreSQL for structured data
+- Grafana for visualization
 
 #### Authentication
 
@@ -89,7 +96,7 @@ Authentication is done via Email-address and password.
 #### Usermanagement
 
 Users have to be activated by admin to download the current neural networks and upload data.
-Registration can be done via mobile app or the website via Firebase Functions.
+We are currently in closed-alpha and allow no self-registration.
 
 #### Rights/Roles
 
@@ -97,15 +104,17 @@ Access to data is granted after scanning the key from a letter of consent of the
 
 #### Organisations
 
-not implemented for Pilot
+Strong separation between App backends and ML backend is implemented, App backend setup is highly automated.
 
 #### Database
 
-Firebase Database is used for structured data. 
+PostgreSQL is used for structured data.
 
 #### Storage
 
-Storage is used for large objects such as rgb video and maybe point clouds.
+Storage Blobs are used for large objects such as rgb video and maybe point clouds.
+
+Storage Queues are used for transfering structured data from app to backend.
 
 
 ### Machine Learning Backend

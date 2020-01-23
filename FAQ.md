@@ -47,6 +47,10 @@ All scientific evidence points to a simple outcome: If parents have healthy chil
 
 Also see https://www.youtube.com/watch?v=obRG-2jurz0
 
+## Does this application give precise outcomes for all the children irrespective of their ethnicity,  topographical and geographical connections ?
+
+
+
 ## Where can i get more information?
 
 - Website: https://childgrowthmonitor.org

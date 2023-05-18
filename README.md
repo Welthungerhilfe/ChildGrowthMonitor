@@ -56,9 +56,9 @@ Because of the limitations of mobile connectivity in rural areas and in slums wi
 Backend is implemented in Azure and uses
 
 - Authentication with an Azure B2C tenant via OAuth2
-- [Vue.js Frontend](https://github.com/Welthungerhilfe/cgm-frontend) for data analysis and cleaning
-- OpenAPI Backend
-- Custom Python ETL processes
+- [Flask API](https://github.com/Welthungerhilfe/cgm-api) for backend
+- [Vue.js Frontend](https://github.com/Welthungerhilfe/cgm-tagging-tool) for data analysis and cleaning
+- Custom Python ETL processes to anonymize data
 - AzureML
 - Storage Accounts are used with Queues and Blobs for structured data and scan artifacts
 - PostgreSQL for structured data
@@ -79,7 +79,7 @@ Development of the machine learning backend happens at [Github ML repo](https://
 
 ## Data
 
-Please refer to our [OpenAPI]([https://github.com/Welthungerhilfe/ChildGrowthMonitor/blob/master/DataDescription.md](https://github.com/Welthungerhilfe/cgm-api/blob/main/backend/openapi/cgm-api.yaml)) description.
+Please refer to our [OpenAPI](https://github.com/Welthungerhilfe/ChildGrowthMonitor/blob/master/DataDescription.md](https://github.com/Welthungerhilfe/cgm-api/blob/main/backend/openapi/cgm-api.yaml) description.
 
 ## Scanning process
 

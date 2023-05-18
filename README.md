@@ -79,7 +79,7 @@ Development of the machine learning backend happens at [Github ML repo](https://
 
 ## Data
 
-Please refer to our [data description](https://github.com/Welthungerhilfe/ChildGrowthMonitor/blob/master/DataDescription.md) or the current OpenAPI 3.0 description.
+Please refer to our [OpenAPI]([https://github.com/Welthungerhilfe/ChildGrowthMonitor/blob/master/DataDescription.md](https://github.com/Welthungerhilfe/cgm-api/blob/main/backend/openapi/cgm-api.yaml)) description.
 
 ## Scanning process
 

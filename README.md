@@ -8,7 +8,7 @@ We provide quick and accurate data on child malnutrition in the most ethical way
 
 - [Donate!](https://welthungerhilfe.de/child-growth-monitor-donation)
 - [Frequently Asked Questions](https://github.com/Welthungerhilfe/ChildGrowthMonitor/blob/master/FAQ.md)
-- [Website](https://ChildGrowthMonitor.org)
+- [Website](https://www.childgrowthmonitor.org)
 
 ## Table of Contents
 <!-- TOC depthFrom:1 depthTo:3 withLinks:1 updateOnSave:1 orderedList:0 -->

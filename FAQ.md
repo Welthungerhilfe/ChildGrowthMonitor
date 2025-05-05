@@ -21,7 +21,7 @@ We "scan" the children with a smartphone app, it is basically like taking a shor
 
 The data belongs to the children and we have merely the right to use it in order to provide basic human rights. We are a non-profit initiative and we take privacy and data security very serious!
 
-Before any data is collected or accessed a informed consent sheet, signed by the parents of the child and containing a QR code needs to be scanned. Data is transmitted and stored only encrypted. Adhering to the need-to-know principle, only the product owner and one admin have access to the full data. An ETL process then removes all personal information before it gets transported into the machine learning backend for predictions and training. Selected Data scientists use our closed JupyterHub environment to access the non-PII data for developing and training their algorithms.
+Before any data is collected or accessed a informed consent sheet, signed by the parents of the child and containing a QR code needs to be scanned. Data is transmitted and stored only encrypted. Adhering to the need-to-know principle, only the select team members have access to the full data. An ETL process then removes all personal information before it gets transported into the machine learning backend for predictions and training. Selected Data scientists use our closed JupyterHub environment to access the non-PII data for developing and training their algorithms.
 
 ## How can i contribute?
 
@@ -33,11 +33,11 @@ Currently we are not generating a diagnosis. As we are following a collaborative
 
 ## Is the decision-making process transparent?
 
-We think it is very important that decisions that are supported by artificial intelligence are especially transparent. This is one of the reasons why we are licensing all our code under GPLv3. Also our algorithms provides results (height,weight,arm- and head-circumference) that can be manually measured and therefore verified (and improved) by humans. Feedback on scan quality and therefore reliability of the predicted results is also very important.
+We think it is very important that decisions that are supported by artificial intelligence are especially transparent. This is one of the reasons why we are licensing most of our code under GPLv3. Also our algorithms provides results (height,weight,arm- and head-circumference) that can be manually measured and therefore verified (and improved) by humans. Feedback on scan quality and therefore reliability of the predicted results is also very important.
 
 ## Where do you get the money to build a product like this?
 
-Currently we are funded by donations, mostly of large companies. Additionally Microsoft provides cloud services and experts. Eventually we want to build this into a sustainable non-profit social business.
+Currently we are funded by donations, mostly of large companies and development agencies. Previously, donors like Microsoft provided cloud services and human expertrise. Eventually we want to build this into a sustainable non-profit social business.
 
 Also we are accepting your donation: https://www.welthungerhilfe.org/child-growth-monitor/
 

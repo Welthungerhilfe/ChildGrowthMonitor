@@ -33,9 +33,7 @@ Parents often don't know that their children are malnourished and take measures 
 Current standardized measurements done by aid organisations and governmental health workers are time consuming and expensive.
 Children are moving, accurate measurement, especially of height, is often not possible.
 
-During the current COVID-19 pandemic the situation has become worse. All manual measurement of children is suspended, because it would not be possible to keep a safe distance.
-
-Bottom line: accurate data on the nutritional status of children is unreliable or non existent
+Bottom line: accurate data on the nutritional status of children is unreliable or non existent.
 
 ## Solution
 
@@ -47,7 +45,7 @@ Our users do a quick scan of a child, similar to recording a video. We use the d
 
 The mobile app provides authenticated users an interface to scan children in 3D with consent of the parents and upload all collected data to the secure backend.
 
-We guide the user to scan the child in a way that a quick, accurate measurement can be taken. This will involves data of the camera and child pose, point clouds and RGB video.
+We guide the user to scan the child in a way that a quick, accurate measurement can be taken. This will involves data of the camera and child pose, depthmap and RGB images.
 
 Because of the limitations of mobile connectivity in rural areas and in slums with tin roofs **offline first** is a major goal of the project. While the app already works fine in offline environments, results from the scans are currently produced in the cloud. Providing predictions directly on the device is the next big step we are taking, as it would also improve **privacy** by not having to upload every scan.
 
@@ -62,7 +60,7 @@ Backend is implemented in Azure and uses
 - AzureML
 - Storage Accounts are used with Queues and Blobs for structured data and scan artifacts
 - PostgreSQL for structured data
-- Grafana for monitoring and evaluation
+- Grafana and Apache Superset for monitoring and evaluation dashboards
 
 #### Database
 
@@ -70,7 +68,7 @@ PostgreSQL is used for structured data.
 
 #### Storage
 
-Storage Blobs are used for large objects such as rgb video and maybe point clouds.
+Storage Blobs are used for large objects such as rgb images and depthmaps.
 Storage Queues are used for transfering structured data from app to backend.
 
 ### Machine Learning Backend
@@ -92,17 +90,17 @@ Before any data is accessed or added our trained team explains to parents in sim
 
 Lastly, the informed consent with the caregivers signature is scanned to document compliance.
 
-The scanning process is broken down into three parts for each standing and lying children. We evaluate scanning results to find the best way of scanning to gather necessary data. Children are wearing underwear.
+The scanning process is broken down into three parts for each standing and lying children. We evaluate scanning results to find the best way of scanning to gather necessary data. Children wear underwears while getting scanned.
 
-### front scan
+### Front scan
 
 The child is scanned from the front.
 
-### Scan from back
+### Back Scan
 
 The child is scanned from the back.
 
-### Side Scan - Right and Left
+### Side Scans - Right and Left
 
 The child is scanned from the side left and side right.
 
@@ -110,15 +108,13 @@ The child is scanned from the side left and side right.
 
 The main advantages of our solution compared to traditional measurement methods are that the Child Growth Monitor:
 
-- delivers gold-standard accuracy measurements
+- delivers accurate anthropometric measurements (close to minimum error threshold)
 - enables anyone with supported smartphone to be an expert for anthropometric measurements
 - is faster
 - is easier to do and less stressful for everyone involved
 - gets rid of unreliable, bulky and expensive hardware
 - eliminates the possibility to manipulate data
 
-We will set up the Child Growth Monitor as a non-profit, open source Social Business. Our goal is to maximize impact, that means ensuring that our users can get children out of hunger.
-
 ### Impact during the corona crisis
 
-Measuring malnutrition has been stopped in many developing countries due to Covid-19. Traditionally, children need to be touched to be measured. Our app offers a no-touch solution.
+Measuring malnutrition had been stopped in many developing countries due to Covid-19. Traditionally, children need to be touched to be measured which was not possible during Covid-19. Our app offers a no-touch solution.

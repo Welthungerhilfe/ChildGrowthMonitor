@@ -102,9 +102,9 @@ The child is scanned from the front.
 
 The child is scanned from the back.
 
-### 360° scan
+### Side Scan - Right and Left
 
-For children that can stand upright, the user asks the child to spread the arms slightly of the body and turn around on the spot 360 degrees. For children that are lying down the user leads the smartphone left and right around the child to get a more detailed 3D image.
+The child is scanned from the side left and side right.
 
 ## Impact
 

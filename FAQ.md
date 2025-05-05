@@ -9,9 +9,9 @@ Every child has the right to be healthy! We need to accellerate the fight agains
 
 That is a common misconception. Many people think of starving children with water belly when thinking of hunger. But this is just the most extreme expression of hunger.
 
-There over 52 million children in the world who are wasting. When it is detected that a child is wasting, it is often already too late. Governments, UN Organisations and NGOs need quick and accurate data to plan efficient programmes and targeted interventions to reach zero hunger.
+There over 45 million children in the world who are wasting. When it is detected that a child is wasting, it is often already too late. Governments, UN Organisations and NGOs need quick and accurate data to plan efficient programmes and targeted interventions to reach zero hunger.
 
-Also there are more than 155 children who are stunting. They will be weaker, more often sick, not be able to concentrate and learn in schools and eventually earn 19% less than their healthy neighbors. **Even health professionals cannot detect this without knowing the age and measuring the child**. So in order to detect stunting mother-child-care centers and community outreach centers measure these children. But current methods of measurement need expensive measuring boards, medical grade scales and trained professionals. Even if these prerequisites are available, measurements take a lot of time and suffer from human error, especially in stressful situations when the children are moving.
+Also there are more than 148 million children who are stunting. They will be weaker, more often sick, not be able to concentrate and learn in schools and eventually earn 19% less than their healthy neighbors. **Even health professionals cannot detect this without knowing the age and measuring the child**. So in order to detect stunting mother-child-care centers and community outreach centers measure these children. But current methods of measurement need expensive measuring boards, medical grade scales and trained professionals. Even if these prerequisites are available, measurements take a lot of time and suffer from human error, especially in stressful situations when the children are moving.
 
 ## How do you detect malnutrition?
 

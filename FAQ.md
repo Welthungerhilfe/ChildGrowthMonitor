@@ -47,6 +47,51 @@ All scientific evidence points to a simple outcome: If parents have healthy chil
 
 Also see https://www.youtube.com/watch?v=obRG-2jurz0
 
+## Does this application give precise outcomes for all the children irrespective of their ethnicity, topographical and geographical connections?
+
+TODO: Data Science
+
+## Can this application be downloaded in any android phone available in the market?
+
+TODO: @lvonasek I think we will need the list of supported phones from #1338 on our website.
+
+## Can anyone use this application? 
+
+TODO: MM
+- Levels of rollout
+
+## how does the data been captured by the application be used?
+
+TODO: Data Science
+
+## How the data has been stored which application collects
+
+TODO: CGM Team
+
+## Does this application require any specific skills to handle?
+
+TODO: CGM Team
+
+## Will this application provide information on child growth over a period of time?
+
+TODO: Data Science
+
+## How can I see the progress of my child after regularly using this application?
+
+TODO: CGM Team
+
+## Can this application predicts the accurate anthropometric measurements of child with clothes on? In winters we can’t remove clothes of child. In such situation can a child with clothes be scanned and get real body data?
+
+TODO: Data Science
+
+## Does this application need any specific environment to scan a child?
+
+TODO: Data Science
+
+## Is there any specific angle at which the picture of the child should be recorded?
+
+TODO: Data Science
+
 ## Where can i get more information?
 
 - Website: https://childgrowthmonitor.org
